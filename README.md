@@ -94,15 +94,14 @@ Example:
 git checkout -b feat/add-user-authentication
 ```
 
-### Before Pushing Code
+### Pre-commit Hooks
 
-**This is a critical step.** Before pushing your code to the remote repository and creating a pull request, you **must** run the test script to ensure there are no type errors.
+To ensure code quality and consistency, this project uses automated pre-commit hooks. Before your code is committed, the following checks are performed automatically:
 
-```sh
-npm run test
-```
+1.  **Linting and Formatting**: `lint-staged` runs ESLint and Prettier on staged files to fix formatting and style issues.
+2.  **Type Checking**: `npm test` (`tsc --noEmit`) runs to check the entire project for any TypeScript errors.
 
-This command (`tsc --noEmit`) checks your TypeScript code for any type-related issues without generating JavaScript files. This step is crucial for maintaining code quality and preventing bugs from being introduced into the codebase.
+If any of these checks fail, the commit will be aborted. This process helps maintain a clean and error-free codebase, so you must ensure your code is free of type errors for the commit to succeed.
 
 ### Pull Requests
 
