@@ -1,0 +1,166 @@
+/* Styles for the Login page two-panel layout */
+:root{
+  --left-bg: #fbf9d9; /* pale yellow */
+  --brand-red: #b90000;
+}
+
+.login-page{
+  height: 100vh;
+  display: flex;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.panel{
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-left{
+  background: var(--left-bg);
+  padding: 48px 56px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.left-header{
+  margin-bottom: 8px;
+}
+
+.logo{
+  width: 110px;
+  height: auto;
+  object-fit: contain;
+}
+
+.left-body{
+  max-width: 460px;
+  width: 100%;
+}
+
+.welcome{
+  font-size: 32px;
+  margin: 0 0 6px 0;
+  color: #111;
+}
+
+.subtitle{
+  margin: 0 0 24px 0;
+  color: #5a5a5a;
+}
+
+.login-form{
+  width: 100%;
+}
+
+.sr-only{
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; /* added line */
+  border: 0;
+}
+
+.input{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,0.18);
+  margin-bottom: 14px;
+  font-size: 14px;
+  background: transparent;
+}
+
+.forgot-wrap{
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.forgot{
+  color: var(--brand-red);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.btn-login{
+  display: block;
+  width: 100%;
+  background: var(--brand-red);
+  color: #fff;
+  padding: 14px;
+  border-radius: 28px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.create-account{
+  font-size: 12px;
+  color: #333;
+  margin-top: 12px;
+}
+
+.panel-right{
+  background: linear-gradient(180deg,#8b0000 0%, #3b0000 100%);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.right-content{
+  max-width: 480px;
+}
+
+.right-title{
+  font-size: 34px;
+  margin: 0;
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+
+.right-subtitle{
+  margin: 8px 0 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.right-desc{
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+/* Responsive: stack panels on narrow screens */
+@media (max-width: 900px){
+  .login-page{
+    flex-direction: column;
+  }
+
+  .panel{
+    min-height: 50vh;
+  }
+
+  .panel-right{
+    order: -1; /* show right panel on top on small screens if desired */
+    padding: 32px 20px;
+    text-align: center;
+  }
+
+  .left-header{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .left-body{
+    padding: 0 18px;
+  }
+}
