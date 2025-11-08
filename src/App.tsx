@@ -1,21 +1,25 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import { RouteConstant } from "@/constants/routes";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import ForgotPassword from "./pages/ForgotPassword";
+import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Redirect root to login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/"
+          element={<Navigate to={RouteConstant.login} replace />}
+        />
 
         {/* Auth routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path={RouteConstant.login} element={<Login />} />
+        <Route path={RouteConstant.signup} element={<Signup />} />
+        <Route path={RouteConstant.forgetPwd} element={<ForgotPassword />} />
+        <Route path={RouteConstant.resetPwd} element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
