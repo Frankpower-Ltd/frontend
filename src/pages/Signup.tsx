@@ -1,3 +1,5 @@
+import companyLogo from "@/assets/images/company-logo.png";
+import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
 import { Link } from "react-router";
 
@@ -28,7 +30,7 @@ const Signup = () => {
         <header className="mb-2">
           <img
             className="w-28 h-auto object-contain"
-            src="src/assets/company-logo.png"
+            src={companyLogo}
             alt="Company logo"
           />
         </header>
@@ -103,7 +105,10 @@ const Signup = () => {
 
             <p className="text-xs text-gray-700 mt-3">
               Already have an account?{" "}
-              <Link to="/login" className="text-[#b90000] hover:underline">
+              <Link
+                to={RouteConstant.login}
+                className="text-[#b90000] hover:underline"
+              >
                 Login here
               </Link>
             </p>

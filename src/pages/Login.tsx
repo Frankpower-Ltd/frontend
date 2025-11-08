@@ -1,3 +1,5 @@
+import companyLogo from "@/assets/images/company-logo.png";
+import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
 import { Link } from "react-router";
 
@@ -18,7 +20,7 @@ const Login = () => {
           {/* Replace src with your logo path (e.g. /assets/logo.png or import) */}
           <img
             className="w-28 h-auto object-contain"
-            src="src/assets/company-logo.png"
+            src={companyLogo}
             alt="Company logo"
           />
         </header>
@@ -56,7 +58,7 @@ const Login = () => {
 
             <div className="flex justify-start w-full mb-2.5">
               <Link
-                to="/forgot-password"
+                to={RouteConstant.forgetPwd}
                 className="text-[#b90000] text-sm no-underline hover:underline"
               >
                 Forgot password?
@@ -72,7 +74,10 @@ const Login = () => {
 
             <p className="text-xs text-gray-700 mt-3">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-[#b90000] hover:underline">
+              <Link
+                to={RouteConstant.signup}
+                className="text-[#b90000] hover:underline"
+              >
                 Create an account
               </Link>
             </p>

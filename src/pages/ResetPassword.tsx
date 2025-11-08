@@ -1,3 +1,5 @@
+import companyLogo from "@/assets/images/company-logo.png";
+import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
 import { Link } from "react-router";
 
@@ -26,7 +28,7 @@ const ResetPassword = () => {
         <header className="mb-2">
           <img
             className="w-28 h-auto object-contain"
-            src="src/assets/company-logo.png"
+            src={companyLogo}
             alt="Company logo"
           />
         </header>
@@ -73,7 +75,10 @@ const ResetPassword = () => {
 
             <p className="text-xs text-gray-700 mt-3">
               Remember your old password?{" "}
-              <Link to="/login" className="text-[#b90000] hover:underline">
+              <Link
+                to={RouteConstant.login}
+                className="text-[#b90000] hover:underline"
+              >
                 Back to login
               </Link>
             </p>
