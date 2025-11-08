@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
-const Signup: React.FC = () => {
+const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,7 +23,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col md:flex-row font-sans">
+    <div className="h-screen flex flex-col md:flex-row">
       <div className="flex-1 flex flex-col bg-[#fbf9d9] px-6 md:px-14 py-12 justify-center items-center md:items-start">
         <header className="mb-2">
           <img

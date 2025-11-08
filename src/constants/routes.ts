@@ -1,4 +1,6 @@
 export const RouteConstant = {
   login: "/auth/login",
-  homePage: "/",
+  signup: "/auth/signup",
+  forgetPwd: "/auth/forgot-password",
+  resetPwd: "/auth/reset-password",
 } as const;
