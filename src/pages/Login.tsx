@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import logo from "../assets/company-logo.png";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -7,18 +8,17 @@ const Login: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up login action
+
     console.log("login", { email, password });
   };
 
   return (
     <div className="h-screen flex flex-col md:flex-row font-sans">
-      <div className="flex-1 flex flex-col bg-[#fbf9d9] px-6 md:px-14 py-12 justify-center items-center md:items-start">
+      <div className="flex-1 flex flex-col bg-[#fff] md:px-14 py-12 justify-center items-center md:items-start">
         <header className="mb-2">
-          {/* Replace src with your logo path (e.g. /assets/logo.png or import) */}
           <img
             className="w-28 h-auto object-contain"
-            src="src/assets/company-logo.png"
+            src={logo}
             alt="Company logo"
           />
         </header>

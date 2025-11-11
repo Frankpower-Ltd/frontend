@@ -12,7 +12,7 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col md:flex-row font-sans">
-      <div className="flex-1 flex flex-col bg-[#fbf9d9] px-6 md:px-14 py-12 justify-center items-center md:items-start">
+      <div className="flex-1 flex flex-col bg-[#fff] px-6 md:px-14 py-12 justify-center items-center md:items-start">
         <header className="mb-2">
           <img
             className="w-28 h-auto object-contain"
