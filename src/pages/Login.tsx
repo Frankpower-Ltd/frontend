@@ -9,7 +9,7 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up login action
+
     console.log("login", { email, password });
   };
 
@@ -17,7 +17,6 @@ const Login = () => {
     <div className="h-screen flex flex-col md:flex-row">
       <div className="flex-1 flex flex-col bg-[#fbf9d9] px-6 md:px-14 py-12 justify-center items-center md:items-start">
         <header className="mb-2">
-          {/* Replace src with your logo path (e.g. /assets/logo.png or import) */}
           <img
             className="w-28 h-auto object-contain"
             src={companyLogo}
