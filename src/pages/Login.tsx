@@ -80,7 +80,7 @@ const Login: React.FC = () => {
         </main>
       </div>
 
-      <aside className="hidden md:flex md:flex-1 md:flex-col items-center justify-center px-12 py-12 bg-gradient-to-b from-[#8b0000] to-[#3b0000] text-white">
+      <aside className="hidden md:flex md:flex-1 md:flex-col items-center justify-center px-12 py-12 bg-gradient-to-b from-[#3b0000] to-[#8b0000] text-white">
         <div className="max-w-[480px]">
           <h2 className="text-[34px] m-0 tracking-wide font-extrabold">
             REVOLUTIONIZING
