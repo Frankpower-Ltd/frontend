@@ -3,4 +3,7 @@ export const RouteConstant = {
   signup: "/auth/signup",
   forgetPwd: "/auth/forgot-password",
   resetPwd: "/auth/reset-password",
+  contact: "/contact",
+  programs: "/programs",
+  alumni: "/alumni",
 } as const;

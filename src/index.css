@@ -124,4 +124,19 @@
   body {
     @apply bg-background text-foreground font-inter;
   }
+
+  button {
+    @apply cursor-pointer
+  }
+}
+
+
+.primary-gradient {
+  background: linear-gradient(102.57deg, #BE1515 -4.64%, #730D0D 77.88%);
+}
+
+.hero-bg {
+  background-image: url("./assets/images/hero-background.png");
+  background-size: cover;
+  background-position: center;
 }

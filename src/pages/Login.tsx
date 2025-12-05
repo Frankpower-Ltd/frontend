@@ -9,15 +9,14 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up login action
+
     console.log("login", { email, password });
   };
 
   return (
-    <div className="h-screen flex flex-col md:flex-row">
-      <div className="flex-1 flex flex-col bg-[#fbf9d9] px-6 md:px-14 py-12 justify-center items-center md:items-start">
+    <div className="h-screen flex flex-col md:flex-row font-sans">
+      <div className="flex-1 flex flex-col bg-white md:px-14 py-12 justify-center items-center md:items-start">
         <header className="mb-2">
-          {/* Replace src with your logo path (e.g. /assets/logo.png or import) */}
           <img
             className="w-28 h-auto object-contain"
             src={companyLogo}
@@ -85,7 +84,7 @@ const Login = () => {
         </main>
       </div>
 
-      <aside className="hidden md:flex md:flex-1 md:flex-col items-center justify-center px-12 py-12 bg-gradient-to-b from-[#8b0000] to-[#3b0000] text-white">
+      <aside className="hidden md:flex md:flex-1 md:flex-col items-center justify-center px-12 py-12 bg-gradient-to-b from-[#3b0000] to-[#8b0000] text-white">
         <div className="max-w-[480px]">
           <h2 className="text-[34px] m-0 tracking-wide font-extrabold">
             REVOLUTIONIZING
