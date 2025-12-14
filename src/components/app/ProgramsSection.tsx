@@ -44,7 +44,7 @@ const programsData: IProgramData[] = [
 
 const ProgramsSection: React.FC = () => {
   return (
-    <section className="py-20 bg-gray-50 px-10">
+    <section className="py-20 bg-gray-50 px-5 sm:px-10">
       {/* Section Header */}
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold font-playfair text-gray-900 mb-4">

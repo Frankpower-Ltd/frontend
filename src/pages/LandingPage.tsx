@@ -1,3 +1,6 @@
+import CTASection from "@/components/app/CTASection";
+import FaqSection from "@/components/app/FaqSection";
+import Footer from "@/components/app/Footer";
 import React from "react";
 import ChoosePathSection from "../components/app/ChoosePathSection";
 import Header from "../components/app/Header";
@@ -12,8 +15,9 @@ const LandingPage: React.FC = () => {
         <ProgramsSection />
         <ChoosePathSection />
         <TestimonialsSection />
-
-        {/* Add Footer component here once available */}
+        <FaqSection />
+        <CTASection />
+        <Footer />
       </div>
     </>
   );

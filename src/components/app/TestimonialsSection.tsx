@@ -24,7 +24,7 @@ const testimonialsData = [
 
 const TestimonialsSection: React.FC = () => {
   return (
-    <section className="py-20 bg-gray-50 px-10">
+    <section className="py-20 bg-gray-50 px-5 sm:px-10">
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold font-playfair text-gray-900 mb-4">
           Testimonials
@@ -47,7 +47,12 @@ const TestimonialsSection: React.FC = () => {
       </div>
 
       <div className="text-center">
-        <button className="bg-[#ff0000] text-white font-bold py-3 px-10 rounded-lg hover:bg-[#8b0000] transition-colors shadow-lg">
+        <button
+          className="text-white font-bold py-2.5 px-8 rounded-lg transition-all shadow-lg hover:scale-[1.05] duration-200"
+          style={{
+            background: "linear-gradient(98.19deg, #CF0101 5.1%, #610101 100%)",
+          }}
+        >
           View All
         </button>
       </div>

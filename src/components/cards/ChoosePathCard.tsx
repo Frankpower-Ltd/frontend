@@ -1,6 +1,7 @@
 // src/components/ChoosePathCard.tsx
-import React from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/solid"; // Assuming you use Heroicons or similar
+import { CheckCircle } from "lucide-react";
+import React from "react";
 
 interface ChoosePathCardProps {
   title: string;
@@ -15,7 +16,7 @@ const ChoosePathCard: React.FC<ChoosePathCardProps> = ({
 }) => {
   const cardClass = isPrimary
     ? "bg-[#8b0000] text-white"
-    : "bg-[#ff0000] text-white";
+    : "bg-[#730D0D] text-white";
   const buttonClass = isPrimary
     ? "bg-white text-red-700 hover:bg-gray-100"
     : "bg-white text-red-700 hover:bg-gray-100";
@@ -32,9 +33,10 @@ const ChoosePathCard: React.FC<ChoosePathCardProps> = ({
 
         <ul className="space-y-3 mb-8">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-start text-lg">
-              <span className="mr-3 mt-1 text-green-300">•</span>
-              {feature}
+            <li key={index} className="flex items-start text-lg gap-3">
+              {/* <span className="mr-3 mt-1 text-green-300">•</span> */}
+              <CheckCircle className="w-5 h-5 text-green-200 shrink-0 mt-0.5" />
+              <span>{feature}</span>
             </li>
           ))}
         </ul>
