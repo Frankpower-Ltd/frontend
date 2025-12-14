@@ -19,7 +19,7 @@ const ChoosePathSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-white px-10">
+    <section className="py-20 bg-white px-5 sm:px-10">
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold font-playfair text-gray-900 mb-4">
           Choose Your Own Path

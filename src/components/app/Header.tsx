@@ -16,26 +16,26 @@ const Header: React.FC = () => {
       </div>
 
       <div className="flex gap-4">
-        <div className="relative z-10 flex flex-col justify-center items-start pt-16 pb-24 px-20 text-white max-w-5xl w-3/5">
-          <h1 className="text-7xl font-extrabold font-playfair mb-6">
+        <div className="relative flex flex-col justify-center items-start pt-16 pb-24 px-5 sm:px-8 lg:px-20 text-white max-w-5xl md:w-3/5 w-full">
+          <h1 className="xl:text-7xl md:text-6xl text-5xl font-extrabold font-playfair mb-6">
             FRANKPOWER
           </h1>
-          <p className="text-xl font-inter mb-14 max-w-3xl leading-8">
+          <p className="text-lg sm:text-xl font-inter mb-14 max-w-3xl leading-8">
             Gain hands-on experience through industry-recognized SIWES
             internships and professional tech programs designed to accelerate
             your growth, sharpen your skills, and prepare you for real-world
             innovation.
           </p>
 
-          <div className="flex gap-8">
+          <div className="flex sm:gap-8 gap-5">
             <Link
-              className="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white hover:text-red-700 transition-all text-xl shadow-sm duration-200"
+              className="bg-transparent border-2 border-white text-white font-bold py-3 md:px-8 px-5 rounded-full hover:bg-white hover:text-red-700 transition-all text-lg md:text-xl shadow-sm duration-200"
               to={RouteConstant.signup}
             >
               Start Application
             </Link>
             <Link
-              className=" text-white font-bold py-3 px-10 rounded-full border-2 border-white transition-all duration-200 text-lg bg-white/20 hover:bg-white hover:text-red-700 "
+              className=" text-white font-bold py-3 md:px-10 px-5 rounded-full border-2 border-white transition-all duration-200 text-lg bg-white/20 hover:bg-white hover:text-red-700 "
               to={RouteConstant.programs}
             >
               Programs
