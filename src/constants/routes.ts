@@ -6,4 +6,7 @@ export const RouteConstant = {
   contact: "/contact",
   programs: "/programs",
   alumni: "/alumni",
+  about: "/about",
+  faqs: "/faqs", // Add this line
+  apply: "/apply",
 } as const;
