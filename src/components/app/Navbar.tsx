@@ -52,7 +52,6 @@ const Navbar: React.FC = () => {
         <NavLink to={RouteConstant.programs}>Programs</NavLink>
         <NavLink to={RouteConstant.contact}>Contact</NavLink>
         <NavLink to={RouteConstant.alumni}>Alumni</NavLink>
-        <NavLink to={RouteConstant.about}>About Us</NavLink>
       </nav>
 
       {/* Right - Desktop Action Buttons */}
@@ -132,18 +131,11 @@ const Navbar: React.FC = () => {
                 <NavLink to="/" onClick={() => setIsMenuOpen(false)}>
                   Home
                 </NavLink>
-
                 <NavLink
                   to={RouteConstant.programs}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Programs
-                </NavLink>
-                <NavLink
-                  to={RouteConstant.about}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  About Us
                 </NavLink>
                 <NavLink
                   to={RouteConstant.contact}
