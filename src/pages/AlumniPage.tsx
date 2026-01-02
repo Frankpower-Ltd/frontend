@@ -1,20 +1,21 @@
 // src/pages/AlumniPage.tsx
-import { useRef } from "react";
+import Footer from "@/components/app/Footer";
+import Navbar from "@/components/app/Navbar";
+import { RouteConstant } from "@/constants/routes";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
 import {
-  Users,
   Briefcase,
+  ChevronRight,
+  Globe,
   GraduationCap,
+  Play,
+  Quote,
   Star,
   TrendingUp,
-  Globe,
-  Quote,
-  ChevronRight,
-  Play,
+  Users,
 } from "lucide-react";
-import Navbar from "@/components/app/Navbar";
-import Footer from "@/components/app/Footer";
+import { useRef } from "react";
+import { Link } from "react-router";
 
 const AlumniPage = () => {
   const sectionRef = useRef(null);
@@ -425,7 +426,7 @@ const AlumniPage = () => {
 
                 <motion.div whileHover={{ scale: 1.02 }} className="w-full">
                   <Link
-                    to="/signup"
+                    to={RouteConstant.signup}
                     className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg hover:shadow-lg transition-all duration-300 group"
                   >
                     <GraduationCap className="h-5 w-5" />
@@ -543,7 +544,7 @@ const AlumniPage = () => {
               transition={{ delay: 0.2 }}
             >
               <Link
-                to="/signup"
+                to={RouteConstant.signup}
                 className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
               >
                 Apply Now

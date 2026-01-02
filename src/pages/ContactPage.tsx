@@ -1,20 +1,21 @@
 // src/pages/ContactPage.tsx
-import React, { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { Link } from "react-router";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  Send,
-  CheckCircle,
-  MessageSquare,
-  User,
-  ChevronRight,
-} from "lucide-react";
-import Navbar from "@/components/app/Navbar";
 import Footer from "@/components/app/Footer";
+import Navbar from "@/components/app/Navbar";
+import { RouteConstant } from "@/constants/routes";
+import { motion, useInView } from "framer-motion";
+import {
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Send,
+  User,
+} from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Link } from "react-router";
 
 const ContactPage = () => {
   const sectionRef = useRef(null);
@@ -386,7 +387,7 @@ const ContactPage = () => {
                     { label: "Programs Overview", href: "/programs" },
                     { label: "SIWES Requirements", href: "/programs#siwes" },
                     { label: "Application Process", href: "/apply" },
-                    { label: "Student Portal", href: "/login" },
+                    { label: "Student Portal", href: RouteConstant.login },
                   ].map((link, index) => (
                     <Link
                       key={index}
@@ -510,7 +511,7 @@ const ContactPage = () => {
               transition={{ delay: 0.2 }}
             >
               <Link
-                to="/signup"
+                to={RouteConstant.signup}
                 className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
               >
                 Apply Now

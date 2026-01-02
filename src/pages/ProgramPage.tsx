@@ -1,21 +1,22 @@
 // src/pages/ProgramsPage.tsx
-import { useRef } from "react";
+import Footer from "@/components/app/Footer";
+import Navbar from "@/components/app/Navbar";
+import { RouteConstant } from "@/constants/routes";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
 import {
-  Shield,
-  Code,
-  Palette,
-  Database,
-  Clock,
-  Users,
+  ArrowRight,
   Award,
   CheckCircle,
   ChevronRight,
-  ArrowRight,
+  Clock,
+  Code,
+  Database,
+  Palette,
+  Shield,
+  Users,
 } from "lucide-react";
-import Navbar from "@/components/app/Navbar";
-import Footer from "@/components/app/Footer";
+import { useRef } from "react";
+import { Link } from "react-router";
 
 const ProgramsPage = () => {
   const sectionRef = useRef(null);
@@ -266,7 +267,7 @@ const ProgramsPage = () => {
                       whileTap={{ scale: 0.95 }}
                     >
                       <Link
-                        to="/signup"
+                        to={RouteConstant.signup}
                         className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
                       >
                         Enroll Now
@@ -457,7 +458,7 @@ const ProgramsPage = () => {
               transition={{ delay: 0.2 }}
             >
               <Link
-                to="/signup"
+                to={RouteConstant.signup}
                 className="inline-flex items-center justify-center gap-2 bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
               >
                 Start Application
