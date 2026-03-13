@@ -1,16 +1,61 @@
 import companyLogo from "@/assets/images/company-logo.png";
 import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import api from "@/utils/api";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (submitError) setSubmitError(null);
+    if (submitMessage) setSubmitMessage(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitMessage(null);
 
-    console.log("login", { email, password });
+    try {
+      const response = await api.login(
+        formData.email.trim(),
+        formData.password.trim(),
+      );
+
+      if (!response.success) {
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.message || response.error?.message || "Login failed";
+        setSubmitError(errorMessage);
+        return;
+      }
+
+      const accessToken = response.data?.accessToken;
+      if (accessToken) {
+        api.setToken(accessToken, "user");
+      }
+
+      setSubmitMessage(response.message || "Login successful");
+      setFormData({ email: "", password: "" });
+      navigate(RouteConstant.dashboard);
+    } catch (error) {
+      console.error("Login error:", error);
+      setSubmitError("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -28,17 +73,29 @@ const Login = () => {
           <h1 className="text-3xl text-gray-900 mb-1.5">Welcome Back!</h1>
           <p className="text-gray-600 mb-6">Log into your account</p>
 
+          {submitError && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
+          {submitMessage && (
+            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {submitMessage}
+            </div>
+          )}
+
           <form className="w-full" onSubmit={handleSubmit}>
             <label className="sr-only" htmlFor="email">
               Email
             </label>
             <input
               id="email"
+              name="email"
               className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
               type="email"
               placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               required
             />
 
@@ -47,11 +104,12 @@ const Login = () => {
             </label>
             <input
               id="password"
+              name="password"
               className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
               type="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               required
             />
 
@@ -65,10 +123,11 @@ const Login = () => {
             </div>
 
             <button
-              className="w-full bg-[#b90000] text-white py-3.5 rounded-3xl font-bold cursor-pointer mt-1.5 hover:bg-[#a00000] transition-colors"
+              className="w-full bg-[#b90000] text-white py-3.5 rounded-3xl font-bold cursor-pointer mt-1.5 hover:bg-[#a00000] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={isSubmitting}
             >
-              Login
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
 
             <p className="text-xs text-gray-700 mt-3">

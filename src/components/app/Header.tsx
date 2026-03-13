@@ -268,7 +268,7 @@ const Header: React.FC = () => {
             className="flex items-center gap-2 mb-4"
           >
             <motion.div>
-              <Sparkles className="h-6 w-6 text-yellow-300" />
+              {/*<Sparkles className="h-6 w-6 text-yellow-300" />*/}
             </motion.div>
             <span className="text-yellow-300 font-semibold tracking-wider uppercase text-sm">
               Industry-Leading Tech Education

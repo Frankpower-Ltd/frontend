@@ -47,9 +47,10 @@ const ChoosePathSection: React.FC = () => {
       scale: 1,
       filter: "blur(0px)",
       transition: {
+        duration: 0.2,
         type: "spring" as const,
-        stiffness: 100,
-        damping: 15,
+        stiffness: 5000,
+        damping: 60,
         mass: 1,
       },
     },
@@ -66,7 +67,7 @@ const ChoosePathSection: React.FC = () => {
       y: 0,
       filter: "blur(0px)",
       transition: {
-        duration: 0.8,
+        duration: 0.4,
         ease: "easeOut" as const,
         delay: 0.2,
       },
@@ -78,8 +79,8 @@ const ChoosePathSection: React.FC = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.4,
-        delayChildren: 0.5,
+        staggerChildren: 0.2,
+        delayChildren: 0.2,
       },
     },
   };
@@ -182,7 +183,7 @@ const ChoosePathSection: React.FC = () => {
         {/* SIWES Card */}
         <motion.div variants={cardVariants} custom={true} className="relative">
           {/* Static icon (no infinite animation) */}
-          <div className="absolute -top-6 -left-6 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-20">
+          {/*<div className="absolute -top-6 -left-6 w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg z-20">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-white"
@@ -197,7 +198,7 @@ const ChoosePathSection: React.FC = () => {
                 d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"
               />
             </svg>
-          </div>
+          </div> */}
 
           <ChoosePathCard
             title="SIWES Internship"
@@ -209,7 +210,7 @@ const ChoosePathSection: React.FC = () => {
         {/* Academic Programs Card */}
         <motion.div variants={cardVariants} custom={false} className="relative">
           {/* Static icon (no infinite animation) */}
-          <div className="absolute -top-6 -right-6 w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center shadow-lg z-20">
+          {/* <div className="absolute -top-6 -right-6 w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center shadow-lg z-20">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-white"
@@ -224,7 +225,7 @@ const ChoosePathSection: React.FC = () => {
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
               />
             </svg>
-          </div>
+          </div> */}
 
           <ChoosePathCard
             title="Academic Programs"
