@@ -1,19 +1,20 @@
 // src/pages/AboutPage.tsx
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { Link } from "react-router";
-import {
-  Users,
-  Target,
-  Award,
-  Globe,
-  ChevronRight,
-  Calendar,
-  BarChart,
-  Heart,
-} from "lucide-react";
-import Navbar from "@/components/app/Navbar";
 import Footer from "@/components/app/Footer";
+import Navbar from "@/components/app/Navbar";
+import { RouteConstant } from "@/constants/routes";
+import { motion, useInView } from "framer-motion";
+import {
+  Award,
+  BarChart,
+  Calendar,
+  ChevronRight,
+  Globe,
+  Heart,
+  Target,
+  Users,
+} from "lucide-react";
+import { useRef } from "react";
+import { Link } from "react-router";
 
 const AboutPage = () => {
   const sectionRef = useRef(null);
@@ -354,7 +355,7 @@ const AboutPage = () => {
               transition={{ delay: 0.2 }}
             >
               <Link
-                to="/signup"
+                to={RouteConstant.signup}
                 className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
               >
                 Apply Now
