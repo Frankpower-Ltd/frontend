@@ -7,6 +7,14 @@ export const RouteConstant = {
   programs: "/programs",
   alumni: "/alumni",
   about: "/about",
-  faqs: "/faqs", // Add this line
+  faqs: "/faqs",
   apply: "/apply",
+  dashboard: "/dashboard",
+  studentsform: "/form",
+  assignments: "/dashboard/assignments",
+  achievements: "/dashboard/achievements",
+  studyGroups: "/dashboard/groups",
+  schedule: "/dashboard/schedule",
+  myCourses: "/dashboard/courses",
+  overview: "/dashboard",
 } as const;

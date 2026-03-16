@@ -1,15 +1,44 @@
 import companyLogo from "@/assets/images/company-logo.png";
 import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import api from "@/utils/api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitMessage(null);
 
-    console.log("forgot password", { email });
+    try {
+      const response = await api.forgotPassword(email.trim());
+
+      if (!response.success) {
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.message || response.error?.message || "Request failed";
+        setSubmitError(errorMessage);
+        return;
+      }
+
+      setSubmitMessage(
+        response.message || "Password reset token sent successfully",
+      );
+      setTimeout(() => navigate(RouteConstant.resetPwd), 1200);
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      setSubmitError("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -29,6 +58,17 @@ const ForgotPassword = () => {
             Enter your email to reset your password
           </p>
 
+          {submitError && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
+          {submitMessage && (
+            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {submitMessage}
+            </div>
+          )}
+
           <form className="w-full" onSubmit={handleSubmit}>
             <label className="sr-only" htmlFor="email">
               Email
@@ -44,10 +84,11 @@ const ForgotPassword = () => {
             />
 
             <button
-              className="w-full bg-[#b90000] text-white py-3.5 rounded-3xl font-bold cursor-pointer mt-1.5 hover:bg-[#a00000] transition-colors"
+              className="w-full bg-[#b90000] text-white py-3.5 rounded-3xl font-bold cursor-pointer mt-1.5 hover:bg-[#a00000] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
+              disabled={isSubmitting}
             >
-              Reset Password
+              {isSubmitting ? "Sending reset token..." : "Reset password"}
             </button>
 
             <p className="text-xs text-gray-700 mt-3">
@@ -70,8 +111,8 @@ const ForgotPassword = () => {
           </h2>
           <h3 className="text-sm font-bold my-2 mb-3">SECURE & SIMPLE</h3>
           <p className="opacity-95 leading-relaxed">
-            We'll help you get back to your account safely. Check your email for
-            instructions after submitting your request.
+            Check your email for a reset token, then complete your password
+            reset.
           </p>
         </div>
       </aside>

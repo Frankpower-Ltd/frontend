@@ -14,8 +14,8 @@ const CTASection = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1,
+        staggerChildren: 0,
+        delayChildren: 0,
       },
     },
   };
@@ -31,9 +31,10 @@ const CTASection = () => {
       y: 0,
       filter: "blur(0px)",
       transition: {
+        duration: 0.3,
         type: "spring" as const,
-        stiffness: 100,
-        damping: 20,
+        stiffness: 1000,
+        damping: 60,
         mass: 1,
       },
     },

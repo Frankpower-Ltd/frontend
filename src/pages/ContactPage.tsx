@@ -2,8 +2,10 @@
 import Footer from "@/components/app/Footer";
 import Navbar from "@/components/app/Navbar";
 import { RouteConstant } from "@/constants/routes";
+import api from "@/utils/api";
 import { motion, useInView } from "framer-motion";
 import {
+  AlertCircle,
   CheckCircle,
   ChevronRight,
   Clock,
@@ -17,31 +19,113 @@ import {
 import React, { useRef, useState } from "react";
 import { Link } from "react-router";
 
+interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+}
+
 const ContactPage = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     subject: "",
     message: "",
+    firstName: "",
+    lastName: "",
+    username: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Update the handleSubmit function in ContactPage.tsx:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Simulate API call
-    setTimeout(() => {
+    // Validate required fields
+    if (!formData.subject.trim()) {
+      setSubmitError(
+        "Subject is required. Please enter a subject for your message.",
+      );
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      return;
+    }
 
-      // Reset success message after 5 seconds
-      setTimeout(() => setIsSubmitted(false), 5000);
-    }, 1500);
+    if (!formData.message.trim()) {
+      setSubmitError("Message is required. Please enter your message.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Prepare the data object with all required fields
+      const messageData = {
+        message: formData.message.trim(),
+        email: formData.email.trim(),
+        name: formData.name.trim(),
+        subject: formData.subject.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        username: formData.username.trim(),
+      };
+
+      // Call the API
+      const response = await api.sendMessage(
+        messageData.message,
+        messageData.email,
+        messageData.name,
+        messageData.subject,
+        messageData.firstName,
+        messageData.lastName,
+        messageData.username,
+      );
+
+      console.log("API Response:", response); // For debugging
+
+      if (response.success || response.data) {
+        // Success
+        setIsSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+          firstName: "",
+          lastName: "",
+          username: "",
+        });
+
+        // Reset success message after 5 seconds
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        // API returned error
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.message ||
+              response.error?.message ||
+              "Failed to send message. Please try again.";
+        setSubmitError(errorMessage);
+      }
+    } catch (error) {
+      // Network or unexpected error
+      console.error("Error sending message:", error);
+      setSubmitError(
+        "Network error. Please check your connection and try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -51,6 +135,10 @@ const ContactPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear any existing errors when user starts typing
+    if (submitError) {
+      setSubmitError(null);
+    }
   };
 
   // Contact info data
@@ -237,6 +325,17 @@ const ContactPage = () => {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {submitError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3"
+                    >
+                      <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">{submitError}</span>
+                    </motion.div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Full Name
@@ -247,8 +346,8 @@ const ContactPage = () => {
                       </div>
                       <input
                         type="text"
-                        name="name"
-                        value={formData.name}
+                        name="username"
+                        value={formData.username}
                         onChange={handleChange}
                         required
                         className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
@@ -304,6 +403,22 @@ const ContactPage = () => {
                       rows={6}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 resize-none"
                       placeholder="Tell us how we can help you..."
+                    />
+                  </div>
+
+                  {/* Optional First Name and Last Name fields (hidden but included in formData) */}
+                  <div className="hidden">
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                    />
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
                     />
                   </div>
 

@@ -50,7 +50,7 @@ const TestimonialsSection: React.FC = () => {
       y: 0,
       filter: "blur(0px)",
       transition: {
-        duration: 0.8,
+        duration: 0.4,
         ease: [0.6, -0.05, 0.01, 0.99] as const,
       },
     },

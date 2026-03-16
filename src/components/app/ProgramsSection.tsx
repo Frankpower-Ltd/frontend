@@ -99,8 +99,8 @@ const ProgramsSection: React.FC = () => {
       filter: "blur(0px)",
       transition: {
         type: "spring" as const,
-        stiffness: 100,
-        damping: 20,
+        stiffness: 5000,
+        damping: 60,
         mass: 1,
       },
     },
@@ -128,8 +128,8 @@ const ProgramsSection: React.FC = () => {
     visible: {
       width: 96,
       transition: {
-        delay: 0.5,
-        duration: 0.8,
+        delay: 0.2,
+        duration: 0.4,
         ease: "easeOut" as const,
       },
     },
