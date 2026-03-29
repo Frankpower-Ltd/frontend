@@ -1,5 +1,16 @@
 import { RouteConstant } from "@/constants/routes";
-import { BrowserRouter, Route, Routes } from "react-router";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+  useParams,
+} from "react-router";
+
+const CourseRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/dashboard/courses/${id}/lessons/lesson-1`} replace />;
+};
 import ForgotPassword from "./pages/ForgotPassword";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -19,6 +30,9 @@ import Achievements from "./pages/Achievements";
 import StudyGroups from "./pages/StudyGroups";
 //import CourseLesson from "./pages/Lesson";
 import Lesson from "./pages/Lesson";
+import PhysicalClassHub from "./pages/PhysicalClassHub";
+import ApplicationFlow from "./pages/ApplicationFlow";
+import MyApplications from "./pages/MyApplications";
 
 function App() {
   return (
@@ -37,10 +51,16 @@ function App() {
         // App.tsx - Update the dashboard routes
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
+          <Route path="apply" element={<ApplicationFlow />} />
+          <Route path="applications" element={<MyApplications />} />
           <Route path="courses" element={<MyCourses />} />
           <Route
             path="courses/:courseId/lessons/:lessonId"
             element={<Lesson />}
+          />
+          <Route
+            path="physical-course/:courseId"
+            element={<PhysicalClassHub />}
           />
           <Route path="schedule" element={<Schedule />} />
           <Route path="groups" element={<StudyGroups />} />
@@ -56,6 +76,7 @@ function App() {
         <Route path={RouteConstant.achievements} element={<Achievements/>} />
         <Route path={RouteConstant.studyGroups} element={<StudyGroups/>} />
 */}
+        <Route path="/course/:id" element={<CourseRedirect />} />
         {/* Landing Page route */}
         <Route path="/" element={<LandingPage />} />
       </Routes>

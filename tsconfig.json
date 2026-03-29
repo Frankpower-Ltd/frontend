@@ -1,12 +1,28 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
   "compilerOptions": {
+    "types": [
+      "vite/client"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@icons": ["./src/assets/icons/*"],
-      "@images": ["./src/assets/images/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@icons": [
+        "./src/assets/icons/*"
+      ],
+      "@images": [
+        "./src/assets/images/*"
+      ]
     }
   }
 }
