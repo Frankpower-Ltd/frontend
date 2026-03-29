@@ -9,6 +9,8 @@ export const RouteConstant = {
   about: "/about",
   faqs: "/faqs",
   apply: "/apply",
+  dashboardApply: "/dashboard/apply",
+  dashboardApplications: "/dashboard/applications",
   dashboard: "/dashboard",
   studentsform: "/form",
   assignments: "/dashboard/assignments",

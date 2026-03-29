@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import api from "@/utils/api";
+import { getApplications } from "@/utils/storageUtils";
+import { useOutletContext } from "react-router";
 
 interface Course {
   id: string;
@@ -23,6 +25,7 @@ interface Course {
   completedModules: number;
   nextLesson?: string;
   category: string;
+  learningMode?: string;
 }
 
 const MyCourses = () => {
@@ -30,19 +33,44 @@ const MyCourses = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const { userData } = useOutletContext<{ userData: any }>();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
       // This would be replaced with actual API endpoint
       const response = await api.request("/users/me/courses");
+      let apiCourses: Course[] = [];
       if (response.success && response.data) {
-        setCourses(response.data as Course[]);
+        apiCourses = response.data as Course[];
+      }
+
+      // Merge with completed applications from localStorage
+      if (userData?.id) {
+        const apps = getApplications(userData.id);
+        const completedApps = apps.filter((app) => app.status === "completed");
+
+        const localCourses: Course[] = completedApps.map((app) => ({
+          id: app.id,
+          title: app.programName,
+          description: `Enrolled via application - ${app.learningMode} mode`,
+          progress: 0,
+          instructor: "Frankpower Instructor", // Placeholder
+          modules: 10, // Placeholder
+          completedModules: 0,
+          category: app.programType,
+          learningMode: app.learningMode,
+        }));
+
+        setCourses([...apiCourses, ...localCourses]);
+      } else {
+        setCourses(apiCourses);
       }
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -127,7 +155,13 @@ const MyCourses = () => {
               key={course.id}
               whileHover={{ y: -4 }}
               className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all cursor-pointer"
-              onClick={() => navigate(`/course/${course.id}`)}
+              onClick={() =>
+                navigate(
+                  course.learningMode === "offline"
+                    ? `/dashboard/physical-course/${course.id}`
+                    : `/dashboard/courses/${course.id}/lessons/lesson-1`,
+                )
+              }
             >
               <div className="relative h-40 bg-gray-100">
                 {course.thumbnail ? (

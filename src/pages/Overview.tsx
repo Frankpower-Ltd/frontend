@@ -11,10 +11,12 @@ import {
   Coffee,
   Sparkles,
   Loader2,
+  FileText,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import api from "@/utils/api";
 import { useNavigate, useOutletContext } from "react-router";
+import { getApplications, type Application } from "@/utils/storageUtils";
 
 interface DashboardStats {
   activeCourses: number;
@@ -37,11 +39,29 @@ const Overview = () => {
   });
   const [recentCourses, setRecentCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [recentApplications, setRecentApplications] = useState<Application[]>(
+    [],
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    if (userData?.id) {
+      const apps = getApplications(userData.id);
+      setRecentApplications(
+        apps
+          .sort(
+            (a, b) =>
+              new Date(b.dateSubmitted).getTime() -
+              new Date(a.dateSubmitted).getTime(),
+          )
+          .slice(0, 3),
+      );
+    }
+  }, [userData]);
 
   const fetchDashboardData = async () => {
     try {
@@ -125,6 +145,12 @@ const Overview = () => {
             </p>
             <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-4">
               <button
+                onClick={() => navigate("/dashboard/apply")}
+                className="bg-amber-300 text-gray-900 font-medium px-4 md:px-5 py-2 rounded-lg md:rounded-xl text-xs md:text-sm hover:bg-amber-400 transition-colors shadow-sm"
+              >
+                Start Application
+              </button>
+              <button
                 onClick={() => navigate("/dashboard/schedule")}
                 className="bg-white text-gray-900 font-medium px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm hover:bg-gray-100 transition-colors"
               >
@@ -200,7 +226,13 @@ const Overview = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className="flex items-center gap-3 md:gap-4 p-2 md:p-3 rounded-lg md:rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/course/${course.id}`)}
+                  onClick={() =>
+                    navigate(
+                      course.learningMode === "offline"
+                        ? `/dashboard/physical-course/${course.id}`
+                        : `/dashboard/courses/${course.id}/lessons/lesson-1`,
+                    )
+                  }
                 >
                   <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-lg md:rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
                     {course.thumbnail ? (
@@ -233,6 +265,43 @@ const Overview = () => {
                         {course.progress}%
                       </span>
                     </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {recentApplications.map((app, index) => (
+                <motion.div
+                  key={app.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (recentCourses.length + index) * 0.1 }}
+                  className="flex items-center gap-3 md:gap-4 p-2 md:p-3 rounded-lg md:rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-dashed border-gray-200"
+                  onClick={() => navigate("/dashboard/applications")}
+                >
+                  <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-lg md:rounded-xl bg-orange-50 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    <FileText className="h-5 w-5 md:h-6 md:w-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium text-sm md:text-base text-gray-900 truncate">
+                        {app.programName}
+                      </h4>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full ${
+                          app.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : app.status === "pending"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 truncate">
+                      Application submitted on{" "}
+                      {new Date(app.dateSubmitted).toLocaleDateString()}
+                    </p>
                   </div>
                 </motion.div>
               ))}

@@ -73,6 +73,12 @@ const Dashboard = () => {
   const navigation = [
     { name: "Overview", href: "/dashboard", icon: Home, count: null },
     {
+      name: "My Applications",
+      href: "/dashboard/applications",
+      icon: FileText,
+      count: null,
+    },
+    {
       name: "My Courses",
       href: "/dashboard/courses",
       icon: BookOpen,
