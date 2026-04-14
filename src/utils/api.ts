@@ -20,7 +20,7 @@ type LoginResponse = {
   accessToken: string;
   user: {
     id: string;
-    username: string;
+    fullName: string;
     email: string;
     role: string;
   };
@@ -274,23 +274,17 @@ class ApiClient {
   }
 
   async signup(
-    username: string,
+    fullName: string,
     email: string,
     password: string,
-    firstName: string,
-    lastName: string,
-    phoneNumber: string,
     levelId?: string,
   ): Promise<ApiResponse> {
     return this.request("/auth/signup", {
       method: "POST",
       body: JSON.stringify({
-        username,
+        fullName,
         email,
         password,
-        firstName,
-        lastName,
-        phoneNumber,
         ...(levelId ? { levelId } : {}),
       }),
     });

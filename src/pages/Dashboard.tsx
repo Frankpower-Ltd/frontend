@@ -104,6 +104,11 @@ const Dashboard = () => {
     },
   ];
 
+  const displayName =
+    userData?.fullName ||
+    [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") ||
+    "Learner";
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -203,11 +208,11 @@ const Dashboard = () => {
             <div className="p-5 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white font-medium">
-                  {userData?.firstName?.charAt(0)}
+                  {displayName.charAt(0)}
                 </div>
                 <div className="truncate">
                   <div className="font-medium text-gray-900 truncate">
-                    {userData?.firstName} {userData?.lastName}
+                    {displayName}
                   </div>
                   <div className="text-xs text-gray-500 truncate">
                     Keep learning

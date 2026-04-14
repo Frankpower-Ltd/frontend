@@ -1,21 +1,22 @@
 import companyLogo from "@/assets/images/company-logo.png";
 import { RouteConstant } from "@/constants/routes";
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { type SignupFormData, signupSchema } from "@/schema/signup.schema";
+import api from "@/utils/api";
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import api from "@/utils/api";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    username: "",
+  const [formData, setFormData] = useState<SignupFormData>({
+    fullName: "",
     email: "",
     password: "",
-    firstName: "",
-    lastName: "",
     confirmPassword: "",
-    phoneNumber: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof SignupFormData, string>>
+  >({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
@@ -25,6 +26,7 @@ const Signup = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
     if (submitError) setSubmitError(null);
     if (submitSuccess) setSubmitSuccess(null);
   };
@@ -34,27 +36,34 @@ const Signup = () => {
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(null);
+    setFieldErrors({});
 
-    if (!formData.phoneNumber.trim()) {
-      setSubmitError("Phone number is required");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (formData.confirmPassword !== formData.password) {
-      setSubmitError("Passwords do not match");
+    try {
+      await signupSchema.validate(formData, { abortEarly: false });
+    } catch (error: unknown) {
+      const validationErrors: Partial<Record<keyof SignupFormData, string>> =
+        {};
+      if (error && typeof error === "object" && "inner" in error) {
+        const inner = (
+          error as { inner: Array<{ path?: string; message: string }> }
+        ).inner;
+        inner.forEach((item) => {
+          const field = item.path as keyof SignupFormData | undefined;
+          if (field && !validationErrors[field]) {
+            validationErrors[field] = item.message;
+          }
+        });
+      }
+      setFieldErrors(validationErrors);
       setIsSubmitting(false);
       return;
     }
 
     try {
       const response = await api.signup(
-        formData.username.trim(),
+        formData.fullName.trim(),
         formData.email.trim(),
         formData.password.trim(),
-        formData.firstName.trim(),
-        formData.lastName.trim(),
-        formData.phoneNumber.trim(),
       );
 
       if (!response.success) {
@@ -72,13 +81,10 @@ const Signup = () => {
       );
 
       setFormData({
-        username: "",
+        fullName: "",
         email: "",
         password: "",
-        firstName: "",
-        lastName: "",
         confirmPassword: "",
-        phoneNumber: "",
       });
 
       setTimeout(() => navigate(RouteConstant.login), 1800);
@@ -128,47 +134,24 @@ const Signup = () => {
           )}
 
           <form className="w-full" onSubmit={handleSubmit}>
-            <label className="sr-only" htmlFor="firstName">
-              First Name
+            <label className="sr-only" htmlFor="fullName">
+              Full Name
             </label>
             <input
-              id="firstName"
-              name="firstName"
+              id="fullName"
+              name="fullName"
               className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
               type="text"
-              placeholder="First Name"
-              value={formData.firstName}
+              placeholder="Full Name"
+              value={formData.fullName}
               onChange={handleChange}
               required
             />
-
-            <label className="sr-only" htmlFor="lastName">
-              Last Name
-            </label>
-            <input
-              id="lastName"
-              name="lastName"
-              className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
-              type="text"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-
-            <label className="sr-only" htmlFor="username">
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
-              type="text"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
+            {fieldErrors.fullName ? (
+              <p className="-mt-2 mb-3 text-xs text-red-600">
+                {fieldErrors.fullName}
+              </p>
+            ) : null}
 
             <label className="sr-only" htmlFor="email">
               Email
@@ -183,20 +166,11 @@ const Signup = () => {
               onChange={handleChange}
               required
             />
-
-            <label className="sr-only" htmlFor="phoneNumber">
-              Phone Number
-            </label>
-            <input
-              id="phoneNumber"
-              name="phoneNumber"
-              className="w-full px-[18px] py-3 rounded-3xl border border-black/20 mb-3.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-red-700/30"
-              type="text"
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-            />
+            {fieldErrors.email ? (
+              <p className="-mt-2 mb-3 text-xs text-red-600">
+                {fieldErrors.email}
+              </p>
+            ) : null}
 
             <label className="sr-only" htmlFor="password">
               Password
@@ -211,6 +185,11 @@ const Signup = () => {
               onChange={handleChange}
               required
             />
+            {fieldErrors.password ? (
+              <p className="-mt-2 mb-3 text-xs text-red-600">
+                {fieldErrors.password}
+              </p>
+            ) : null}
 
             <label className="sr-only" htmlFor="confirmPassword">
               Confirm Password
@@ -225,6 +204,11 @@ const Signup = () => {
               onChange={handleChange}
               required
             />
+            {fieldErrors.confirmPassword ? (
+              <p className="-mt-2 mb-3 text-xs text-red-600">
+                {fieldErrors.confirmPassword}
+              </p>
+            ) : null}
 
             <button
               className="w-full bg-[#b90000] text-white py-3.5 rounded-3xl font-bold cursor-pointer mt-1.5 hover:bg-[#a00000] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

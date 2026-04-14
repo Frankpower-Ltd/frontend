@@ -27,6 +27,11 @@ interface DashboardStats {
 
 const Overview = () => {
   const { userData } = useOutletContext<{ userData: any }>();
+  const displayName =
+    userData?.fullName ||
+    userData?.firstName ||
+    [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") ||
+    "Learner";
   const [stats, setStats] = useState<DashboardStats>({
     activeCourses: 0,
     completedCourses: 0,
@@ -117,7 +122,7 @@ const Overview = () => {
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-semibold mb-2">
-              Hello, {userData?.firstName || "Learner"}! 👋
+              Hello, {displayName}! 👋
             </h2>
             <p className="text-gray-300 text-xs md:text-sm max-w-md">
               You're making great progress. Keep up the momentum! You have{" "}
