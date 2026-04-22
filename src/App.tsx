@@ -1,5 +1,5 @@
 import { RouteConstant } from "@/constants/routes";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import ForgotPassword from "./pages/ForgotPassword";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -17,6 +17,11 @@ import MyCourses from "./pages/MyCourses";
 import Assignments from "./pages/Assignments";
 import Achievements from "./pages/Achievements";
 import StudyGroups from "./pages/StudyGroups";
+import Applications from "./pages/Applications";
+import DashboardPrograms from "./pages/DashboardPrograms";
+import Payments from "./pages/Payments";
+import NewApplication from "./pages/NewApplication";
+import PaymentSuccessful from "./pages/PaymentSuccessful";
 //import CourseLesson from "./pages/Lesson";
 import Lesson from "./pages/Lesson";
 
@@ -34,9 +39,16 @@ function App() {
         <Route path={RouteConstant.contact} element={<ContactPage />} />
         <Route path={RouteConstant.alumni} element={<AlumniPage />} />
         <Route path={RouteConstant.studentsform} element={<StudentsForm />} />
-        // App.tsx - Update the dashboard routes
+        <Route
+          path="/apply"
+          element={<Navigate to={RouteConstant.apply} replace />}
+        />
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<Overview />} />
+          <Route path="apply" element={<NewApplication />} />
+          <Route path="programs" element={<DashboardPrograms />} />
+          <Route path="applications" element={<Applications />} />
+          <Route path="payments" element={<Payments />} />
           <Route path="courses" element={<MyCourses />} />
           <Route
             path="courses/:courseId/lessons/:lessonId"
@@ -58,6 +70,7 @@ function App() {
 */}
         {/* Landing Page route */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/payment-successful" element={<PaymentSuccessful />} />
       </Routes>
     </BrowserRouter>
   );

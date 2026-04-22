@@ -1,7 +1,7 @@
 // Dashboard.tsx - Combined and optimized
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import {
   Bell,
   Search,
@@ -15,6 +15,8 @@ import {
   LogOut,
   MessageSquare,
   FileText,
+  CreditCard,
+  Layers,
   Home,
 } from "lucide-react";
 import companyLogo from "@/assets/images/company-logo.png";
@@ -72,6 +74,24 @@ const Dashboard = () => {
 
   const navigation = [
     { name: "Overview", href: "/dashboard", icon: Home, count: null },
+    {
+      name: "Programs",
+      href: RouteConstant.dashboardPrograms,
+      icon: Layers,
+      count: null,
+    },
+    {
+      name: "Applications",
+      href: RouteConstant.dashboardApplications,
+      icon: FileText,
+      count: null,
+    },
+    {
+      name: "Payments",
+      href: RouteConstant.dashboardPayments,
+      icon: CreditCard,
+      count: null,
+    },
     {
       name: "My Courses",
       href: "/dashboard/courses",
