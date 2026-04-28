@@ -1,9 +1,11 @@
 import { Monitor, Users } from "lucide-react";
 
-export enum LearningMode {
-  ONLINE = "ONLINE",
-  OFFLINE = "OFFLINE",
-}
+export const LearningMode = {
+  ONLINE: "ONLINE",
+  OFFLINE: "OFFLINE",
+} as const;
+
+export type LearningMode = (typeof LearningMode)[keyof typeof LearningMode];
 
 export const LEARNING_MODE_LABELS: Record<LearningMode, string> = {
   [LearningMode.ONLINE]: "Online Classes",
