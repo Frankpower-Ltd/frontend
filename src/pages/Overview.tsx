@@ -139,53 +139,24 @@ const Overview = () => {
     [applications, programsById],
   );
 
-  const enrolledPrograms = useMemo(() => {
-    const paidApplications = applications.filter(
-      (item) => item.status === "PAID",
-    );
-
-    return paidApplications
-      .map((application) => {
-        const program = programsById.get(application.programId);
-        if (!program) {
-          return null;
-        }
-
-        const programCourses = courses.filter(
-          (courseItem) => courseItem.course.programId === program.id,
-        );
-        const totalCourses = programCourses.length;
-        const avgProgress =
-          totalCourses > 0
-            ? Math.round(
-                programCourses.reduce(
-                  (sum, courseItem) => sum + courseItem.progressPercent,
-                  0,
-                ) / totalCourses,
-              )
-            : 0;
-        const completedCount = programCourses.filter(
-          (courseItem) => courseItem.status === "COMPLETED",
-        ).length;
-        const nextCourse = programCourses.find(
-          (courseItem) => courseItem.status !== "COMPLETED",
-        );
-
-        return {
-          id: application.id,
-          name: program.title,
-          type: program.programType,
-          progress: avgProgress,
-          modules:
-            totalCourses > 0
-              ? `${completedCount} of ${totalCourses} modules`
-              : "No modules yet",
-          nextLesson: nextCourse?.course.title,
-          price: formatNaira(program.price),
-        };
-      })
-      .filter(Boolean);
-  }, [applications, programsById, courses]);
+  const enrolledPrograms = useMemo(
+    () =>
+      courses.map((item) => ({
+        id: item.id,
+        name: item.course.title,
+        type: "Course",
+        progress: item.progressPercent,
+        modules:
+          item.status === "COMPLETED"
+            ? "Completed"
+            : item.status === "IN_PROGRESS"
+              ? "In progress"
+              : "Not started",
+        nextLesson: undefined,
+        price: "—",
+      })),
+    [courses],
+  );
 
   const paymentHistory = useMemo(
     () =>
@@ -242,7 +213,7 @@ const Overview = () => {
             Welcome back, {displayName} 👋
           </h1>
           <p className="mt-1 text-sm opacity-80">
-            Track your applications, programs and payments all in one place.
+            Track your applications, courses and payments all in one place.
           </p>
         </div>
         <Button
@@ -261,7 +232,7 @@ const Overview = () => {
         <div className="space-y-5 lg:col-span-2">
           <EnrolledPrograms
             programs={enrolledPrograms as any}
-            onBrowse={() => navigate(RouteConstant.dashboardPrograms)}
+            onBrowse={() => navigate(RouteConstant.myCourses)}
           />
           <ApplicationTracker
             applications={trackedApplications}

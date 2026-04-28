@@ -11,8 +11,6 @@ export const RouteConstant = {
   apply: "/dashboard/apply",
   dashboard: "/dashboard",
   dashboardApplications: "/dashboard/applications",
-  dashboardPrograms: "/dashboard/programs",
-  dashboardProgramOutline: "/dashboard/programs/:programId",
   dashboardPayments: "/dashboard/payments",
   dashboardNotifications: "/dashboard/notifications",
   studentsform: "/form",

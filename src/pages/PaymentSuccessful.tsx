@@ -77,7 +77,7 @@ const PaymentSuccessful = () => {
         <div className="primary-gradient rounded-2xl p-6 text-primary-foreground shadow-sm">
           <h1 className="text-xl font-bold">Payment Confirmation</h1>
           <p className="mt-1 text-sm opacity-80">
-            Verifying your transaction and updating your enrollment.
+            Verifying your transaction and updating your application.
           </p>
         </div>
 
@@ -110,8 +110,8 @@ const PaymentSuccessful = () => {
                   </span>
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  If this payment was successful, your courses will appear in
-                  your dashboard shortly.
+                  Your payment is confirmed. You will be able to access your
+                  courses after your application has been approved.
                 </p>
               </div>
             </div>
@@ -152,9 +152,9 @@ const PaymentSuccessful = () => {
             <Button
               size="lg"
               className="w-full"
-              onClick={() => navigate(RouteConstant.myCourses)}
+              onClick={() => navigate(RouteConstant.dashboardApplications)}
             >
-              Go to My Courses
+              View Applications
             </Button>
             <Button
               size="lg"
@@ -168,9 +168,9 @@ const PaymentSuccessful = () => {
               size="lg"
               variant="outline"
               className="w-full sm:col-span-2"
-              onClick={() => navigate(RouteConstant.dashboardApplications)}
+              onClick={() => navigate(RouteConstant.myCourses)}
             >
-              View Applications
+              Go to My Courses
             </Button>
           </div>
         </div>
