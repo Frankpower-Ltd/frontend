@@ -1,34 +1,49 @@
 import { RouteConstant } from "@/constants/routes";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import AboutPage from "./pages/AboutPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import AlumniPage from "./pages/AlumniPage";
-import Applications from "./pages/Applications";
-import Assignments from "./pages/Assignments";
-import ContactPage from "./pages/ContactPage";
-import Dashboard from "./pages/Dashboard";
-import ForgotPassword from "./pages/ForgotPassword";
-import LandingPage from "./pages/LandingPage";
-import Lesson from "./pages/Lesson";
-import Login from "./pages/Login";
-import MyCourses from "./pages/MyCourses";
-import NewApplication from "./pages/NewApplication";
-import NotificationCenter from "./pages/NotificationCenter";
-import Overview from "./pages/Overview";
-import Payments from "./pages/Payments";
-import PaymentSuccessful from "./pages/PaymentSuccessful";
-import ProgramsPage from "./pages/ProgramPage";
-import ResetPassword from "./pages/ResetPassword";
-import Schedule from "./pages/Schedule";
-import Signup from "./pages/Signup";
-import StudentsForm from "./pages/StudentsForm";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AuthPageGuard from "@/pages/auth/AuthPageGuard";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import Login from "@/pages/auth/Login";
+import ResetPassword from "@/pages/auth/ResetPassword";
+import Signup from "@/pages/auth/Signup";
+import AboutPage from "@/pages/public/AboutPage";
+import AlumniPage from "@/pages/public/AlumniPage";
+import ContactPage from "@/pages/public/ContactPage";
+import LandingPage from "@/pages/public/LandingPage";
+import ProgramsPage from "@/pages/public/ProgramPage";
+import Applications from "@/pages/student/Applications";
+import Assignments from "@/pages/student/Assignments";
+import Dashboard from "@/pages/student/Dashboard";
+import Lesson from "@/pages/student/Lesson";
+import MyCourses from "@/pages/student/MyCourses";
+import NewApplication from "@/pages/student/NewApplication";
+import NotificationCenter from "@/pages/student/NotificationCenter";
+import Overview from "@/pages/student/Overview";
+import Payments from "@/pages/student/Payments";
+import PaymentSuccessful from "@/pages/student/PaymentSuccessful";
+import Schedule from "@/pages/student/Schedule";
+import StudentsForm from "@/pages/student/StudentsForm";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path={RouteConstant.login} element={<Login />} />
-        <Route path={RouteConstant.signup} element={<Signup />} />
+        <Route
+          path={RouteConstant.login}
+          element={
+            <AuthPageGuard>
+              <Login />
+            </AuthPageGuard>
+          }
+        />
+        <Route
+          path={RouteConstant.signup}
+          element={
+            <AuthPageGuard>
+              <Signup />
+            </AuthPageGuard>
+          }
+        />
         <Route path={RouteConstant.forgetPwd} element={<ForgotPassword />} />
         <Route path={RouteConstant.resetPwd} element={<ResetPassword />} />
         <Route path={RouteConstant.about} element={<AboutPage />} />
