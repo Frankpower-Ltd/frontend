@@ -25,20 +25,20 @@ export const EnrolledPrograms = ({
   return (
     <div className="rounded-xl border border-border bg-card p-4 md:p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-foreground">My Programs</h2>
+        <h2 className="text-sm font-semibold text-foreground">My Courses</h2>
         <button
           type="button"
           onClick={onBrowse}
           className="text-xs font-medium text-primary"
         >
-          Browse Programs
+          View Courses
         </button>
       </div>
 
       <div className="space-y-4">
         {programs.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            No enrolled programs yet.
+            No enrolled courses yet.
           </p>
         )}
 

@@ -7,7 +7,6 @@ import Applications from "./pages/Applications";
 import Assignments from "./pages/Assignments";
 import ContactPage from "./pages/ContactPage";
 import Dashboard from "./pages/Dashboard";
-import DashboardPrograms from "./pages/DashboardPrograms";
 import ForgotPassword from "./pages/ForgotPassword";
 import LandingPage from "./pages/LandingPage";
 import Lesson from "./pages/Lesson";
@@ -18,7 +17,6 @@ import NotificationCenter from "./pages/NotificationCenter";
 import Overview from "./pages/Overview";
 import Payments from "./pages/Payments";
 import PaymentSuccessful from "./pages/PaymentSuccessful";
-import ProgramOutline from "./pages/ProgramOutline";
 import ProgramsPage from "./pages/ProgramPage";
 import ResetPassword from "./pages/ResetPassword";
 import Schedule from "./pages/Schedule";
@@ -47,8 +45,6 @@ function App() {
         <Route path={RouteConstant.dashboard} element={<Dashboard />}>
           <Route index element={<Overview />} />
           <Route path="apply" element={<NewApplication />} />
-          <Route path="programs" element={<DashboardPrograms />} />
-          <Route path="programs/:programId" element={<ProgramOutline />} />
           <Route path="applications" element={<Applications />} />
           <Route path="payments" element={<Payments />} />
           <Route path="notifications" element={<NotificationCenter />} />
