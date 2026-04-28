@@ -8,6 +8,7 @@ type ApiErrorObject = {
 };
 
 interface ApiResponse<T = unknown> {
+  resultSet?: Record<string, unknown>;
   data?: T;
   error?: string | ApiErrorObject;
   message?: string;
@@ -30,6 +31,7 @@ class ApiClient {
   private baseUrl: string;
   private userToken: string | null = null;
   private adminToken: string | null = null;
+  private refreshPromise: Promise<string | null> | null = null;
 
   private get baseURL() {
     return this.baseUrl.endsWith("/")
@@ -166,12 +168,72 @@ class ApiClient {
     return undefined;
   }
 
+  private async attemptAccessTokenRefresh(
+    tokenType: "admin" | "user",
+  ): Promise<string | null> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = (async () => {
+      try {
+        const response = await fetch(`${this.baseURL}/auth/refresh-token`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        let payload: unknown = null;
+        try {
+          payload = await response.json();
+        } catch {
+          payload = null;
+        }
+
+        if (!response.ok) {
+          this.setToken(null, tokenType);
+          return null;
+        }
+
+        const typedPayload = (payload || {}) as {
+          accessToken?: unknown;
+          data?: { accessToken?: unknown };
+        };
+        const accessToken =
+          (typeof typedPayload.accessToken === "string" &&
+            typedPayload.accessToken) ||
+          (typeof typedPayload.data?.accessToken === "string" &&
+            typedPayload.data.accessToken) ||
+          null;
+
+        if (!accessToken) {
+          this.setToken(null, tokenType);
+          return null;
+        }
+
+        this.setToken(accessToken, tokenType);
+        return accessToken;
+      } catch {
+        this.setToken(null, tokenType);
+        return null;
+      } finally {
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
   async request<T = unknown>(
     endpoint: string,
     options: RequestInit = {},
     isAdminRequest = false,
+    allowRefresh = true,
   ): Promise<ApiResponse<T>> {
     try {
+      const tokenType: "admin" | "user" = isAdminRequest ? "admin" : "user";
       const token = this.getCurrentToken(isAdminRequest);
       const baseHeaders = this.getBaseOptions().headers as Record<
         string,
@@ -205,8 +267,21 @@ class ApiClient {
       }
 
       if (!response.ok) {
+        if (
+          response.status === 401 &&
+          allowRefresh &&
+          endpoint !== "/auth/refresh-token"
+        ) {
+          const refreshedAccessToken =
+            await this.attemptAccessTokenRefresh(tokenType);
+
+          if (refreshedAccessToken) {
+            return this.request<T>(endpoint, options, isAdminRequest, false);
+          }
+        }
+
         if (response.status === 401) {
-          this.setToken(null, isAdminRequest ? "admin" : "user");
+          this.setToken(null, tokenType);
         }
 
         return {
@@ -227,6 +302,10 @@ class ApiClient {
             ? typedPayload.message
             : undefined,
         data: ((typedPayload.data ?? payload) as T) || undefined,
+        resultSet:
+          typedPayload.resultSet && typeof typedPayload.resultSet === "object"
+            ? (typedPayload.resultSet as Record<string, unknown>)
+            : undefined,
       };
     } catch (error) {
       console.error("API request error:", error);
@@ -327,9 +406,14 @@ class ApiClient {
   }
 
   async refreshAccessToken(): Promise<ApiResponse<{ accessToken: string }>> {
-    return this.request("/auth/refresh-token", {
-      method: "POST",
-    });
+    return this.request(
+      "/auth/refresh-token",
+      {
+        method: "POST",
+      },
+      false,
+      false,
+    );
   }
 
   async getAllUsers(): Promise<ApiResponse<unknown[]>> {

@@ -1,33 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { LEARNING_MODE_OPTIONS } from "@/constants/learning-mode";
 import { cn } from "@/lib/utils";
-import type { ApplicationDraft, LearningMode } from "@/types/student-flow";
-import { ArrowRight, CheckCircle, Monitor, Users } from "lucide-react";
+import type { ApplicationDraft } from "@/types/student-flow";
+import { ArrowRight, CheckCircle } from "lucide-react";
 
 interface LearningModeStepProps {
   data: ApplicationDraft;
   updateData: (fields: Partial<ApplicationDraft>) => void;
   onNext: () => void;
 }
-
-const options: Array<{
-  value: LearningMode;
-  title: string;
-  icon: typeof Monitor;
-  features: string[];
-}> = [
-  {
-    value: "ONLINE",
-    title: "Online Classes",
-    icon: Monitor,
-    features: ["Live sessions", "Recorded replays", "24/7 materials"],
-  },
-  {
-    value: "OFFLINE",
-    title: "Offline / In-Person",
-    icon: Users,
-    features: ["In-person mentoring", "Lab access", "Peer networking"],
-  },
-];
 
 export const LearningModeStep = ({
   data,
@@ -42,7 +23,7 @@ export const LearningModeStep = ({
         </h2>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {options.map((mode) => {
+          {LEARNING_MODE_OPTIONS.map((mode) => {
             const selected = data.learningMode === mode.value;
             return (
               <button

@@ -6,6 +6,7 @@ import { ProgramTypeStep } from "@/components/application/ProgramTypeStep";
 import { ReviewStep } from "@/components/application/ReviewStep";
 import { SelectProgramStep } from "@/components/application/SelectProgramStep";
 import { Button } from "@/components/ui/button";
+import { LearningMode } from "@/constants/learning-mode";
 import { useCheckoutApplication } from "@/hooks/use-checkout-application";
 import { usePrograms } from "@/hooks/use-programs";
 import { applicationCheckoutSchema } from "@/schema/application.schema";
@@ -19,6 +20,7 @@ import type {
 import { DEFAULT_APPLICATION_DRAFT } from "@/types/student-flow";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
 import * as yup from "yup";
 
 const TOTAL_STEPS = 6;
@@ -149,7 +151,7 @@ const NewApplication = () => {
       const payload: CheckoutPayload = {
         programType: valid.programType as ProgramTypeKey,
         programId: valid.programId,
-        learningMode: valid.learningMode,
+        learningMode: valid.learningMode as LearningMode,
         phoneNumber: valid.phoneNumber?.trim() || undefined,
         institution: valid.institution?.trim() || undefined,
         level: valid.level || undefined,
@@ -164,15 +166,28 @@ const NewApplication = () => {
       next();
     } catch (error) {
       if (error instanceof yup.ValidationError) {
-        setSubmitError(
-          error.errors[0] || "Please complete all required fields.",
-        );
+        const validationMessage =
+          error.errors[0] || "Please complete all required fields.";
+        setSubmitError(validationMessage);
+        toast.error(validationMessage);
         return;
       }
 
-      setSubmitError(
-        (error as Error).message || "Unable to proceed to payment",
-      );
+      const message =
+        (error as Error).message || "Unable to proceed to payment";
+      const normalizedMessage = message.toLowerCase();
+
+      if (
+        normalizedMessage.includes("already applied for this program") ||
+        normalizedMessage.includes("application already exist") ||
+        normalizedMessage.includes("duplicate")
+      ) {
+        toast.error("You already applied for this program");
+      } else {
+        toast.error(message);
+      }
+
+      setSubmitError(message);
     }
   };
 
@@ -199,7 +214,7 @@ const NewApplication = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5 mt-8">
       <ApplicationProgress
         currentStep={currentStep}
         totalSteps={TOTAL_STEPS}
@@ -243,7 +258,6 @@ const NewApplication = () => {
           goToStep={goToStep}
           isSubmitting={checkoutMutation.isPending}
           onProceedToPayment={handleProceedToPayment}
-          submitError={submitError}
         />
       )}
 

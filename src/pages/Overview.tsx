@@ -29,15 +29,27 @@ const applicationStatusStyle: Record<
 > = {
   PENDING_PAYMENT: {
     icon: Clock,
-    className: "bg-warning/10 text-warning border-warning/20",
+    className: "bg-[#fff2d8] text-[#f2a200] border-[#ffe5b0]",
   },
   PAID: {
     icon: CheckCircle,
-    className: "bg-success/10 text-success border-success/20",
+    className: "bg-[#ddf5e8] text-[#21a365] border-[#b8ebd2]",
   },
-  PAYMENT_FAILED: {
+  UNDER_REVIEW: {
+    icon: Clock,
+    className: "bg-[#e4f0ff] text-[#2f73d9] border-[#cddfff]",
+  },
+  APPROVED: {
+    icon: CheckCircle,
+    className: "bg-[#e4f0ff] text-[#2f73d9] border-[#cddfff]",
+  },
+  REJECTED: {
     icon: AlertCircle,
-    className: "bg-destructive/10 text-destructive border-destructive/20",
+    className: "bg-[#ffe4e4] text-[#db2b39] border-[#ffd0d0]",
+  },
+  CANCELLED: {
+    icon: AlertCircle,
+    className: "bg-muted text-muted-foreground border-border",
   },
   EXPIRED: {
     icon: AlertCircle,
@@ -59,6 +71,12 @@ const Overview = () => {
     () => new Map(programs.map((program) => [program.id, program])),
     [programs],
   );
+
+  const formatShortDate = (value: string | Date) =>
+    new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
 
   const stats = useMemo(() => {
     const paidPrograms = new Set(
@@ -95,7 +113,7 @@ const Overview = () => {
         colorClass: "text-success bg-success/10",
       },
       {
-        label: "Completed",
+        label: "Certificates",
         value: String(completedCourses),
         icon: Award,
         colorClass: "text-warning bg-warning/10",
@@ -175,7 +193,7 @@ const Overview = () => {
         reference: item.reference,
         description: `Payment (${item.provider})`,
         amount: formatNaira(item.amount),
-        date: formatDate(item.createdAt),
+        date: formatShortDate(item.createdAt),
         success: item.status === "SUCCESSFUL",
       })),
     [payments],
@@ -242,7 +260,7 @@ const Overview = () => {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
           <EnrolledPrograms
-            programs={enrolledPrograms}
+            programs={enrolledPrograms as any}
             onBrowse={() => navigate(RouteConstant.dashboardPrograms)}
           />
           <ApplicationTracker

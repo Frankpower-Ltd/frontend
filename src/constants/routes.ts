@@ -12,7 +12,9 @@ export const RouteConstant = {
   dashboard: "/dashboard",
   dashboardApplications: "/dashboard/applications",
   dashboardPrograms: "/dashboard/programs",
+  dashboardProgramOutline: "/dashboard/programs/:programId",
   dashboardPayments: "/dashboard/payments",
+  dashboardNotifications: "/dashboard/notifications",
   studentsform: "/form",
   assignments: "/dashboard/assignments",
   achievements: "/dashboard/achievements",
@@ -20,4 +22,5 @@ export const RouteConstant = {
   schedule: "/dashboard/schedule",
   myCourses: "/dashboard/courses",
   overview: "/dashboard",
+  adminDashboard: "/admin/dashboard",
 } as const;

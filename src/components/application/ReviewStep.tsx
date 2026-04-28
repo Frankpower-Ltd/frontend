@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { getLearningModeLabel } from "@/constants/learning-mode";
 import { formatNaira } from "@/lib/student-flow";
 import type { ApplicationDraft, Program } from "@/types/student-flow";
 import { ArrowRight } from "lucide-react";
@@ -9,13 +10,7 @@ interface ReviewStepProps {
   onProceedToPayment: () => void;
   goToStep: (step: number) => void;
   isSubmitting: boolean;
-  submitError?: string | null;
 }
-
-const learningModeLabels: Record<string, string> = {
-  ONLINE: "Online Classes",
-  OFFLINE: "Offline / In-Person",
-};
 
 export const ReviewStep = ({
   data,
@@ -23,7 +18,6 @@ export const ReviewStep = ({
   onProceedToPayment,
   goToStep,
   isSubmitting,
-  submitError,
 }: ReviewStepProps) => {
   return (
     <>
@@ -62,7 +56,7 @@ export const ReviewStep = ({
             <div>
               <p className="text-xs text-muted-foreground">Learning Mode</p>
               <p className="mt-0.5 text-sm font-semibold text-foreground">
-                {learningModeLabels[data.learningMode] || "—"}
+                {getLearningModeLabel(data.learningMode)}
               </p>
             </div>
             <button
@@ -117,10 +111,6 @@ export const ReviewStep = ({
           </div>
         </div>
       </div>
-
-      {submitError ? (
-        <p className="text-sm text-destructive">{submitError}</p>
-      ) : null}
 
       <div className="flex justify-end">
         <Button

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { getLearningModeLabel } from "@/constants/learning-mode";
 import { formatNaira } from "@/lib/student-flow";
 import type {
   ApplicationDraft,
@@ -12,11 +13,6 @@ interface PaymentStepProps {
   selectedProgram: Program | null;
   checkoutResult: CheckoutResponse | null;
 }
-
-const learningModeLabels: Record<string, string> = {
-  ONLINE: "Online Classes",
-  OFFLINE: "Offline / In-Person",
-};
 
 export const PaymentStep = ({
   data,
@@ -61,7 +57,7 @@ export const PaymentStep = ({
           <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
             <span className="text-muted-foreground">Mode</span>
             <span className="font-medium text-foreground">
-              {learningModeLabels[data.learningMode] || "—"}
+              {getLearningModeLabel(data.learningMode)}
             </span>
           </div>
           <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">

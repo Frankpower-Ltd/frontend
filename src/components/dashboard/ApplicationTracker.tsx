@@ -26,7 +26,7 @@ export const ApplicationTracker = ({
         <button
           type="button"
           onClick={onViewAll}
-          className="text-xs font-medium text-primary hover:underline"
+          className="text-xs font-medium text-primary"
         >
           View All
         </button>
@@ -42,7 +42,7 @@ export const ApplicationTracker = ({
         {applications.map((app) => (
           <div
             key={app.id}
-            className="flex items-center gap-3 rounded-lg bg-accent/40 p-3"
+            className="flex items-center gap-3 rounded-lg bg-[#f6f6f6] p-3"
           >
             <div
               className={`h-8 w-8 shrink-0 rounded-lg ${app.statusClass} flex items-center justify-center`}
@@ -59,7 +59,7 @@ export const ApplicationTracker = ({
             </div>
             <Badge
               variant="outline"
-              className={`shrink-0 border px-2 py-0.5 text-[10px] ${app.statusClass}`}
+              className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] ${app.statusClass}`}
             >
               {app.status}
             </Badge>

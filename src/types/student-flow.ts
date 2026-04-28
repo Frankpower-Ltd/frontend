@@ -1,11 +1,15 @@
+import { LearningMode } from "@/constants/learning-mode";
+
 export type ProgramTypeKey = "SIWES" | "ACADEMIC";
-export type LearningMode = "ONLINE" | "OFFLINE";
 export type ApplicationLevel = "100" | "200" | "300" | "400" | "500";
 
 export type ApplicationStatus =
   | "PENDING_PAYMENT"
   | "PAID"
-  | "PAYMENT_FAILED"
+  | "UNDER_REVIEW"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED"
   | "EXPIRED";
 
 export type CourseProgressStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
@@ -20,6 +24,13 @@ export type PaymentStatus =
   | "REDUNDANT";
 
 export type PaymentProvider = "PAYSTACK";
+
+export interface ResultSet {
+  count: number;
+  offset: number;
+  limit: number;
+  total: number;
+}
 
 export interface Program {
   id: string;
@@ -57,6 +68,37 @@ export interface Course {
   isActive: boolean;
 }
 
+export interface CourseOutlineItem {
+  id: string;
+  moduleId: string;
+  parentId?: string;
+  title: string;
+  description?: string;
+  orderIndex: number;
+  isActive: boolean;
+  children: CourseOutlineItem[];
+}
+
+export interface CourseModule {
+  id: string;
+  courseId: string;
+  title: string;
+  description?: string;
+  orderIndex: number;
+  isActive: boolean;
+  outlines: CourseOutlineItem[];
+}
+
+export interface CourseOutlineTree {
+  id: string;
+  programId: string;
+  title: string;
+  description?: string;
+  orderIndex: number;
+  isActive: boolean;
+  modules: CourseModule[];
+}
+
 export interface StudentCourse {
   id: string;
   courseId: string;
@@ -76,6 +118,24 @@ export interface UserPayment {
   status: PaymentStatus;
   provider: PaymentProvider;
   createdAt: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  data?: Record<string, unknown>;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  resultSet: ResultSet;
 }
 
 export interface CheckoutPayload {

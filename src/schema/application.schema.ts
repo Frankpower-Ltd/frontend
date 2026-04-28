@@ -1,10 +1,10 @@
-import * as yup from "yup";
+import { LearningMode } from "@/constants/learning-mode";
 import type {
   ApplicationDraft,
   ApplicationLevel,
-  LearningMode,
   ProgramTypeKey,
 } from "@/types/student-flow";
+import * as yup from "yup";
 
 const LEVELS: ApplicationLevel[] = ["100", "200", "300", "400", "500"];
 
@@ -54,7 +54,7 @@ export const applicationCheckoutSchema: yup.ObjectSchema<ApplicationDraft> = yup
     programId: yup.string().trim().required("Program is required"),
     learningMode: yup
       .mixed<LearningMode>()
-      .oneOf(["ONLINE", "OFFLINE"], "Select a learning mode")
+      .oneOf(Object.values(LearningMode), "Select a learning mode")
       .required("Learning mode is required"),
     phoneNumber: optionalPhoneSchema.default(""),
     institution: optionalInstitutionSchema.default(""),

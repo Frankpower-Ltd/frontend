@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RouteConstant } from "@/constants/routes";
+import { useMyCourses } from "@/hooks/use-courses";
 import { usePrograms } from "@/hooks/use-programs";
 import { formatNaira } from "@/lib/student-flow";
 import type { ProgramTypeKey } from "@/types/student-flow";
@@ -15,6 +16,12 @@ const DashboardPrograms = () => {
   const [filter, setFilter] = useState<ProgramFilter>("ALL");
   const [search, setSearch] = useState("");
   const { data: programs = [], isLoading, error } = usePrograms();
+  const { data: myCourses = [] } = useMyCourses("all");
+
+  const enrolledProgramIds = useMemo(
+    () => new Set(myCourses.map((item) => item.course.programId)),
+    [myCourses],
+  );
 
   const filteredPrograms = useMemo(() => {
     return programs.filter((program) => {
@@ -53,7 +60,7 @@ const DashboardPrograms = () => {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Programs</h1>
         <p className="text-sm text-muted-foreground">
-          Browse active programs and continue to application checkout.
+          Browse active programs, apply, and view outline for enrolled programs.
         </p>
       </div>
 
@@ -87,41 +94,59 @@ const DashboardPrograms = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {filteredPrograms.map((program) => (
-          <article
-            key={program.id}
-            className="rounded-xl border border-border bg-card p-5"
-          >
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
-                {program.programType}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {program.duration}
-              </span>
-            </div>
-            <h2 className="text-lg font-semibold text-foreground">
-              {program.title}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {program.description || "No description provided"}
-            </p>
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-base font-bold text-foreground">
-                {formatNaira(program.price)}
+        {filteredPrograms.map((program) => {
+          const enrolled = enrolledProgramIds.has(program.id);
+
+          return (
+            <article
+              key={program.id}
+              className="rounded-xl border border-border bg-card p-5"
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary">
+                  {program.programType}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {program.duration}
+                </span>
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                {program.title}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {program.description || "No description provided"}
               </p>
-              <Button
-                onClick={() =>
-                  navigate(
-                    `${RouteConstant.apply}?programType=${encodeURIComponent(program.programType)}&programId=${encodeURIComponent(program.id)}`,
-                  )
-                }
-              >
-                Apply
-              </Button>
-            </div>
-          </article>
-        ))}
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-base font-bold text-foreground">
+                  {formatNaira(program.price)}
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      navigate(
+                        `/dashboard/programs/${encodeURIComponent(program.id)}`,
+                      )
+                    }
+                  >
+                    View Outline
+                  </Button>
+
+                  <Button
+                    onClick={() =>
+                      navigate(
+                        `${RouteConstant.apply}?programType=${encodeURIComponent(program.programType)}&programId=${encodeURIComponent(program.id)}`,
+                      )
+                    }
+                  >
+                    {enrolled ? "Apply Again" : "Apply"}
+                  </Button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       {filteredPrograms.length === 0 && (

@@ -24,7 +24,7 @@ export const PaymentHistory = ({
         <button
           type="button"
           onClick={onViewAll}
-          className="text-xs font-medium text-primary hover:underline"
+          className="text-xs font-medium text-primary"
         >
           View All
         </button>
@@ -65,9 +65,7 @@ export const PaymentHistory = ({
                 {payment.amount}
               </p>
               <p
-                className={`text-[10px] font-medium ${
-                  payment.success ? "text-success" : "text-warning"
-                }`}
+                className={`text-[10px] font-medium ${payment.success ? "text-success" : "text-warning"}`}
               >
                 {payment.success ? "Paid" : "Pending"}
               </p>

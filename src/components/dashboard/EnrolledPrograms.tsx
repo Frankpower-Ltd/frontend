@@ -29,7 +29,7 @@ export const EnrolledPrograms = ({
         <button
           type="button"
           onClick={onBrowse}
-          className="text-xs font-medium text-primary hover:underline"
+          className="text-xs font-medium text-primary"
         >
           Browse Programs
         </button>
@@ -56,7 +56,7 @@ export const EnrolledPrograms = ({
                   <Badge className="border-0 bg-primary-foreground/20 text-[10px] text-primary-foreground">
                     {program.type}
                   </Badge>
-                  <span className="text-[11px] text-primary-foreground/70">
+                  <span className="text-[12px] text-primary-foreground/80">
                     {program.price}
                   </span>
                 </div>

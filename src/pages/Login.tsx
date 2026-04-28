@@ -1,4 +1,5 @@
 import companyLogo from "@/assets/images/company-logo.png";
+import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -43,12 +44,26 @@ const Login = () => {
       }
 
       const accessToken = response.data?.accessToken;
+      const role = response.data?.user?.role;
+
       if (accessToken) {
-        api.setToken(accessToken, "user");
+        if (isAdminRole(role)) {
+          api.setToken(accessToken, "admin");
+          api.setToken(null, "user");
+        } else {
+          api.setToken(accessToken, "user");
+          api.setToken(null, "admin");
+        }
       }
 
       setSubmitMessage(response.message || "Login successful");
       setFormData({ email: "", password: "" });
+
+      if (isAdminRole(role)) {
+        navigate(RouteConstant.adminDashboard);
+        return;
+      }
+
       navigate(RouteConstant.dashboard);
     } catch (error) {
       console.error("Login error:", error);

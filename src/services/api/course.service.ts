@@ -1,4 +1,4 @@
-import type { StudentCourse } from "@/types/student-flow";
+import type { CourseOutlineTree, StudentCourse } from "@/types/student-flow";
 import api from "@/utils/api";
 import { unwrapServiceResponse } from "./helpers";
 
@@ -14,6 +14,13 @@ export const courseService = {
 
   async getMyCourseById(courseId: string): Promise<StudentCourse> {
     const response = await api.request<StudentCourse>(`/courses/${courseId}`);
+    return unwrapServiceResponse(response);
+  },
+
+  async getMyCourseOutline(courseId: string): Promise<CourseOutlineTree> {
+    const response = await api.request<CourseOutlineTree>(
+      `/courses/${encodeURIComponent(courseId)}/outline`,
+    );
     return unwrapServiceResponse(response);
   },
 };

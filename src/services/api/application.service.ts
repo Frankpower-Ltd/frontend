@@ -30,4 +30,15 @@ export const applicationService = {
 
     return unwrapServiceResponse(response);
   },
+
+  async resumePayment(applicationId: string): Promise<CheckoutResponse> {
+    const response = await api.request<CheckoutResponse>(
+      `/applications/${applicationId}/resume-payment`,
+      {
+        method: "POST",
+      },
+    );
+
+    return unwrapServiceResponse(response);
+  },
 };

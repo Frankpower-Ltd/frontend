@@ -17,20 +17,18 @@ export const StatsOverview = ({ stats }: StatsOverviewProps) => {
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-sm"
+          className="flex items-center gap-3 rounded-xl border border-[#d8d8d8] bg-card p-4"
         >
           <div
-            className={`h-10 w-10 shrink-0 rounded-lg ${stat.colorClass} flex items-center justify-center`}
+            className={`h-9 w-9 shrink-0 rounded-lg ${stat.colorClass} flex items-center justify-center`}
           >
-            <stat.icon className="h-4.5 w-4.5" />
+            <stat.icon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-lg font-bold leading-tight text-foreground">
+            <p className="truncate text-xl leading-none font-bold text-foreground">
               {stat.value}
             </p>
-            <p className="truncate text-[11px] text-muted-foreground">
-              {stat.label}
-            </p>
+            <p className="truncate text-xs text-[#6f6f6f]">{stat.label}</p>
           </div>
         </div>
       ))}
