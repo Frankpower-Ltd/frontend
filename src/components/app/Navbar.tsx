@@ -57,18 +57,20 @@ const Navbar: React.FC = () => {
 
       {/* Right - Desktop Action Buttons */}
       <div className="hidden md:flex items-center gap-4 font-inter text-sm font-bold">
-        <Link
+        <a
           className="text-gray-900 px-6 py-2 hover:text-gray-700 transition-all hover:bg-white hover:shadow-sm rounded-lg hover:border-gray-200 border border-transparent hover:-translate-y-1 duration-200"
-          to={RouteConstant.login}
+          href={RouteConstant.login}
+          target="_blank"
         >
           Login
-        </Link>
-        <Link
+        </a>
+        <a
           className="primary-gradient px-4 py-2 rounded-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg text-white hover:opacity-80"
-          to={RouteConstant.signup}
+          href={RouteConstant.signup}
+          target="_blank"
         >
           Apply Now
-        </Link>
+        </a>
       </div>
 
       {/* Mobile Menu Button */}

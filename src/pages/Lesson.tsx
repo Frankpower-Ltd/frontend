@@ -255,6 +255,11 @@ const Lesson = () => {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
   const { userData } = useOutletContext<{ userData: any }>();
+  const displayName =
+    userData?.fullName ||
+    userData?.firstName ||
+    [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") ||
+    "You";
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // State management
@@ -432,7 +437,7 @@ const Lesson = () => {
     const newCommentObj = {
       id: `comment-${Date.now()}`,
       userId: "current-user",
-      userName: userData?.firstName || "You",
+      userName: displayName,
       userAvatar: "",
       content: newComment,
       timestamp: new Date().toISOString(),

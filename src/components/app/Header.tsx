@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { RouteConstant } from "@/constants/routes";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import Navbar from "./Navbar";
 import {
   ArrowRight,
