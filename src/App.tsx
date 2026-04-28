@@ -1,3 +1,4 @@
+import AuthLayout from "@/components/layout/AuthLayout";
 import { RouteConstant } from "@/constants/routes";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -28,24 +29,26 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path={RouteConstant.login}
-          element={
-            <AuthPageGuard>
-              <Login />
-            </AuthPageGuard>
-          }
-        />
-        <Route
-          path={RouteConstant.signup}
-          element={
-            <AuthPageGuard>
-              <Signup />
-            </AuthPageGuard>
-          }
-        />
-        <Route path={RouteConstant.forgetPwd} element={<ForgotPassword />} />
-        <Route path={RouteConstant.resetPwd} element={<ResetPassword />} />
+        <Route element={<AuthLayout />}>
+          <Route
+            path={RouteConstant.login}
+            element={
+              <AuthPageGuard>
+                <Login />
+              </AuthPageGuard>
+            }
+          />
+          <Route
+            path={RouteConstant.signup}
+            element={
+              <AuthPageGuard>
+                <Signup />
+              </AuthPageGuard>
+            }
+          />
+          <Route path={RouteConstant.forgetPwd} element={<ForgotPassword />} />
+          <Route path={RouteConstant.resetPwd} element={<ResetPassword />} />
+        </Route>
         <Route path={RouteConstant.about} element={<AboutPage />} />
         <Route path={RouteConstant.programs} element={<ProgramsPage />} />
         <Route path={RouteConstant.contact} element={<ContactPage />} />

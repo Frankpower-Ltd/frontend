@@ -1,16 +1,16 @@
-import { motion } from "framer-motion";
+import heroGif from "@/assets/images/Course app-pana.png";
 import { RouteConstant } from "@/constants/routes";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  CheckCircle,
+  Rocket,
+  Sparkles,
+  Target,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Navbar from "./Navbar";
-import {
-  ArrowRight,
-  Sparkles,
-  Target,
-  Rocket,
-  CheckCircle,
-} from "lucide-react";
-import heroGif from "@/assets/images/Course app-pana.png";
 
 const Header: React.FC = () => {
   // const controls = useAnimation();
@@ -480,69 +480,6 @@ const Header: React.FC = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 0.8 }}
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
-      >
-        <motion.div
-          animate={{
-            y: [0, 10, 0],
-          }}
-          transition={{
-            y: {
-              repeat: Infinity,
-              duration: 1.5,
-              ease: "easeInOut" as const,
-            },
-          }}
-          className="flex flex-col items-center gap-2"
-        >
-          <span className="text-white/70 text-sm font-medium">
-            Scroll to explore
-          </span>
-          <motion.div
-            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
-            animate={{
-              borderColor: [
-                "rgba(255,255,255,0.3)",
-                "rgba(255,255,255,0.8)",
-                "rgba(255,255,255,0.3)",
-              ],
-            }}
-            transition={{
-              borderColor: {
-                repeat: Infinity,
-                duration: 2,
-                ease: "easeInOut" as const,
-              },
-            }}
-          >
-            <motion.div
-              className="w-1 h-3 bg-white rounded-full mt-2"
-              animate={{
-                opacity: [0.5, 1, 0.5],
-                y: [0, 6, 0],
-              }}
-              transition={{
-                opacity: {
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: "easeInOut" as const,
-                },
-                y: {
-                  repeat: Infinity,
-                  duration: 1.5,
-                  ease: "easeInOut" as const,
-                },
-              }}
-            />
-          </motion.div>
-        </motion.div>
-      </motion.div>
     </header>
   );
 };
