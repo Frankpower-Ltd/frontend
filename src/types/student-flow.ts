@@ -148,6 +148,8 @@ export interface LessonSchedule {
 
 export interface UserPayment {
   reference: string;
+  programTitle?: string;
+  programType?: ProgramTypeKey;
   amount: number;
   currency: string;
   status: PaymentStatus;

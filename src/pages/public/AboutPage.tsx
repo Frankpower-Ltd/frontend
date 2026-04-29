@@ -44,18 +44,6 @@ const AboutPage = () => {
     },
   };
 
-  // const scaleUpVariants = {
-  //   hidden: { opacity: 0, scale: 0.8 },
-  //   visible: {
-  //     opacity: 1,
-  //     scale: 1,
-  //     transition: {
-  //       duration: 0.5,
-  //       ease: "easeOut" as const,
-  //     },
-  //   },
-  // };
-
   // Stats data
   const stats = [
     {
@@ -117,7 +105,7 @@ const AboutPage = () => {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-white z-0" />
+        <div className="absolute inset-0 bg-background z-0" />
 
         <div className="container mx-auto relative z-10">
           <motion.div

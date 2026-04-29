@@ -160,7 +160,7 @@ const MyCourses = () => {
               setStatusFilter(event.target.value as StatusFilter);
               setPage(0);
             }}
-            className="h-10 w-full rounded-md border border-input bg-background pl-8 pr-2 text-sm"
+            className="h-10 w-full rounded-md border border-input bg-white pl-8 pr-2 text-sm"
           >
             <option value="ALL">All Courses</option>
             <option value="NOT_STARTED">Not Started</option>
