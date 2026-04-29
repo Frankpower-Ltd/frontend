@@ -1,10 +1,11 @@
-import CTASection from "@/components/app/CTASection";
-import FaqSection from "@/components/app/FaqSection";
-import Footer from "@/components/app/Footer";
-import ChoosePathSection from "@/components/app/ChoosePathSection";
-import Header from "@/components/app/Header";
-import ProgramsSection from "@/components/app/ProgramsSection";
-import TestimonialsSection from "@/components/app/TestimonialsSection";
+import ChoosePathSection from "@/components/features/ChoosePathSection";
+import ClassInteractionSection from "@/components/features/ClassInteractionSection";
+import CTASection from "@/components/features/CTASection";
+import FaqSection from "@/components/features/FaqSection";
+import Footer from "@/components/features/Footer";
+import Header from "@/components/features/Header";
+import ProgramsSection from "@/components/features/ProgramsSection";
+import TestimonialsSection from "@/components/features/TestimonialsSection";
 import React from "react";
 
 const LandingPage: React.FC = () => {
@@ -14,6 +15,7 @@ const LandingPage: React.FC = () => {
         <Header />
         <ProgramsSection />
         <ChoosePathSection />
+        <ClassInteractionSection />
         <TestimonialsSection />
         <FaqSection />
         <CTASection />

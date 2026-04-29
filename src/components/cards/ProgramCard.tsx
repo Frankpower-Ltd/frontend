@@ -1,160 +1,50 @@
-// src/cards/ProgramCard.tsx
-import React from "react";
+import type { IProgramData } from "@/components/features/ProgramsSection";
 import { motion } from "framer-motion";
-import type { IProgramData } from "@/components/app/ProgramsSection";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowUpRight, Clock } from "lucide-react";
 
 interface ProgramCardProps {
   data: IProgramData;
 }
 
-const ProgramCard: React.FC<ProgramCardProps> = ({ data }) => {
+const ProgramCard = ({ data }: ProgramCardProps) => {
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-lg overflow-hidden h-full border border-gray-100 hover:shadow-2xl transition-all duration-300 relative group"
-      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      className="group h-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
-      transition={{
-        duration: 0.6,
-        ease: "easeOut",
-      }}
-      whileHover={{
-        y: -8,
-        transition: { duration: 0.3 },
-      }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
     >
-      {/* Animated red gradient border */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-xl opacity-0 group-hover:opacity-10 -z-10"
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 0.15 }}
-        transition={{ duration: 0.4 }}
-      />
-
-      {/* Image Container */}
       <div className="relative overflow-hidden">
-        <motion.img
+        <img
           src={data.imageUrl}
           alt={data.title}
-          className="w-full h-48 object-cover"
-          initial={{ scale: 1.1 }}
-          whileInView={{ scale: 1 }}
-          whileHover={{ scale: 1.08 }}
-          transition={{
-            scale: {
-              duration: 0.5,
-              ease: "easeOut",
-            },
-          }}
-          viewport={{ once: true }}
+          className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Duration Badge */}
-        <motion.div
-          className="absolute top-4 right-4 bg-gradient-to-r from-red-600 to-red-800 text-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5"
-          initial={{ x: 20, opacity: 0, scale: 0.8 }}
-          whileInView={{ x: 0, opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{
-            delay: 0.2,
-            duration: 0.4,
-            ease: "easeOut",
-          }}
-          whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-        >
+        <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
           <Clock className="h-3 w-3" />
-          <span className="text-sm font-semibold">{data.duration}</span>
-        </motion.div>
-
-        {/* Hover overlay */}
-        <motion.div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <span>{data.duration}</span>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
-      {/* Content */}
       <div className="p-6">
-        <motion.h3
-          className="text-xl font-bold text-gray-900 mb-3"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-        >
-          {data.title}
-        </motion.h3>
-
-        <motion.p
-          className="text-gray-600 mb-6 line-clamp-2"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
+        <h3 className="text-xl font-semibold text-gray-900">{data.title}</h3>
+        <p className="mt-3 text-sm leading-6 text-gray-600">
           {data.description}
-        </motion.p>
+        </p>
 
-        {/* CTA Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-        >
-          <motion.button
-            className="w-full bg-gradient-to-r from-red-600 to-red-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 relative overflow-hidden group/btn"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              Learn More
-              <ArrowRight className="h-4 w-4" />
-            </span>
-
-            {/* Button shine effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-900 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: "0%" }}
-              transition={{ duration: 0.4 }}
-            />
-
-            {/* Pulsing dot */}
-            <motion.div
-              className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full"
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.7, 1, 0.7],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 2,
-                ease: "easeInOut",
-                delay: 0.5,
-              }}
-            />
-          </motion.button>
-        </motion.div>
+        <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
+          <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Beginner friendly
+          </span>
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#610101] cursor-pointer">
+            Learn more
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </div>
       </div>
-
-      {/* Subtle red shine effect on hover */}
-      <motion.div
-        className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-red-600 to-red-700 opacity-0 group-hover:opacity-100"
-        initial={{ x: "-100%" }}
-        whileHover={{ x: "100%" }}
-        transition={{ duration: 0.6 }}
-      />
-
-      {/* Corner accent */}
-      <motion.div
-        className="absolute top-0 right-0 w-12 h-12"
-        style={{ clipPath: "polygon(100% 0, 0 0, 100% 100%)" }}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 0.1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="w-full h-full bg-gradient-to-br from-red-600 to-red-800" />
-      </motion.div>
     </motion.div>
   );
 };

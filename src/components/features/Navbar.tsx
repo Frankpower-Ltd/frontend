@@ -1,10 +1,11 @@
 import companyLogo from "@/assets/images/company-logo-main.png";
 import { RouteConstant } from "@/constants/routes";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router"; // Changed from "react-router" for web projects
+import { Link, useLocation } from "react-router";
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   // Close menu on screen resize
   useEffect(() => {
@@ -17,7 +18,22 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const NavLink: React.FC<{
+  const navItems = [
+    { label: "Home", path: "/" },
+    { label: "Programs", path: RouteConstant.programs },
+    { label: "Contact", path: RouteConstant.contact },
+    { label: "Alumni", path: RouteConstant.alumni },
+    { label: "About Us", path: RouteConstant.about },
+  ];
+
+  const isActivePath = (to: string) => {
+    if (to === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname === to || location.pathname.startsWith(`${to}/`);
+  };
+
+  const NavItem: React.FC<{
     to: string;
     children: React.ReactNode;
     onClick?: () => void;
@@ -26,9 +42,23 @@ const Navbar: React.FC = () => {
       <Link
         to={to}
         onClick={onClick}
-        className="block text-dark hover:text-gray-600 transition-colors text-sm font-semibold py-2"
+        className={`group relative block rounded-md px-2 py-2 text-sm font-semibold transition-colors ${
+          isActivePath(to)
+            ? "text-[#610101]"
+            : "text-gray-900 hover:text-[#610101]"
+        }`}
       >
-        {children}
+        <span>{children}</span>
+        {isActivePath(to) && (
+          <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#610101] md:hidden" />
+        )}
+        <span
+          className={`absolute -bottom-0.5 left-2 right-2 hidden h-0.5 rounded-full bg-[#610101] transition-opacity duration-200 md:block ${
+            isActivePath(to)
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-60"
+          }`}
+        />
       </Link>
     </li>
   );
@@ -47,12 +77,14 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Center - Desktop Navigation */}
-      <nav className="hidden md:flex gap-8 list-none font-inter font-medium text-gray-950">
-        <NavLink to="/">Home</NavLink>
-        <NavLink to={RouteConstant.programs}>Programs</NavLink>
-        <NavLink to={RouteConstant.contact}>Contact</NavLink>
-        <NavLink to={RouteConstant.alumni}>Alumni</NavLink>
-        <NavLink to={RouteConstant.about}>About Us</NavLink>
+      <nav className="hidden md:block">
+        <ul className="flex gap-8 font-inter font-medium text-gray-950">
+          {navItems.map((item) => (
+            <NavItem key={item.path} to={item.path}>
+              {item.label}
+            </NavItem>
+          ))}
+        </ul>
       </nav>
 
       {/* Right - Desktop Action Buttons */}
@@ -131,34 +163,15 @@ const Navbar: React.FC = () => {
             </div>
             <nav>
               <ul className="space-y-4">
-                <NavLink to="/" onClick={() => setIsMenuOpen(false)}>
-                  Home
-                </NavLink>
-
-                <NavLink
-                  to={RouteConstant.programs}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Programs
-                </NavLink>
-                <NavLink
-                  to={RouteConstant.about}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  About Us
-                </NavLink>
-                <NavLink
-                  to={RouteConstant.contact}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Contact
-                </NavLink>
-                <NavLink
-                  to={RouteConstant.alumni}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Alumni
-                </NavLink>
+                {navItems.map((item) => (
+                  <NavItem
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </NavItem>
+                ))}
               </ul>
             </nav>
             <div className="mt-8 pt-4 border-t border-gray-200 flex flex-col space-y-4">

@@ -111,6 +111,36 @@ export interface StudentCourse {
   course: Course;
 }
 
+export type Weekday =
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY"
+  | "SUNDAY";
+
+export type ClassPlatform = "GOOGLE_MEET" | "ZOOM" | "MICROSOFT_TEAMS";
+
+export interface LessonSchedule {
+  id: string;
+  courseId: string;
+  courseTitle?: string;
+  programId?: string;
+  title: string;
+  instructorName: string;
+  weekday: Weekday;
+  startTime: string;
+  endTime: string;
+  platform: ClassPlatform;
+  meetingLink: string;
+  meetingId?: string;
+  passcode?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserPayment {
   reference: string;
   amount: number;
