@@ -122,7 +122,7 @@ const formatDateLong = (iso: string) =>
     month: "long",
   });
 
-const getNextSessionDate = (weekday: Weekday): Date => {
+const getNextSessionDateByWeekday = (weekday: Weekday): Date => {
   const now = new Date();
   const todayIdx = (now.getDay() + 6) % 7;
   const targetIdx = orderedDays.indexOf(weekday);
@@ -135,7 +135,7 @@ const getNextSessionDate = (weekday: Weekday): Date => {
 
 const getSessionStatus = (session: LessonSchedule): SessionStatus => {
   const now = new Date();
-  const dayDate = getNextSessionDate(session.weekday);
+  const dayDate = getNextSessionDate(session);
   const [sh, sm] = session.startTime.split(":").map(Number);
   const [eh, em] = session.endTime.split(":").map(Number);
 
@@ -148,6 +148,49 @@ const getSessionStatus = (session: LessonSchedule): SessionStatus => {
   if (now < start) return "UPCOMING";
   if (now >= start && now <= end) return "LIVE";
   return "ENDED";
+};
+
+const weekdayFromDate = (isoDate: string): Weekday => {
+  const d = new Date(isoDate);
+  return ([
+    "SUNDAY",
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+  ][d.getDay()] || "MONDAY") as Weekday;
+};
+
+const getSessionWeekdays = (session: LessonSchedule): Weekday[] => {
+  if (session.scheduleType === "RECURRING") {
+    return session.weekdays ?? [];
+  }
+  if (session.sessionDate) {
+    return [weekdayFromDate(session.sessionDate)];
+  }
+  return [];
+};
+
+const getNextSessionDate = (session: LessonSchedule): Date => {
+  if (session.scheduleType === "ONE_OFF" && session.sessionDate) {
+    const date = new Date(session.sessionDate);
+    const [sh, sm] = session.startTime.split(":").map(Number);
+    date.setHours(sh, sm, 0, 0);
+    return date;
+  }
+
+  const weekdays = getSessionWeekdays(session);
+  if (!weekdays.length) return new Date();
+  const candidates = weekdays.map((d) => {
+    const next = getNextSessionDateByWeekday(d);
+    const [sh, sm] = session.startTime.split(":").map(Number);
+    next.setHours(sh, sm, 0, 0);
+    return next;
+  });
+  candidates.sort((a, b) => a.getTime() - b.getTime());
+  return candidates[0];
 };
 
 const useTick = (ms = 30000) => {
@@ -173,23 +216,26 @@ const formatCountdown = (target: Date) => {
 const SchedulePage = () => {
   useTick();
 
-  const { data: sessions = [], isLoading } = useMySchedules();
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+  const { data: sessions = [], isLoading } = useMySchedules(
+    selectedCourseId === "all" ? undefined : { courseId: selectedCourseId },
+  );
   const { data: myCourses = [] } = useMyCourses("all");
   const [search, setSearch] = useState("");
-  const [courseFilter, setCourseFilter] = useState<string>("all");
   const [selected, setSelected] = useState<LessonSchedule | null>(null);
 
   const todayKey = orderedDays[(new Date().getDay() + 6) % 7];
   const [activeDay, setActiveDay] = useState<Weekday | "ALL">("ALL");
 
   const courses = useMemo(() => {
-    const fromEnrollments = myCourses
-      .map((c) => c.course?.title)
-      .filter(Boolean) as string[];
-    const fromSchedules = sessions
-      .map((s) => s.courseTitle)
-      .filter(Boolean) as string[];
-    return Array.from(new Set([...fromEnrollments, ...fromSchedules]));
+    return myCourses
+      .map((c) => ({
+        id: c.course?.id,
+        title: c.course?.title,
+      }))
+      .filter((c): c is { id: string; title: string } =>
+        Boolean(c.id && c.title),
+      );
   }, [myCourses, sessions]);
 
   const weekDates = useMemo(() => {
@@ -214,28 +260,40 @@ const SchedulePage = () => {
         s.title.toLowerCase().includes(q) ||
         (s.courseTitle || "").toLowerCase().includes(q) ||
         s.instructorName.toLowerCase().includes(q);
-      const matchesCourse =
-        courseFilter === "all" ||
-        (s.courseTitle || "Untitled Course") === courseFilter;
-      const matchesDay = activeDay === "ALL" || s.weekday === activeDay;
-      return matchesSearch && matchesCourse && matchesDay;
+      const matchesDay =
+        activeDay === "ALL" || getSessionWeekdays(s).includes(activeDay);
+      return matchesSearch && matchesDay;
     });
-  }, [sessions, search, courseFilter, activeDay]);
+  }, [sessions, search, activeDay]);
 
   const grouped = useMemo(() => {
     const map = new Map<Weekday, LessonSchedule[]>();
     orderedDays.forEach((d) => map.set(d, []));
-    filtered.forEach((s) => map.get(s.weekday)?.push(s));
+    filtered.forEach((s) => {
+      const sessionDays = getSessionWeekdays(s);
+      if (activeDay !== "ALL") {
+        if (sessionDays.includes(activeDay)) {
+          map.get(activeDay)?.push(s);
+        }
+        return;
+      }
+
+      sessionDays.forEach((day) => map.get(day)?.push(s));
+    });
     map.forEach((arr) =>
       arr.sort((a, b) => a.startTime.localeCompare(b.startTime)),
     );
     return map;
-  }, [filtered]);
+  }, [filtered, activeDay]);
 
   const dayCounts = useMemo(() => {
     const map = new Map<Weekday, number>();
     orderedDays.forEach((d) => map.set(d, 0));
-    sessions.forEach((s) => map.set(s.weekday, (map.get(s.weekday) ?? 0) + 1));
+    sessions.forEach((s) => {
+      getSessionWeekdays(s).forEach((day) => {
+        map.set(day, (map.get(day) ?? 0) + 1);
+      });
+    });
     return map;
   }, [sessions]);
 
@@ -245,8 +303,8 @@ const SchedulePage = () => {
     const upcoming = sessions
       .filter((s) => getSessionStatus(s) === "UPCOMING")
       .sort((a, b) => {
-        const da = getNextSessionDate(a.weekday);
-        const db = getNextSessionDate(b.weekday);
+        const da = getNextSessionDate(a);
+        const db = getNextSessionDate(b);
         return da.getTime() - db.getTime();
       });
     return upcoming[0] ?? null;
@@ -410,15 +468,15 @@ const SchedulePage = () => {
               className="pl-9 bg-card h-10 rounded-xl"
             />
           </div>
-          <Select value={courseFilter} onValueChange={setCourseFilter}>
+          <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
             <SelectTrigger className="w-full md:w-56 bg-card h-10 rounded-xl">
               <SelectValue placeholder="Filter by course" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Courses</SelectItem>
               {courses.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
+                <SelectItem key={c.id} value={c.id}>
+                  {c.title}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -487,7 +545,9 @@ const SchedulePage = () => {
                 <DialogHeader>
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 border-0">
-                      {weekdayLabels[selected.weekday]}
+                      {getSessionWeekdays(selected)[0]
+                        ? weekdayLabels[getSessionWeekdays(selected)[0]]
+                        : "Scheduled"}
                     </Badge>
                     {getSessionStatus(selected) === "LIVE" && (
                       <Badge className="bg-success text-success-foreground hover:bg-success border-0 gap-1.5">
@@ -516,7 +576,7 @@ const SchedulePage = () => {
                     icon={CalendarIcon}
                     label="Next Class"
                     value={formatDateLong(
-                      getNextSessionDate(selected.weekday).toISOString(),
+                      getNextSessionDate(selected).toISOString(),
                     )}
                   />
                   <DetailItem
@@ -627,7 +687,7 @@ const HeroNextCard = ({
   const status = getSessionStatus(session);
   const isLive = status === "LIVE";
   const platform = platformConfig[session.platform];
-  const start = getNextSessionDate(session.weekday);
+  const start = getNextSessionDate(session);
   const [sh, sm] = session.startTime.split(":").map(Number);
   start.setHours(sh, sm, 0, 0);
   const countdown = formatCountdown(start);
