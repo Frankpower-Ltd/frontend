@@ -1,224 +1,809 @@
-// pages/Schedule.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Calendar,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search,
+  Calendar as CalendarIcon,
   Clock,
   Video,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
+  ExternalLink,
+  Copy,
+  CheckCircle2,
+  User,
+  Link2,
+  MapPin,
+  Bell,
+  ArrowRight,
 } from "lucide-react";
-import api from "@/utils/api";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useMySchedules } from "@/hooks/use-schedules";
+import { useMyCourses } from "@/hooks/use-courses";
+import type {
+  ClassPlatform,
+  LessonSchedule,
+  Weekday,
+} from "@/types/student-flow";
 
-interface ScheduleEvent {
-  id: string;
-  title: string;
-  type: "live" | "workshop" | "one-on-one" | "assignment";
-  startTime: string;
-  endTime: string;
-  instructor: string;
-  courseName: string;
-  meetingLink?: string;
-  status: "upcoming" | "ongoing" | "completed";
-}
+type SessionStatus = "UPCOMING" | "LIVE" | "ENDED";
 
-const Schedule = () => {
-  const [events, setEvents] = useState<ScheduleEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [view, setView] = useState<"day" | "week" | "month">("week");
+const weekdayLabels: Record<Weekday, string> = {
+  MONDAY: "Monday",
+  TUESDAY: "Tuesday",
+  WEDNESDAY: "Wednesday",
+  THURSDAY: "Thursday",
+  FRIDAY: "Friday",
+  SATURDAY: "Saturday",
+  SUNDAY: "Sunday",
+};
 
-  const fetchSchedule = useCallback(async () => {
-    try {
-      setLoading(true);
-      // Format date for API
-      const dateStr = selectedDate.toISOString().split("T")[0];
-      const response = await api.request(
-        `/schedule?date=${dateStr}&view=${view}`,
-      );
-      if (response.success && response.data) {
-        setEvents(response.data as ScheduleEvent[]);
-      }
-    } catch (error) {
-      console.error("Error fetching schedule:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedDate, view]);
+const weekdayShort: Record<Weekday, string> = {
+  MONDAY: "Mon",
+  TUESDAY: "Tue",
+  WEDNESDAY: "Wed",
+  THURSDAY: "Thu",
+  FRIDAY: "Fri",
+  SATURDAY: "Sat",
+  SUNDAY: "Sun",
+};
 
+const weekdayMin: Record<Weekday, string> = {
+  MONDAY: "M",
+  TUESDAY: "T",
+  WEDNESDAY: "W",
+  THURSDAY: "T",
+  FRIDAY: "F",
+  SATURDAY: "S",
+  SUNDAY: "S",
+};
+
+const platformConfig: Record<
+  ClassPlatform,
+  { label: string; color: string; bg: string; accent: string }
+> = {
+  GOOGLE_MEET: {
+    label: "Google Meet",
+    color: "text-info",
+    bg: "bg-info/10",
+    accent: "bg-info",
+  },
+  ZOOM: {
+    label: "Zoom",
+    color: "text-primary",
+    bg: "bg-primary/10",
+    accent: "bg-primary",
+  },
+  MICROSOFT_TEAMS: {
+    label: "Microsoft Teams",
+    color: "text-accent-foreground",
+    bg: "bg-accent",
+    accent: "bg-foreground",
+  },
+};
+
+const orderedDays: Weekday[] = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+];
+
+const formatTime12h = (time: string) => {
+  const parts = time.split(":");
+  const h = Number(parts[0] || 0);
+  const m = Number(parts[1] || 0);
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, "0")} ${period}`;
+};
+
+const formatDateLong = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-NG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+const getNextSessionDate = (weekday: Weekday): Date => {
+  const now = new Date();
+  const todayIdx = (now.getDay() + 6) % 7;
+  const targetIdx = orderedDays.indexOf(weekday);
+  let diff = targetIdx - todayIdx;
+  if (diff < 0) diff += 7;
+  const next = new Date(now);
+  next.setDate(now.getDate() + diff);
+  return next;
+};
+
+const getSessionStatus = (session: LessonSchedule): SessionStatus => {
+  const now = new Date();
+  const dayDate = getNextSessionDate(session.weekday);
+  const [sh, sm] = session.startTime.split(":").map(Number);
+  const [eh, em] = session.endTime.split(":").map(Number);
+
+  const start = new Date(dayDate);
+  start.setHours(sh, sm, 0, 0);
+
+  const end = new Date(dayDate);
+  end.setHours(eh, em, 0, 0);
+
+  if (now < start) return "UPCOMING";
+  if (now >= start && now <= end) return "LIVE";
+  return "ENDED";
+};
+
+const useTick = (ms = 30000) => {
+  const [, setN] = useState(0);
   useEffect(() => {
-    fetchSchedule();
-  }, [fetchSchedule]);
+    const id = setInterval(() => setN((n) => n + 1), ms);
+    return () => clearInterval(id);
+  }, [ms]);
+};
 
-  const getEventTypeColor = (type: string) => {
-    const colors = {
-      live: "bg-red-50 text-red-700 border-red-200",
-      workshop: "bg-blue-50 text-blue-700 border-blue-200",
-      "one-on-one": "bg-purple-50 text-purple-700 border-purple-200",
-      assignment: "bg-amber-50 text-amber-700 border-amber-200",
-    };
-    return colors[type as keyof typeof colors] || colors.workshop;
-  };
+const formatCountdown = (target: Date) => {
+  const diff = target.getTime() - Date.now();
+  if (diff <= 0) return null;
+  const mins = Math.floor(diff / 60000);
+  const days = Math.floor(mins / (60 * 24));
+  const hours = Math.floor((mins % (60 * 24)) / 60);
+  const minutes = mins % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
+const SchedulePage = () => {
+  useTick();
+
+  const { data: sessions = [], isLoading } = useMySchedules();
+  const { data: myCourses = [] } = useMyCourses("all");
+  const [search, setSearch] = useState("");
+  const [courseFilter, setCourseFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<LessonSchedule | null>(null);
+
+  const todayKey = orderedDays[(new Date().getDay() + 6) % 7];
+  const [activeDay, setActiveDay] = useState<Weekday | "ALL">("ALL");
+
+  const courses = useMemo(() => {
+    const fromEnrollments = myCourses
+      .map((c) => c.course?.title)
+      .filter(Boolean) as string[];
+    const fromSchedules = sessions
+      .map((s) => s.courseTitle)
+      .filter(Boolean) as string[];
+    return Array.from(new Set([...fromEnrollments, ...fromSchedules]));
+  }, [myCourses, sessions]);
+
+  const weekDates = useMemo(() => {
+    const now = new Date();
+    const todayIdx = (now.getDay() + 6) % 7;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - todayIdx);
+    monday.setHours(0, 0, 0, 0);
+    const map = new Map<Weekday, Date>();
+    orderedDays.forEach((d, i) => {
+      const dt = new Date(monday);
+      dt.setDate(monday.getDate() + i);
+      map.set(d, dt);
     });
+    return map;
+  }, []);
+
+  const filtered = useMemo(() => {
+    return sessions.filter((s) => {
+      const q = search.toLowerCase();
+      const matchesSearch =
+        s.title.toLowerCase().includes(q) ||
+        (s.courseTitle || "").toLowerCase().includes(q) ||
+        s.instructorName.toLowerCase().includes(q);
+      const matchesCourse =
+        courseFilter === "all" ||
+        (s.courseTitle || "Untitled Course") === courseFilter;
+      const matchesDay = activeDay === "ALL" || s.weekday === activeDay;
+      return matchesSearch && matchesCourse && matchesDay;
+    });
+  }, [sessions, search, courseFilter, activeDay]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<Weekday, LessonSchedule[]>();
+    orderedDays.forEach((d) => map.set(d, []));
+    filtered.forEach((s) => map.get(s.weekday)?.push(s));
+    map.forEach((arr) =>
+      arr.sort((a, b) => a.startTime.localeCompare(b.startTime)),
+    );
+    return map;
+  }, [filtered]);
+
+  const dayCounts = useMemo(() => {
+    const map = new Map<Weekday, number>();
+    orderedDays.forEach((d) => map.set(d, 0));
+    sessions.forEach((s) => map.set(s.weekday, (map.get(s.weekday) ?? 0) + 1));
+    return map;
+  }, [sessions]);
+
+  const heroSession = useMemo(() => {
+    const live = sessions.find((s) => getSessionStatus(s) === "LIVE");
+    if (live) return live;
+    const upcoming = sessions
+      .filter((s) => getSessionStatus(s) === "UPCOMING")
+      .sort((a, b) => {
+        const da = getNextSessionDate(a.weekday);
+        const db = getNextSessionDate(b.weekday);
+        return da.getTime() - db.getTime();
+      });
+    return upcoming[0] ?? null;
+  }, [sessions]);
+
+  const weeklyTotal = sessions.length;
+  const liveCount = sessions.filter(
+    (s) => getSessionStatus(s) === "LIVE",
+  ).length;
+
+  const copyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    toast.success("Meeting link copied");
   };
 
-  const changeDate = (days: number) => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + days);
-    setSelectedDate(newDate);
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
+      <div className="px-4 md:px-6 lg:px-8 py-6">
+        <div className="bg-card border border-border rounded-2xl p-8 text-sm text-muted-foreground">
+          Loading schedules...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 px-4 md:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Schedule</h1>
-          <p className="text-gray-500 mt-1">
-            Manage your classes and deadlines
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setView("day")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              view === "day"
-                ? "bg-gray-900 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Day
-          </button>
-          <button
-            onClick={() => setView("week")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              view === "week"
-                ? "bg-gray-900 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Week
-          </button>
-          <button
-            onClick={() => setView("month")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              view === "month"
-                ? "bg-gray-900 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Month
-          </button>
-        </div>
-      </div>
+    <div className="px-4 md:px-6 lg:px-8 py-6">
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+              Schedule
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {new Date().toLocaleDateString("en-NG", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          </div>
 
-      {/* Date navigation */}
-      <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4">
-        <button
-          onClick={() => changeDate(-1)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5 text-gray-600" />
-        </button>
-        <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-gray-400" />
-          <span className="font-medium text-gray-900">
-            {formatDate(selectedDate)}
-          </span>
+          <div className="hidden sm:flex items-center gap-2 px-3 h-9 rounded-full bg-card border border-border">
+            <span className="text-xs text-muted-foreground">This week</span>
+            <span className="text-xs font-semibold text-foreground">
+              {weeklyTotal} sessions
+            </span>
+            {liveCount > 0 && (
+              <>
+                <span className="h-3 w-px bg-border" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                  {liveCount} live
+                </span>
+              </>
+            )}
+          </div>
         </div>
-        <button
-          onClick={() => changeDate(1)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ChevronRight className="h-5 w-5 text-gray-600" />
-        </button>
-      </div>
 
-      {/* Events list */}
-      <div className="space-y-3">
-        {events.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No events scheduled
+        {heroSession && (
+          <HeroNextCard
+            session={heroSession}
+            onJoin={() =>
+              window.open(
+                heroSession.meetingLink,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+            onOpen={() => setSelected(heroSession)}
+          />
+        )}
+
+        <div className="mt-8 mb-6">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em]">
+              This Week
+            </p>
+            {activeDay !== "ALL" && (
+              <button
+                onClick={() => setActiveDay("ALL")}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Show all
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+            {orderedDays.map((d) => {
+              const date = weekDates.get(d)!;
+              const count = dayCounts.get(d) ?? 0;
+              const isToday = d === todayKey;
+              const isActive = activeDay === d;
+              return (
+                <button
+                  key={d}
+                  onClick={() => setActiveDay(isActive ? "ALL" : d)}
+                  className={cn(
+                    "group relative flex flex-col items-center justify-center py-3 rounded-2xl border transition-all",
+                    isActive &&
+                      "bg-foreground text-background border-foreground shadow-sm",
+                    !isActive &&
+                      isToday &&
+                      "bg-card border-primary/40 hover:border-primary",
+                    !isActive &&
+                      !isToday &&
+                      "bg-card border-border hover:border-foreground/30",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-[10px] font-semibold uppercase tracking-wider",
+                      isActive
+                        ? "opacity-60"
+                        : isToday
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                    )}
+                  >
+                    <span className="hidden md:inline">{weekdayShort[d]}</span>
+                    <span className="md:hidden">{weekdayMin[d]}</span>
+                  </span>
+                  <span
+                    className={cn(
+                      "text-xl font-bold leading-tight tabular-nums mt-0.5",
+                      !isActive && isToday && "text-primary",
+                    )}
+                  >
+                    {date.getDate()}
+                  </span>
+                  <div className="h-1.5 mt-1 flex items-center gap-0.5">
+                    {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                      <span
+                        key={i}
+                        className={cn(
+                          "h-1 w-1 rounded-full",
+                          isActive
+                            ? "bg-background/70"
+                            : isToday
+                              ? "bg-primary"
+                              : "bg-muted-foreground/40",
+                        )}
+                      />
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mb-5 flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search topic, course, instructor..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-card h-10 rounded-xl"
+            />
+          </div>
+          <Select value={courseFilter} onValueChange={setCourseFilter}>
+            <SelectTrigger className="w-full md:w-56 bg-card h-10 rounded-xl">
+              <SelectValue placeholder="Filter by course" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Courses</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="bg-card border border-border rounded-2xl p-12 text-center">
+            <CalendarIcon className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-foreground">
+              No sessions found
             </h3>
-            <p className="text-gray-500">Enjoy your free time!</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Try a different day or search.
+            </p>
           </div>
         ) : (
-          events.map((event) => (
-            <div
-              key={event.id}
-              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full border ${getEventTypeColor(event.type)}`}
-                    >
-                      {event.type}
+          <div className="space-y-6">
+            {orderedDays.map((day) => {
+              const daySessions = grouped.get(day) ?? [];
+              if (daySessions.length === 0) return null;
+              const date = weekDates.get(day)!;
+              const isToday = day === todayKey;
+              return (
+                <section key={day}>
+                  <div className="flex items-baseline gap-2 mb-3 px-1">
+                    <h2 className="text-sm font-semibold text-foreground">
+                      {weekdayLabels[day]}
+                    </h2>
+                    <span className="text-xs text-muted-foreground">
+                      {date.toLocaleDateString("en-NG", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </span>
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        event.status === "upcoming"
-                          ? "bg-green-50 text-green-700"
-                          : event.status === "ongoing"
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-gray-50 text-gray-700"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
+                    {isToday && (
+                      <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-0 text-[10px] h-5">
+                        Today
+                      </Badge>
+                    )}
                   </div>
+                  <div className="space-y-2">
+                    {daySessions.map((s) => (
+                      <SessionRow
+                        key={s.id}
+                        session={s}
+                        onClick={() => setSelected(s)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {event.courseName} • {event.instructor}
+      <Dialog
+        open={!!selected}
+        onOpenChange={(open: boolean) => !open && setSelected(null)}
+      >
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          {selected && (
+            <>
+              <div className="primary-gradient p-6 text-primary-foreground">
+                <DialogHeader>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 border-0">
+                      {weekdayLabels[selected.weekday]}
+                    </Badge>
+                    {getSessionStatus(selected) === "LIVE" && (
+                      <Badge className="bg-success text-success-foreground hover:bg-success border-0 gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-success-foreground animate-pulse" />
+                        Live
+                      </Badge>
+                    )}
+                  </div>
+                  <DialogTitle className="text-xl text-primary-foreground">
+                    {selected.title}
+                  </DialogTitle>
+                  <DialogDescription className="text-primary-foreground/80">
+                    {selected.courseTitle || "Course Session"}
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <DetailItem
+                    icon={Clock}
+                    label="Time"
+                    value={`${formatTime12h(selected.startTime)} – ${formatTime12h(selected.endTime)}`}
+                  />
+                  <DetailItem
+                    icon={CalendarIcon}
+                    label="Next Class"
+                    value={formatDateLong(
+                      getNextSessionDate(selected.weekday).toISOString(),
+                    )}
+                  />
+                  <DetailItem
+                    icon={User}
+                    label="Instructor"
+                    value={selected.instructorName}
+                  />
+                  <DetailItem
+                    icon={Video}
+                    label="Platform"
+                    value={platformConfig[selected.platform].label}
+                  />
+                </div>
+
+                <div className="border-t border-border pt-5 space-y-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Meeting Details
                   </p>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {new Date(event.startTime).toLocaleTimeString()} -{" "}
-                      {new Date(event.endTime).toLocaleTimeString()}
+                  <div className="bg-accent/40 border border-border rounded-lg p-3 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Link2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] text-muted-foreground">
+                          Meeting Link
+                        </p>
+                        <p className="text-xs font-medium text-foreground break-all">
+                          {selected.meetingLink}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 shrink-0"
+                        onClick={() => copyLink(selected.meetingLink)}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                    {event.meetingLink && (
-                      <div className="flex items-center">
-                        <Video className="h-4 w-4 mr-1" />
-                        Online
+
+                    {selected.meetingId && (
+                      <div className="flex items-start gap-2 pt-2 border-t border-border">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] text-muted-foreground">
+                            Meeting ID
+                          </p>
+                          <p className="text-xs font-mono font-medium text-foreground">
+                            {selected.meetingId}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selected.passcode && (
+                      <div className="flex items-start gap-2 pt-2 border-t border-border">
+                        <CheckCircle2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] text-muted-foreground">
+                            Passcode
+                          </p>
+                          <p className="text-xs font-mono font-medium text-foreground">
+                            {selected.passcode}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {event.meetingLink && event.status !== "completed" && (
-                  <button className="px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors">
-                    Join
-                  </button>
-                )}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <Button asChild className="flex-1">
+                    <a
+                      href={selected.meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Video className="h-4 w-4 mr-2" /> Join Class
+                      <ExternalLink className="h-3.5 w-3.5 ml-2" />
+                    </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="sm:w-auto"
+                    onClick={() => toast.info("Reminder feature coming soon")}
+                  >
+                    <Bell className="h-4 w-4 mr-2" /> Remind Me
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default Schedule;
+const HeroNextCard = ({
+  session,
+  onJoin,
+  onOpen,
+}: {
+  session: LessonSchedule;
+  onJoin: () => void;
+  onOpen: () => void;
+}) => {
+  const status = getSessionStatus(session);
+  const isLive = status === "LIVE";
+  const platform = platformConfig[session.platform];
+  const start = getNextSessionDate(session.weekday);
+  const [sh, sm] = session.startTime.split(":").map(Number);
+  start.setHours(sh, sm, 0, 0);
+  const countdown = formatCountdown(start);
+
+  return (
+    <>
+      <div className="flex items-center justify-between gap-4 mb-3 px-1">
+        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.15em]">
+          {isLive ? "Happening now" : "Up next"}
+        </p>
+        {countdown && !isLive && (
+          <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+            starts in {countdown}
+          </span>
+        )}
+      </div>
+      <div
+        className={cn(
+          "group flex items-stretch gap-0 rounded-2xl border bg-card overflow-hidden transition-all hover:shadow-md",
+          isLive
+            ? "border-success/40"
+            : "border-border hover:border-foreground/20",
+        )}
+      >
+        <span
+          className={cn("w-1.5 shrink-0", isLive ? "bg-success" : "bg-primary")}
+        />
+        <div className="flex flex-col items-center justify-center px-5 md:px-6 py-5 border-r border-border min-w-[110px]">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            {start.toLocaleDateString("en-NG", { weekday: "short" })}
+          </p>
+          <p className="text-2xl md:text-3xl font-bold text-foreground tabular-nums leading-none mt-1">
+            {formatTime12h(session.startTime).split(" ")[0]}
+          </p>
+          <p className="text-[11px] font-medium text-muted-foreground mt-1 tabular-nums">
+            {formatTime12h(session.startTime).split(" ")[1]}
+          </p>
+        </div>
+
+        <div className="flex-1 min-w-0 px-5 md:px-6 py-5 flex flex-col justify-center">
+          <div className="flex items-center gap-2 mb-1.5">
+            {isLive && (
+              <Badge className="bg-success/10 text-success hover:bg-success/10 border-0 gap-1.5 h-5 text-[10px]">
+                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                Live
+              </Badge>
+            )}
+            <span className="text-[11px] font-medium text-muted-foreground truncate">
+              {session.courseTitle || "Course Session"}
+            </span>
+          </div>
+          <h2 className="text-base md:text-lg font-semibold text-foreground tracking-tight truncate">
+            {session.title}
+          </h2>
+          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <User className="h-3 w-3" />
+              {session.instructorName}
+            </span>
+            <span className="h-3 w-px bg-border" />
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className={cn("h-1.5 w-1.5 rounded-full", platform.accent)}
+              />
+              {platform.label}
+            </span>
+          </div>
+        </div>
+
+        <div className="hidden md:flex items-center pr-5 gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpen}
+            className="h-9 rounded-lg text-muted-foreground hover:text-foreground"
+          >
+            Details
+          </Button>
+          <Button
+            onClick={onJoin}
+            className={cn(
+              "h-9 rounded-lg gap-1.5 font-semibold",
+              isLive &&
+                "bg-success text-success-foreground hover:bg-success/90",
+            )}
+          >
+            <Video className="h-3.5 w-3.5" />
+            {isLive ? "Join now" : "Join"}
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const SessionRow = ({
+  session,
+  onClick,
+}: {
+  session: LessonSchedule;
+  onClick: () => void;
+}) => {
+  const status = getSessionStatus(session);
+  const isLive = status === "LIVE";
+  const isEnded = status === "ENDED";
+  const platform = platformConfig[session.platform];
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "group w-full text-left flex items-center gap-4 p-3 md:p-4 rounded-2xl border transition-all bg-card",
+        "hover:border-foreground/20 hover:shadow-sm",
+        isLive && "border-success/40 bg-success/[0.02]",
+        !isLive && "border-border",
+        isEnded && "opacity-60",
+      )}
+    >
+      <div className="flex flex-col items-center justify-center w-16 md:w-20 shrink-0 py-1 border-r border-border pr-3 md:pr-4">
+        <p className="text-base font-bold text-foreground tabular-nums leading-tight">
+          {formatTime12h(session.startTime)
+            .replace(/ /g, "")
+            .replace(/:00/g, "")}
+        </p>
+        <p className="text-[10px] text-muted-foreground tabular-nums mt-0.5">
+          {formatTime12h(session.endTime).replace(/ /g, "").replace(/:00/g, "")}
+        </p>
+      </div>
+      <span className={cn("h-10 w-1 rounded-full shrink-0", platform.accent)} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-sm font-semibold text-foreground truncate">
+            {session.title}
+          </h3>
+          {isLive && (
+            <Badge className="bg-success/10 text-success hover:bg-success/10 border-0 gap-1.5 text-[10px] h-5">
+              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+              Live
+            </Badge>
+          )}
+          {isEnded && (
+            <Badge variant="secondary" className="text-[10px] h-5">
+              Ended
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          {session.courseTitle || "Course Session"} · {session.instructorName}
+        </p>
+      </div>
+      <div className="hidden sm:flex items-center gap-3 shrink-0">
+        <span className="text-[11px] text-muted-foreground">
+          {platform.label}
+        </span>
+        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+      </div>
+    </button>
+  );
+};
+
+const DetailItem = ({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof CalendarIcon;
+  label: string;
+  value: string;
+}) => (
+  <div className="flex items-start gap-2">
+    <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+    <div className="min-w-0">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium text-foreground">{value}</p>
+    </div>
+  </div>
+);
+
+export default SchedulePage;
