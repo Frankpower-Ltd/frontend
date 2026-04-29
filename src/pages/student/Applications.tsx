@@ -184,7 +184,7 @@ const Applications = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="h-10 w-full rounded-md border border-input bg-background pl-8 pr-2 text-sm"
+            className="h-10 w-full rounded-md border border-input bg-white pl-8 pr-2 text-sm"
           >
             <option value="ALL">All Status</option>
             <option value="PENDING_PAYMENT">Pending</option>

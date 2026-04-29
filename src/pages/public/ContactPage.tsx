@@ -2,6 +2,12 @@
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
 import { RouteConstant } from "@/constants/routes";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import api from "@/utils/api";
 import { motion, useInView } from "framer-motion";
 import {
@@ -148,28 +154,47 @@ const ContactPage = () => {
       title: "Phone Number",
       content: "+234-709-999-7777",
       subtitle: "Monday - Friday, 9AM - 6PM",
-      color: "from-red-500 to-red-700",
     },
     {
       icon: <Mail className="h-6 w-6" />,
       title: "Email Address",
       content: "frankpowerlimited@gmail.com",
       subtitle: "Average response: 2 hours",
-      color: "from-red-600 to-red-800",
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: "Office Address",
       content: "10 Nanka Plot at Amansea",
       subtitle: "Anambra, Awka, Nigeria",
-      color: "from-red-700 to-red-900",
     },
     {
       icon: <Clock className="h-6 w-6" />,
       title: "Working Hours",
       content: "Monday - Friday",
       subtitle: "9:00 AM - 6:00 PM",
-      color: "from-red-800 to-red-950",
+    },
+  ];
+
+  const contactFaqs = [
+    {
+      question: "How do I apply for SIWES internship?",
+      answer:
+        "Open the application page, complete the form, and submit your required details. Our admissions team reviews applications and shares updates quickly by email.",
+    },
+    {
+      question: "What are the program requirements?",
+      answer:
+        "Requirements vary by track, but most students only need basic digital literacy and a commitment to follow the program schedule.",
+    },
+    {
+      question: "Do you offer payment plans?",
+      answer:
+        "Yes, flexible payment plans are available for selected programs. Contact admissions and we will guide you through the available options.",
+    },
+    {
+      question: "How long does the application process take?",
+      answer:
+        "Most applications are reviewed within a short period after submission. You will receive the next steps by email once your review is complete.",
     },
   ];
 
@@ -203,7 +228,7 @@ const ContactPage = () => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-white z-0" />
+        <div className="absolute inset-0 bg-background z-0" />
 
         <div className="container mx-auto relative z-10">
           <motion.div
@@ -243,81 +268,79 @@ const ContactPage = () => {
       </section>
 
       {/* Contact Information */}
-      <section className="py-20 px-5 sm:px-10 bg-white">
+      <section className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-14 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
               How Can We Help You?
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Choose your preferred way to reach out to our team
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
+              Choose your preferred way to reach our team.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {contactInfo.map((info, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.08 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 text-center"
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-100 hover:shadow-md"
               >
-                <div
-                  className={`inline-flex p-3 bg-gradient-to-r ${info.color} rounded-xl text-white mb-4`}
-                >
+                <div className="mb-4 inline-flex rounded-lg bg-red-50 p-3 text-red-600">
                   {info.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">
                   {info.title}
                 </h3>
-                <p className="text-gray-900 font-semibold mb-1">
-                  {info.content}
-                </p>
-                <p className="text-gray-600 text-sm">{info.subtitle}</p>
+                <p className="font-medium text-gray-900">{info.content}</p>
+                <p className="mt-1 text-sm text-gray-600">{info.subtitle}</p>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Contact Form & Info */}
-          <div ref={sectionRef} className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
+      {/* Contact Form + FAQ */}
+      <section id="contact-form" className="bg-gray-50/70 px-5 py-20 sm:px-10">
+        <div className="container mx-auto">
+          <div ref={sectionRef} className="grid gap-10 lg:grid-cols-12">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-              transition={{ duration: 0.8 }}
-              className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8"
+              initial={{ opacity: 0, x: -32 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -32 }}
+              transition={{ duration: 0.6 }}
+              className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm lg:col-span-7"
             >
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              <h3 className="mb-6 text-2xl font-bold text-gray-900">
                 Send Us a Message
               </h3>
 
               {isSubmitted ? (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-12"
+                  className="py-12 text-center"
                 >
-                  <div className="inline-flex p-4 bg-green-100 rounded-full text-green-600 mb-4">
+                  <div className="mb-4 inline-flex rounded-full bg-green-100 p-4 text-green-600">
                     <CheckCircle className="h-12 w-12" />
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h4 className="mb-2 text-2xl font-bold text-gray-900">
                     Message Sent Successfully!
                   </h4>
-                  <p className="text-gray-600 mb-6">
+                  <p className="mb-6 text-gray-600">
                     Thank you for reaching out. Our team will get back to you
                     within 2 hours.
                   </p>
                   <Link
-                    to="/programs"
-                    className="inline-flex items-center gap-2 text-red-600 font-semibold hover:text-red-800"
+                    to={RouteConstant.programs}
+                    className="inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
                   >
                     Browse our programs while you wait
                     <ChevronRight className="h-4 w-4" />
@@ -329,19 +352,19 @@ const ContactPage = () => {
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3"
+                      className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700"
                     >
-                      <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
                       <span className="text-sm">{submitError}</span>
                     </motion.div>
                   )}
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
                       Full Name
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <User className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
@@ -350,18 +373,18 @@ const ContactPage = () => {
                         value={formData.username}
                         onChange={handleChange}
                         required
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
                         placeholder="Enter your full name"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
                       Email Address
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <Mail className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
@@ -370,14 +393,14 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
                         placeholder="Enter your email address"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
                       Subject
                     </label>
                     <input
@@ -386,13 +409,13 @@ const ContactPage = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
                       placeholder="What is this regarding?"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
                       Message
                     </label>
                     <textarea
@@ -401,12 +424,11 @@ const ContactPage = () => {
                       onChange={handleChange}
                       required
                       rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 resize-none"
+                      className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
                       placeholder="Tell us how we can help you..."
                     />
                   </div>
 
-                  {/* Optional First Name and Last Name fields (hidden but included in formData) */}
                   <div className="hidden">
                     <input
                       type="text"
@@ -425,17 +447,17 @@ const ContactPage = () => {
                   <motion.button
                     type="submit"
                     disabled={isSubmitting}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    className={`flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-300 ${
                       isSubmitting
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-red-600 to-red-800 hover:shadow-lg"
-                    } text-white`}
+                        ? "cursor-not-allowed bg-gray-400"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         Sending...
                       </>
                     ) : (
@@ -449,140 +471,118 @@ const ContactPage = () => {
               )}
             </motion.div>
 
-            {/* Additional Information */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8"
+            <motion.aside
+              initial={{ opacity: 0, x: 32 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 32 }}
+              transition={{ duration: 0.6, delay: 0.08 }}
+              className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm lg:col-span-5"
             >
-              <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-8 border border-red-100 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Frequently Asked Questions
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    "How do I apply for SIWES internship?",
-                    "What are the program requirements?",
-                    "Do you offer payment plans?",
-                    "How long does the application process take?",
-                  ].map((question, index) => (
-                    <Link
-                      key={index}
-                      to="/faq"
-                      className="block p-4 bg-white rounded-lg border border-gray-200 hover:border-red-200 hover:shadow-md transition-all duration-200 group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-900 font-medium group-hover:text-red-600 transition-colors">
-                          {question}
-                        </span>
-                        <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Enquiries
+              </p>
+              <h3 className="mt-5 font-display text-[2rem] leading-[1.02] tracking-[-0.03em] sm:text-[2.3rem]">
+                Frequently asked.
+              </h3>
+              <p className="mt-4 text-[0.95rem] leading-[1.7] text-muted-foreground">
+                For anything not covered below, our admissions team replies
+                within one business day.
+              </p>
 
-                <div className="mt-6">
-                  <Link
-                    to="/faq"
-                    className="inline-flex items-center gap-2 text-red-600 font-semibold hover:text-red-800"
+              <Accordion
+                type="single"
+                collapsible
+                className="mt-7 border-y border-border"
+              >
+                {contactFaqs.map((faq, index) => (
+                  <AccordionItem
+                    key={faq.question}
+                    value={`item-${index}`}
+                    className="border-b border-border last:border-b-0"
                   >
-                    View all FAQs
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
+                    <AccordionTrigger className="py-6 text-left font-display text-[1.05rem] tracking-[-0.02em] hover:no-underline sm:text-[1.15rem]">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-6 text-[0.95rem] leading-[1.7] text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
 
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Quick Links
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    { label: "Programs Overview", href: "/programs" },
-                    { label: "SIWES Requirements", href: "/programs#siwes" },
-                    { label: "Application Process", href: "/apply" },
-                    { label: "Student Portal", href: RouteConstant.login },
-                  ].map((link, index) => (
-                    <Link
-                      key={index}
-                      to={link.href}
-                      className="flex items-center gap-3 p-3 text-gray-700 hover:text-red-600 hover:bg-white rounded-lg transition-all duration-200 group"
-                    >
-                      <div className="w-2 h-2 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <span>{link.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              <Link
+                to={RouteConstant.faqs}
+                className="mt-6 inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
+              >
+                View all FAQs
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </motion.aside>
           </div>
         </div>
       </section>
 
       {/* Map/Visit Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-50 to-white">
+      <section className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="mb-12 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
               Visit Our Campus
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Come see our facilities and meet our team in person
+            <p className="mx-auto max-w-2xl text-lg text-gray-600">
+              Come see our facilities and meet our team in person.
             </p>
           </motion.div>
 
-          <div className="bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-            <div className="grid md:grid-cols-3">
-              <div className="md:col-span-2 h-96 bg-gray-200">
-                {/* Map Placeholder */}
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="grid md:grid-cols-12">
+              <div className="h-96 bg-gray-100 md:col-span-8">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                   <div className="text-center">
-                    <MapPin className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                    <p className="text-gray-700 font-semibold">
+                    <MapPin className="mx-auto mb-4 h-12 w-12 text-red-600" />
+                    <p className="font-semibold text-gray-700">
                       Frankpower Campus Location
                     </p>
-                    <p className="text-gray-600 text-sm mt-2">
+                    <p className="mt-2 text-sm text-gray-600">
                       10 Nanka Plot at Amansea, Anambra, Awka, Nigeria
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-8 bg-gradient-to-b from-red-600 to-red-800 text-white">
-                <h3 className="text-xl font-bold mb-6">Campus Information</h3>
+              <div className="bg-red-600 p-8 text-white md:col-span-4">
+                <h3 className="mb-6 text-xl font-bold">Campus Information</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 flex-shrink-0 mt-1" />
+                    <MapPin className="mt-1 h-5 w-5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold">Location</p>
-                      <p className="text-sm text-white/80">
+                      <p className="text-sm text-white/90">
                         10 Nanka Plot at Amansea, Anambra, Awka, Nigeria
                       </p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Clock className="h-5 w-5 flex-shrink-0 mt-1" />
+                    <Clock className="mt-1 h-5 w-5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold">Visiting Hours</p>
-                      <p className="text-sm text-white/80">
+                      <p className="text-sm text-white/90">
                         Monday - Friday: 9:00 AM - 6:00 PM
                       </p>
-                      <p className="text-sm text-white/80">
+                      <p className="text-sm text-white/90">
                         Saturday: 10:00 AM - 4:00 PM
                       </p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Phone className="h-5 w-5 flex-shrink-0 mt-1" />
+                    <Phone className="mt-1 h-5 w-5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold">Campus Contact</p>
-                      <p className="text-sm text-white/80">+234-709-999-7777</p>
+                      <p className="text-sm text-white/90">+234-709-999-7777</p>
                     </div>
                   </li>
                 </ul>
@@ -591,7 +591,7 @@ const ContactPage = () => {
                   <Link
                     to="https://maps.google.com"
                     target="_blank"
-                    className="inline-flex items-center justify-center w-full px-4 py-3 bg-white text-red-700 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
+                    className="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 font-semibold text-red-700 transition-all duration-300 hover:bg-gray-50"
                   >
                     Get Directions
                   </Link>
@@ -599,46 +599,6 @@ const ContactPage = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Start Your Journey?
-            </h2>
-            <p className="text-lg text-white/90 mb-8">
-              Contact us today to learn more about our programs and how we can
-              help you achieve your goals
-            </p>
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link
-                to={RouteConstant.signup}
-                className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
-              >
-                Apply Now
-              </Link>
-              <a
-                href="tel:+2347099997777"
-                className="inline-flex items-center justify-center bg-transparent text-white border-2 border-white/30 hover:border-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-              >
-                Call Now: +234-709-999-7777
-              </a>
-            </motion.div>
-          </motion.div>
         </div>
       </section>
 
