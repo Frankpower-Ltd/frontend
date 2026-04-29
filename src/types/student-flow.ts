@@ -121,6 +121,7 @@ export type Weekday =
   | "SUNDAY";
 
 export type ClassPlatform = "GOOGLE_MEET" | "ZOOM" | "MICROSOFT_TEAMS";
+export type ScheduleType = "ONE_OFF" | "RECURRING";
 
 export interface LessonSchedule {
   id: string;
@@ -129,7 +130,11 @@ export interface LessonSchedule {
   programId?: string;
   title: string;
   instructorName: string;
-  weekday: Weekday;
+  scheduleType: ScheduleType;
+  weekdays?: Weekday[];
+  sessionDate?: string;
+  startDate?: string;
+  endDate?: string;
   startTime: string;
   endTime: string;
   platform: ClassPlatform;

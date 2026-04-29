@@ -1,5 +1,6 @@
 import type {
   CourseOutlineTree,
+  ScheduleType,
   LessonSchedule,
   StudentCourse,
   Weekday,
@@ -49,7 +50,11 @@ export const courseService = {
     payload: {
       title: string;
       instructorName: string;
-      weekday: Weekday;
+      scheduleType: ScheduleType;
+      weekdays?: Weekday[];
+      sessionDate?: string;
+      startDate?: string;
+      endDate?: string;
       startTime: string;
       endTime: string;
       platform: "GOOGLE_MEET" | "ZOOM" | "MICROSOFT_TEAMS";

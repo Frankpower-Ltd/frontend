@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { courseService } from "@/services/api/course.service";
-import type { Weekday } from "@/types/student-flow";
+import type { ScheduleType, Weekday } from "@/types/student-flow";
 
 export const SCHEDULES_QUERY_KEY = ["schedules"] as const;
 
@@ -24,7 +24,11 @@ export const useCreateCourseSchedule = (courseId: string) => {
     mutationFn: (payload: {
       title: string;
       instructorName: string;
-      weekday: Weekday;
+      scheduleType: ScheduleType;
+      weekdays?: Weekday[];
+      sessionDate?: string;
+      startDate?: string;
+      endDate?: string;
       startTime: string;
       endTime: string;
       platform: "GOOGLE_MEET" | "ZOOM" | "MICROSOFT_TEAMS";
