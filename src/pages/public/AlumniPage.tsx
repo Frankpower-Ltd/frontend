@@ -1,6 +1,6 @@
 // src/pages/AlumniPage.tsx
-import Footer from "@/components/app/Footer";
-import Navbar from "@/components/app/Navbar";
+import Footer from "@/components/features/Footer";
+import Navbar from "@/components/features/Navbar";
 import { RouteConstant } from "@/constants/routes";
 import { motion } from "framer-motion";
 import {
