@@ -1,9 +1,10 @@
 import { adminService } from "@/services/api/admin.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const ADMIN_APPLICATIONS_QUERY_KEY = ["admin", "applications"] as const;
 export const ADMIN_PAYMENTS_QUERY_KEY = ["admin", "payments"] as const;
 export const ADMIN_COURSES_QUERY_KEY = ["admin", "courses"] as const;
+export const ADMIN_CERTIFICATES_QUERY_KEY = ["admin", "certificates"] as const;
 
 export const useAdminApplications = (params?: {
   offset?: number;
@@ -61,4 +62,29 @@ export const useAdminCourses = (params?: {
       params?.search ?? "",
     ],
     queryFn: () => adminService.getCourses(params),
+  });
+
+export const useAdminUserCertificates = (
+  userId?: string,
+  params?: { courseId?: string },
+) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_CERTIFICATES_QUERY_KEY,
+      userId || "",
+      params?.courseId || "all",
+    ],
+    enabled: Boolean(userId),
+    queryFn: () => adminService.getUserCertificates(userId as string, params),
+  });
+
+export const useUploadCertificate = () =>
+  useMutation({
+    mutationFn: ({
+      studentCourseId,
+      file,
+    }: {
+      studentCourseId: string;
+      file: File;
+    }) => adminService.uploadCertificate(studentCourseId, file),
   });

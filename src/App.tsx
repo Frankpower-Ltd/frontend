@@ -1,6 +1,5 @@
 import AuthLayout from "@/components/layout/AuthLayout";
 import { RouteConstant } from "@/constants/routes";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AuthPageGuard from "@/pages/auth/AuthPageGuard";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
@@ -23,7 +22,9 @@ import Overview from "@/pages/student/Overview";
 import Payments from "@/pages/student/Payments";
 import PaymentSuccessful from "@/pages/student/PaymentSuccessful";
 import Schedule from "@/pages/student/Schedule";
+import StudentCertificate from "@/pages/student/StudentCertificate";
 import StudentsForm from "@/pages/student/StudentsForm";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
           />
           <Route path="schedule" element={<Schedule />} />
           <Route path="assignments" element={<Assignments />} />
+          <Route path="certificates" element={<StudentCertificate />} />
         </Route>
 
         <Route

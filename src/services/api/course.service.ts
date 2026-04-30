@@ -2,6 +2,7 @@ import type {
   CourseOutlineTree,
   ScheduleType,
   LessonSchedule,
+  StudentCertificate,
   StudentCourse,
   Weekday,
 } from "@/types/student-flow";
@@ -41,6 +42,17 @@ export const courseService = {
 
     const response = await api.request<LessonSchedule[]>(
       `/courses/schedules${suffix}`,
+    );
+    return unwrapServiceResponse(response);
+  },
+
+  async getMyCertificates(courseId?: string): Promise<StudentCertificate[]> {
+    const params = new URLSearchParams();
+    if (courseId) params.set("courseId", courseId);
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+
+    const response = await api.request<StudentCertificate[]>(
+      `/courses/certificates${suffix}`,
     );
     return unwrapServiceResponse(response);
   },

@@ -4,6 +4,7 @@ import type {
   PaginatedResponse,
   ResultSet,
   PaymentStatus,
+  StudentCertificate,
   UserPayment,
 } from "@/types/student-flow";
 import api from "@/utils/api";
@@ -127,5 +128,43 @@ export const adminService = {
       resultSet:
         (response.resultSet as ResultSet | undefined) || DEFAULT_RESULT_SET,
     };
+  },
+
+  async getUserCertificates(
+    userId: string,
+    params?: { courseId?: string },
+  ): Promise<StudentCertificate[]> {
+    const query = toQuery({
+      courseId: params?.courseId,
+    });
+    const response = await api.request<StudentCertificate[]>(
+      `/admin/users/${encodeURIComponent(userId)}/certificates${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return response.data || [];
+  },
+
+  async uploadCertificate(
+    studentCourseId: string,
+    file: File,
+  ): Promise<StudentCertificate> {
+    const formData = new FormData();
+    formData.append("certificate", file);
+
+    const response = await api.request<StudentCertificate>(
+      `/admin/student-courses/${encodeURIComponent(studentCourseId)}/certificate`,
+      {
+        method: "POST",
+        body: formData,
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) {
+      throw new Error("No data returned from server");
+    }
+    return response.data;
   },
 };

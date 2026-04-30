@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
     { label: "Programs", path: RouteConstant.programs },
     { label: "Contact", path: RouteConstant.contact },
     { label: "Alumni", path: RouteConstant.alumni },
-    { label: "About Us", path: RouteConstant.about },
+    { label: "About", path: RouteConstant.about },
   ];
 
   const isActivePath = (to: string) => {

@@ -13,6 +13,7 @@ export type ApplicationStatus =
   | "EXPIRED";
 
 export type CourseProgressStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+export type CertificateFileType = "IMAGE" | "PDF";
 
 export type PaymentStatus =
   | "INITIATED"
@@ -142,6 +143,21 @@ export interface LessonSchedule {
   meetingId?: string;
   passcode?: string;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentCertificate {
+  id: string;
+  userId: string;
+  courseId: string;
+  studentCourseId: string;
+  fileUrl: string;
+  fileName?: string;
+  fileType: CertificateFileType;
+  mimeType: string;
+  uploadedBy: string;
+  issuedAt: string;
   createdAt: string;
   updatedAt: string;
 }
