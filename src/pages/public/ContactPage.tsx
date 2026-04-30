@@ -1,28 +1,35 @@
 // src/pages/ContactPage.tsx
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
-import { RouteConstant } from "@/constants/routes";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RouteConstant } from "@/constants/routes";
 import api from "@/utils/api";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   CheckCircle,
   ChevronRight,
   Clock,
+  Facebook,
+  Instagram,
+  Linkedin,
   Mail,
   MapPin,
   MessageSquare,
   Phone,
   Send,
-  User,
+  Twitter,
 } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
 
 interface ContactFormData {
@@ -35,9 +42,21 @@ interface ContactFormData {
   username: string;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
+}
+
+const socials = [
+  { icon: Facebook, label: "Facebook", href: "#" },
+  { icon: Twitter, label: "Twitter / X", href: "#" },
+  { icon: Instagram, label: "Instagram", href: "#" },
+  { icon: Linkedin, label: "LinkedIn", href: "#" },
+];
+
 const ContactPage = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -47,59 +66,42 @@ const ContactPage = () => {
     lastName: "",
     username: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Update the handleSubmit function in ContactPage.tsx:
+  const validate = (): boolean => {
+    const next: FormErrors = {};
+    if (!formData.username.trim()) next.name = "Full name is required.";
+    if (!formData.email.trim()) next.email = "Email address is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      next.email = "Please enter a valid email.";
+    if (!formData.subject.trim()) next.subject = "Subject is required.";
+    if (!formData.message.trim()) next.message = "Message is required.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Validate required fields
-    if (!formData.subject.trim()) {
-      setSubmitError(
-        "Subject is required. Please enter a subject for your message.",
-      );
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!formData.message.trim()) {
-      setSubmitError("Message is required. Please enter your message.");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // Prepare the data object with all required fields
-      const messageData = {
-        message: formData.message.trim(),
-        email: formData.email.trim(),
-        name: formData.name.trim(),
-        subject: formData.subject.trim(),
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        username: formData.username.trim(),
-      };
-
-      // Call the API
       const response = await api.sendMessage(
-        messageData.message,
-        messageData.email,
-        messageData.name,
-        messageData.subject,
-        messageData.firstName,
-        messageData.lastName,
-        messageData.username,
+        formData.message.trim(),
+        formData.email.trim(),
+        formData.username.trim(),
+        formData.subject.trim(),
+        formData.firstName.trim(),
+        formData.lastName.trim(),
+        formData.username.trim(),
       );
-
-      console.log("API Response:", response); // For debugging
 
       if (response.success || response.data) {
-        // Success
         setIsSubmitted(true);
         setFormData({
           name: "",
@@ -110,11 +112,9 @@ const ContactPage = () => {
           lastName: "",
           username: "",
         });
-
-        // Reset success message after 5 seconds
+        setErrors({});
         setTimeout(() => setIsSubmitted(false), 5000);
       } else {
-        // API returned error
         const errorMessage =
           typeof response.error === "string"
             ? response.error
@@ -123,9 +123,7 @@ const ContactPage = () => {
               "Failed to send message. Please try again.";
         setSubmitError(errorMessage);
       }
-    } catch (error) {
-      // Network or unexpected error
-      console.error("Error sending message:", error);
+    } catch {
       setSubmitError(
         "Network error. Please check your connection and try again.",
       );
@@ -137,76 +135,40 @@ const ContactPage = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    // Clear any existing errors when user starts typing
-    if (submitError) {
-      setSubmitError(null);
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (submitError) setSubmitError(null);
+    // Clear field-level error on change
+    setErrors((prev) => ({
+      ...prev,
+      [name === "username" ? "name" : name]: undefined,
+    }));
   };
-
-  // Contact info data
-  const contactInfo = [
-    {
-      icon: <Phone className="h-6 w-6" />,
-      title: "Phone Number",
-      content: "+234-709-999-7777",
-      subtitle: "Monday - Friday, 9AM - 6PM",
-    },
-    {
-      icon: <Mail className="h-6 w-6" />,
-      title: "Email Address",
-      content: "frankpowerlimited@gmail.com",
-      subtitle: "Average response: 2 hours",
-    },
-    {
-      icon: <MapPin className="h-6 w-6" />,
-      title: "Office Address",
-      content: "10 Nanka Plot at Amansea",
-      subtitle: "Anambra, Awka, Nigeria",
-    },
-    {
-      icon: <Clock className="h-6 w-6" />,
-      title: "Working Hours",
-      content: "Monday - Friday",
-      subtitle: "9:00 AM - 6:00 PM",
-    },
-  ];
 
   const contactFaqs = [
     {
-      question: "How do I apply for SIWES internship?",
-      answer:
-        "Open the application page, complete the form, and submit your required details. Our admissions team reviews applications and shares updates quickly by email.",
+      q: "How do I apply for SIWES internship?",
+      a: "Open the application page, complete the form, and submit your required details. Our admissions team reviews applications and shares updates quickly by email.",
     },
     {
-      question: "What are the program requirements?",
-      answer:
-        "Requirements vary by track, but most students only need basic digital literacy and a commitment to follow the program schedule.",
+      q: "What are the program requirements?",
+      a: "Requirements vary by track, but most students only need basic digital literacy and a commitment to follow the program schedule.",
     },
     {
-      question: "Do you offer payment plans?",
-      answer:
-        "Yes, flexible payment plans are available for selected programs. Contact admissions and we will guide you through the available options.",
+      q: "Do you offer payment plans?",
+      a: "Yes, flexible payment plans are available for selected programs. Contact admissions and we will guide you through the available options.",
     },
     {
-      question: "How long does the application process take?",
-      answer:
-        "Most applications are reviewed within a short period after submission. You will receive the next steps by email once your review is complete.",
+      q: "How long does the application process take?",
+      a: "Most applications are reviewed within a short period after submission. You will receive the next steps by email once your review is complete.",
     },
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
     },
   };
 
@@ -215,10 +177,7 @@ const ContactPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut" as const,
-      },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
@@ -226,10 +185,9 @@ const ContactPage = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* ── Hero (unchanged) ── */}
       <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
         <div className="absolute inset-0 bg-background z-0" />
-
         <div className="container mx-auto relative z-10">
           <motion.div
             initial="hidden"
@@ -267,337 +225,302 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* Contact Information */}
-      <section className="bg-white px-5 py-20 sm:px-10">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-14 text-center"
-          >
-            <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-              How Can We Help You?
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-gray-600">
-              Choose your preferred way to reach our team.
+      {/* ── Form + Info Panel ── */}
+      <section className="border-b border-border">
+        <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-12">
+          {/* Form */}
+          <div className="px-6 py-16 lg:col-span-7 lg:border-r lg:border-border lg:px-10 lg:py-20">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-primary">
+              Send a message
             </p>
-          </motion.div>
+            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">
+              Tell us what you're working toward.
+            </h2>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {contactInfo.map((info, index) => (
+            {isSubmitted ? (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-100 hover:shadow-md"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-10 py-12 text-center"
               >
-                <div className="mb-4 inline-flex rounded-lg bg-red-50 p-3 text-red-600">
-                  {info.icon}
+                <div className="mb-4 inline-flex rounded-full bg-green-100 p-4 text-green-600">
+                  <CheckCircle className="h-12 w-12" />
                 </div>
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                  {info.title}
-                </h3>
-                <p className="font-medium text-gray-900">{info.content}</p>
-                <p className="mt-1 text-sm text-gray-600">{info.subtitle}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Form + FAQ */}
-      <section id="contact-form" className="bg-gray-50/70 px-5 py-20 sm:px-10">
-        <div className="container mx-auto">
-          <div ref={sectionRef} className="grid gap-10 lg:grid-cols-12">
-            <motion.div
-              initial={{ opacity: 0, x: -32 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -32 }}
-              transition={{ duration: 0.6 }}
-              className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm lg:col-span-7"
-            >
-              <h3 className="mb-6 text-2xl font-bold text-gray-900">
-                Send Us a Message
-              </h3>
-
-              {isSubmitted ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="py-12 text-center"
+                <h4 className="mb-2 text-2xl font-bold text-gray-900">
+                  Message Sent Successfully!
+                </h4>
+                <p className="mb-6 text-gray-600">
+                  Thank you for reaching out. Our team will get back to you
+                  within 2 hours.
+                </p>
+                <Link
+                  to={RouteConstant.programs}
+                  className="inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
                 >
-                  <div className="mb-4 inline-flex rounded-full bg-green-100 p-4 text-green-600">
-                    <CheckCircle className="h-12 w-12" />
-                  </div>
-                  <h4 className="mb-2 text-2xl font-bold text-gray-900">
-                    Message Sent Successfully!
-                  </h4>
-                  <p className="mb-6 text-gray-600">
-                    Thank you for reaching out. Our team will get back to you
-                    within 2 hours.
-                  </p>
-                  <Link
-                    to={RouteConstant.programs}
-                    className="inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
+                  Browse our programs while you wait
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </motion.div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="mt-10 space-y-6"
+                noValidate
+              >
+                {submitError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700"
                   >
-                    Browse our programs while you wait
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {submitError && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700"
-                    >
-                      <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
-                      <span className="text-sm">{submitError}</span>
-                    </motion.div>
-                  )}
+                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm">{submitError}</span>
+                  </motion.div>
+                )}
 
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <User className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                        className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Mail className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                        placeholder="Enter your email address"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Full name</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      value={formData.username}
                       onChange={handleChange}
-                      required
-                      className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                      placeholder="What is this regarding?"
+                      placeholder="Ada Obi"
+                      maxLength={100}
                     />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-red-500"
-                      placeholder="Tell us how we can help you..."
-                    />
-                  </div>
-
-                  <div className="hidden">
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                    />
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <motion.button
-                    type="submit"
-                    disabled={isSubmitting}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className={`flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all duration-300 ${
-                      isSubmitting
-                        ? "cursor-not-allowed bg-gray-400"
-                        : "bg-red-600 hover:bg-red-700"
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        Send Message
-                        <Send className="h-5 w-5" />
-                      </>
+                    {errors.name && (
+                      <p className="text-xs text-destructive">{errors.name}</p>
                     )}
-                  </motion.button>
-                </form>
-              )}
-            </motion.div>
-
-            <motion.aside
-              initial={{ opacity: 0, x: 32 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 32 }}
-              transition={{ duration: 0.6, delay: 0.08 }}
-              className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm lg:col-span-5"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                Enquiries
-              </p>
-              <h3 className="mt-5 font-display text-[2rem] leading-[1.02] tracking-[-0.03em] sm:text-[2.3rem]">
-                Frequently asked.
-              </h3>
-              <p className="mt-4 text-[0.95rem] leading-[1.7] text-muted-foreground">
-                For anything not covered below, our admissions team replies
-                within one business day.
-              </p>
-
-              <Accordion
-                type="single"
-                collapsible
-                className="mt-7 border-y border-border"
-              >
-                {contactFaqs.map((faq, index) => (
-                  <AccordionItem
-                    key={faq.question}
-                    value={`item-${index}`}
-                    className="border-b border-border last:border-b-0"
-                  >
-                    <AccordionTrigger className="py-6 text-left font-display text-[1.05rem] tracking-[-0.02em] hover:no-underline sm:text-[1.15rem]">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-6 text-[0.95rem] leading-[1.7] text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-
-              <Link
-                to={RouteConstant.faqs}
-                className="mt-6 inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
-              >
-                View all FAQs
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </motion.aside>
-          </div>
-        </div>
-      </section>
-
-      {/* Map/Visit Section */}
-      <section className="bg-white px-5 py-20 sm:px-10">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12 text-center"
-          >
-            <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-              Visit Our Campus
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-gray-600">
-              Come see our facilities and meet our team in person.
-            </p>
-          </motion.div>
-
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="grid md:grid-cols-12">
-              <div className="h-96 bg-gray-100 md:col-span-8">
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                  <div className="text-center">
-                    <MapPin className="mx-auto mb-4 h-12 w-12 text-red-600" />
-                    <p className="font-semibold text-gray-700">
-                      Frankpower Campus Location
-                    </p>
-                    <p className="mt-2 text-sm text-gray-600">
-                      10 Nanka Plot at Amansea, Anambra, Awka, Nigeria
-                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="you@email.com"
+                      maxLength={255}
+                    />
+                    {errors.email && (
+                      <p className="text-xs text-destructive">{errors.email}</p>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-red-600 p-8 text-white md:col-span-4">
-                <h3 className="mb-6 text-xl font-bold">Campus Information</h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <MapPin className="mt-1 h-5 w-5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Location</p>
-                      <p className="text-sm text-white/90">
-                        10 Nanka Plot at Amansea, Anambra, Awka, Nigeria
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Clock className="mt-1 h-5 w-5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Visiting Hours</p>
-                      <p className="text-sm text-white/90">
-                        Monday - Friday: 9:00 AM - 6:00 PM
-                      </p>
-                      <p className="text-sm text-white/90">
-                        Saturday: 10:00 AM - 4:00 PM
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Phone className="mt-1 h-5 w-5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Campus Contact</p>
-                      <p className="text-sm text-white/90">+234-709-999-7777</p>
-                    </div>
-                  </li>
-                </ul>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    placeholder="Admissions, partnership, support…"
+                    maxLength={150}
+                  />
+                  {errors.subject && (
+                    <p className="text-xs text-destructive">{errors.subject}</p>
+                  )}
+                </div>
 
-                <div className="mt-8">
-                  <Link
-                    to="https://maps.google.com"
-                    target="_blank"
-                    className="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 font-semibold text-red-700 transition-all duration-300 hover:bg-gray-50"
-                  >
-                    Get Directions
-                  </Link>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Tell us a bit about what you're looking for…"
+                    rows={6}
+                    maxLength={1000}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    {errors.message ? (
+                      <span className="text-destructive">{errors.message}</span>
+                    ) : (
+                      <span>We respond within 24 hours, Mon–Fri.</span>
+                    )}
+                    <span>{formData.message.length}/1000</span>
+                  </div>
+                </div>
+
+                {/* Honeypot fields */}
+                <div className="hidden">
+                  <input
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                  />
+                  <input
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting}
+                  className="group bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {isSubmitting ? "Sending…" : "Send message"}
+                  <Send className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Button>
+              </form>
+            )}
+          </div>
+
+          {/* Info panel — brand gradient */}
+          <aside className="relative overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-red-900 px-6 py-16 text-white lg:col-span-5 lg:px-10 lg:py-20">
+            {/* Decorative blobs */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-black/20 blur-3xl"
+            />
+
+            <div className="relative">
+              <p className="font-mono text-xs font-semibold uppercase tracking-widest text-white/70">
+                Reach us directly
+              </p>
+              <h3 className="mt-3 font-display text-3xl font-bold tracking-tight">
+                Frankpower HQ
+              </h3>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80">
+                Drop by the campus, or pick the channel that suits you best.
+              </p>
+
+              <ul className="mt-10 space-y-7">
+                <li className="flex items-start gap-4">
+                  <span className="mt-0.5 grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                    <MapPin className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/70">
+                      Address
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed">
+                      10 Nanka Plot, Amansea, Awka, Nigeria
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <span className="mt-0.5 grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                    <Phone className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/70">
+                      Phone
+                    </p>
+                    <a
+                      href="tel:+2347099997777"
+                      className="mt-1 block text-sm hover:underline"
+                    >
+                      +234 709 999 7777
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <span className="mt-0.5 grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/70">
+                      Email
+                    </p>
+                    <a
+                      href="mailto:frankpowerlimited@gmail.com"
+                      className="mt-1 block text-sm hover:underline"
+                    >
+                      frankpowerlimited@gmail.com
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <span className="mt-0.5 grid h-10 w-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/25">
+                    <Clock className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-white/70">
+                      Hours
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed">
+                      Mon – Fri · 9:00 – 18:00
+                      <br />
+                      Sat · 10:00 – 14:00
+                    </p>
+                  </div>
+                </li>
+              </ul>
+
+              <div className="mt-12 border-t border-white/20 pt-8">
+                <p className="font-mono text-xs font-semibold uppercase tracking-widest text-white/70">
+                  Follow us
+                </p>
+                <div className="mt-4 flex gap-3">
+                  {socials.map(({ icon: Icon, label, href }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      aria-label={label}
+                      className="grid h-10 w-10 place-items-center rounded-full border border-white/25 transition-colors hover:bg-white hover:text-red-600"
+                    >
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
+          </aside>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" className="border-b border-border bg-secondary/30">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
+          <div className="lg:col-span-4">
+            <p className="font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              FAQ
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">
+              Quick answers, before you write.
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Most students get answers here. If you don't see yours, send us a
+              note above.
+            </p>
+            <Link
+              to={RouteConstant.faqs}
+              className="mt-6 inline-flex items-center gap-2 font-semibold text-red-600 hover:text-red-800"
+            >
+              View all FAQs
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="lg:col-span-8">
+            <Accordion type="single" collapsible className="w-full">
+              {contactFaqs.map((f, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`item-${i}`}
+                  className="border-border"
+                >
+                  <AccordionTrigger className="text-left font-display text-lg font-semibold tracking-tight hover:no-underline">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                    {f.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>

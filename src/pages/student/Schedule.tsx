@@ -1,5 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,29 +15,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Search,
-  Calendar as CalendarIcon,
-  Clock,
-  Video,
-  ExternalLink,
-  Copy,
-  CheckCircle2,
-  User,
-  Link2,
-  MapPin,
-  Bell,
-  ArrowRight,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { useMySchedules } from "@/hooks/use-schedules";
 import { useMyCourses } from "@/hooks/use-courses";
+import { useMySchedules } from "@/hooks/use-schedules";
+import { cn } from "@/lib/utils";
 import type {
   ClassPlatform,
   LessonSchedule,
   Weekday,
 } from "@/types/student-flow";
+import {
+  ArrowRight,
+  Bell,
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  Clock,
+  Copy,
+  ExternalLink,
+  Link2,
+  MapPin,
+  Search,
+  User,
+  Video,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 type SessionStatus = "UPCOMING" | "LIVE" | "ENDED";
 
@@ -801,7 +801,7 @@ const SessionRow = ({
       className={cn(
         "group w-full text-left flex items-center gap-4 p-3 md:p-4 rounded-2xl border transition-all bg-card",
         "hover:border-foreground/20 hover:shadow-sm",
-        isLive && "border-success/40 bg-success/[0.02]",
+        isLive && "border-success/40 bg-success/2",
         !isLive && "border-border",
         isEnded && "opacity-60",
       )}

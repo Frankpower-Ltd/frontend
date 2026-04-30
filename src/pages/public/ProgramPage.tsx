@@ -1,4 +1,5 @@
 // src/pages/ProgramsPage.tsx
+import CTASection from "@/components/features/CTASection";
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
 import { RouteConstant } from "@/constants/routes";
@@ -179,210 +180,195 @@ const ProgramsPage = () => {
       </section>
 
       {/* Programs Grid */}
-      <section ref={sectionRef} className="py-20 px-5 sm:px-10 bg-white">
+      <section ref={sectionRef} className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-14 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Featured Programs
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+              Programs
+            </p>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">
+              Built for real career outcomes
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive programs designed for career success
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+              Focused tracks with practical projects, mentor guidance, and
+              support from first lesson to completion.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid gap-6 md:grid-cols-2">
             {programs.map((program, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
+              <motion.article
+                key={program.title}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.08 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group"
+                className="rounded-3xl border border-gray-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
-                {/* Program Header */}
-                <div className={`p-6 bg-gradient-to-r ${program.color}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white/20 rounded-xl">
-                        {program.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">
-                          {program.title}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-4 w-4 text-white/80" />
-                          <span className="text-white/80 text-sm">
-                            {program.duration}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                    {program.icon}
                   </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                    <Clock className="h-3.5 w-3.5" />
+                    {program.duration}
+                  </span>
                 </div>
 
-                {/* Program Content */}
-                <div className="p-6">
-                  <p className="text-gray-600 mb-6">{program.description}</p>
+                <h3 className="mt-5 text-2xl font-semibold tracking-tight text-gray-900">
+                  {program.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                  {program.description}
+                </p>
 
-                  <div className="mb-8">
-                    <h4 className="font-semibold text-gray-900 mb-4">
-                      What You'll Learn:
-                    </h4>
-                    <ul className="space-y-2">
-                      {program.features.map((feature, featureIndex) => (
-                        <motion.li
-                          key={featureIndex}
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: featureIndex * 0.05 }}
-                          viewport={{ once: true }}
-                          className="flex items-center gap-3 text-gray-700"
-                        >
-                          <CheckCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to={`/programs/${program.title.toLowerCase().replace(/\s+/g, "-")}`}
-                      className="inline-flex items-center gap-2 text-red-600 font-semibold hover:text-red-800 transition-colors group/link"
+                <ul className="mt-6 space-y-2.5">
+                  {program.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-start gap-2.5 text-sm text-gray-700"
                     >
-                      Learn More
-                      <ArrowRight className="h-4 w-4 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
+                      <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Link
-                        to={RouteConstant.signup}
-                        className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-                      >
-                        Enroll Now
-                      </Link>
-                    </motion.div>
-                  </div>
+                <div className="mt-7 flex items-center justify-between border-t border-gray-100 pt-5">
+                  <Link
+                    to={`/programs/${program.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="inline-flex items-center gap-2 font-semibold text-red-600 transition-colors hover:text-red-800"
+                  >
+                    Learn More
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to={RouteConstant.signup}
+                    className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                  >
+                    Enroll Now
+                  </Link>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gray-50">
+      <section className="bg-gray-50 px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-12 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Learn With Us?
+            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+              Why students choose Frankpower
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the Frankpower difference
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+              A practical learning experience designed around progress and
+              employability.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {benefits.map((benefit, index) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
+                key={benefit.title}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.06 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 text-center"
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="inline-flex p-3 bg-red-100 rounded-xl text-red-600 mb-4">
+                <div className="mb-4 inline-flex rounded-lg bg-red-50 p-2.5 text-red-600">
                   {benefit.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {benefit.title}
                 </h3>
-                <p className="text-gray-600 text-sm">{benefit.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {benefit.description}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SIWES & Academic Programs */}
-      <section className="py-20 px-5 sm:px-10 bg-white">
+      {/* Learning Paths */}
+      <section className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid gap-8 lg:grid-cols-12">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="lg:col-span-8"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Flexible Learning Paths
+              <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                Choose the path that fits your goal
               </h2>
-              <div className="space-y-6">
-                <div className="p-6 bg-gradient-to-r from-red-50 to-white rounded-xl border border-red-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <p className="mt-4 max-w-2xl text-gray-600">
+                Whether you need internship credits or a full skills transition,
+                we have a structured route for you.
+              </p>
+
+              <div className="mt-8 grid gap-5 md:grid-cols-2">
+                <div className="rounded-2xl border border-red-100 bg-red-50/50 p-6">
+                  <h3 className="text-xl font-semibold text-gray-900">
                     SIWES Internship Program
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Get your SIWES requirements completed with our
-                    industry-recognized internship program. Perfect for students
-                    needing academic credits.
+                  <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                    Meet your SIWES requirements with guided internship projects
+                    and proper documentation support.
                   </p>
-                  <ul className="space-y-2">
+                  <ul className="mt-5 space-y-2.5">
                     {[
                       "Official SIWES Certificate",
                       "100% Remote Internship",
                       "Expert Mentor Guidance",
                       "Industry-Standard Projects",
-                    ].map((item, index) => (
+                    ].map((item) => (
                       <li
-                        key={index}
-                        className="flex items-center gap-2 text-gray-700"
+                        key={item}
+                        className="flex items-center gap-2.5 text-sm text-gray-700"
                       >
                         <CheckCircle className="h-4 w-4 text-red-600" />
-                        <span>{item}</span>
+                        {item}
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="p-6 bg-gray-50 rounded-xl border border-gray-200">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                  <h3 className="text-xl font-semibold text-gray-900">
                     Academic Programs
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Comprehensive programs for career switchers and
-                    professionals looking to upskill in high-demand tech fields.
+                  <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                    Build career-ready capabilities with deeper training,
+                    mentorship, and job-focused project work.
                   </p>
-                  <ul className="space-y-2">
+                  <ul className="mt-5 space-y-2.5">
                     {[
                       "Certificate of Completion",
                       "Professional Mentorship",
                       "Job Placement Assistance",
                       "Lifetime Career Support",
-                    ].map((item, index) => (
+                    ].map((item) => (
                       <li
-                        key={index}
-                        className="flex items-center gap-2 text-gray-700"
+                        key={item}
+                        className="flex items-center gap-2.5 text-sm text-gray-700"
                       >
                         <CheckCircle className="h-4 w-4 text-red-600" />
-                        <span>{item}</span>
+                        {item}
                       </li>
                     ))}
                   </ul>
@@ -390,91 +376,43 @@ const ProgramsPage = () => {
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
+            <motion.aside
+              initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="relative"
+              transition={{ delay: 0.1 }}
+              className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm lg:col-span-4"
             >
-              <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-8 border border-red-100 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Still Not Sure Which Program Fits You?
-                </h3>
-                <p className="text-gray-600 mb-8">
-                  Our career advisors can help you choose the right program
-                  based on your goals, background, and career aspirations.
-                </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Guidance
+              </p>
+              <h3 className="mt-4 text-2xl font-semibold text-gray-900">
+                Not sure where to start?
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                Talk to our advisors for a free session and get a recommended
+                path based on your background and career goals.
+              </p>
 
-                <div className="space-y-4">
-                  <motion.div whileHover={{ scale: 1.02 }} className="w-full">
-                    <Link
-                      to="/contact"
-                      className="flex items-center justify-between p-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg hover:shadow-lg transition-all duration-300 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
-                          <Users className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="font-semibold">
-                            Schedule a Consultation
-                          </div>
-                          <div className="text-sm text-white/80">
-                            Free 30-minute session
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
+              <Link
+                to={RouteConstant.contact}
+                className="mt-6 flex items-center justify-between rounded-xl bg-red-600 px-4 py-4 text-white transition-colors hover:bg-red-700"
+              >
+                <span className="flex items-center gap-2.5 font-semibold">
+                  <Users className="h-5 w-5" />
+                  Schedule Consultation
+                </span>
+                <ChevronRight className="h-5 w-5" />
+              </Link>
+              <p className="mt-3 text-xs text-gray-500">
+                Free 30-minute session
+              </p>
+            </motion.aside>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Transform Your Career?
-            </h2>
-            <p className="text-lg text-white/90 mb-8">
-              Take the first step towards becoming a tech professional today
-            </p>
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link
-                to={RouteConstant.signup}
-                className="inline-flex items-center justify-center gap-2 bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
-              >
-                Start Application
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                to="/programs"
-                className="inline-flex items-center justify-center gap-2 bg-transparent text-white border-2 border-white/30 hover:border-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-              >
-                View All Programs
-                <ChevronRight className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <CTASection />
 
       <Footer />
     </div>

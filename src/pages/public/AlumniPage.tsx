@@ -1,4 +1,5 @@
 // src/pages/AlumniPage.tsx
+import CTASection from "@/components/features/CTASection";
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
 import { RouteConstant } from "@/constants/routes";
@@ -68,7 +69,6 @@ const AlumniPage = () => {
       color: "bg-gradient-to-r from-red-800 to-red-950",
     },
   ];
-
   // Company placements
   const companies = [
     "Google",
@@ -142,51 +142,69 @@ const AlumniPage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-white z-0" />
+      <section className="relative overflow-hidden px-5 pb-20 pt-32 sm:px-10">
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-red-50/70 to-white" />
 
-        <div className="container mx-auto relative z-10">
+        <div className="container relative z-10 mx-auto">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="text-center max-w-4xl mx-auto"
+            className="mx-auto max-w-4xl text-center"
           >
             <motion.div
               variants={fadeUpVariants}
-              className="inline-flex items-center gap-2 bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-semibold mb-6"
+              className="mb-6 inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-sm font-semibold text-red-700"
             >
               <GraduationCap className="h-4 w-4" />
-              <span>Alumni Success</span>
+              <span>Alumni Community</span>
             </motion.div>
 
             <motion.h1
               variants={fadeUpVariants}
               className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
             >
-              Where Our{" "}
+              See where our{" "}
               <span className="bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
                 Graduates
               </span>{" "}
-              Are Now
+              are now
             </motion.h1>
 
             <motion.p
               variants={fadeUpVariants}
-              className="text-lg text-gray-600 mb-10 max-w-3xl mx-auto"
+              className="mx-auto mb-10 max-w-3xl text-lg text-gray-600"
             >
-              Join thousands of successful Frankpower alumni who have
-              transformed their careers and are making an impact in the tech
-              industry.
+              Our alumni are building careers across product, engineering, data,
+              design, and security in both local and global teams.
             </motion.p>
+
+            <motion.div
+              variants={fadeUpVariants}
+              className="flex flex-col items-center justify-center gap-3 sm:flex-row"
+            >
+              <Link
+                to={RouteConstant.signup}
+                className="inline-flex items-center justify-center rounded-lg bg-red-600 px-7 py-3 font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                Start your journey
+              </Link>
+              <Link
+                to={RouteConstant.programs}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-7 py-3 font-semibold text-gray-700 transition-colors hover:border-red-200 hover:text-red-600"
+              >
+                Explore programs
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Alumni Stats */}
-      <section className="py-16 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto px-5 sm:px-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="bg-white px-5 pb-8 sm:px-10">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
               {
                 value: "5,000+",
@@ -215,15 +233,19 @@ const AlumniPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center text-white"
+                className="rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-sm"
               >
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-white/20 rounded-full">
+                <div className="mb-4 flex justify-center">
+                  <div className="rounded-full bg-red-50 p-3 text-red-600">
                     {stat.icon}
                   </div>
                 </div>
-                <div className="text-3xl font-bold mb-2">{stat.value}</div>
-                <div className="text-sm text-white/80">{stat.label}</div>
+                <div className="mb-1 text-2xl font-bold text-gray-900 md:text-3xl">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-gray-600 md:text-sm">
+                  {stat.label}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -231,109 +253,101 @@ const AlumniPage = () => {
       </section>
 
       {/* Success Stories */}
-      <section ref={sectionRef} className="py-20 px-5 sm:px-10 bg-white">
+      <section ref={sectionRef} className="bg-gray-50/60 px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-12 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+              Testimonials
+            </p>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">
               Success Stories
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Hear from our alumni about their journey and achievements
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+              A calm look at how our alumni moved from learning to meaningful
+              career outcomes.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid gap-5 md:grid-cols-2">
             {successStories.map((story, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
+              <motion.article
+                key={story.name}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.06 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group"
+                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md"
               >
-                <div className="p-6">
-                  {/* Story Header */}
-                  <div className="flex items-start gap-4 mb-6">
-                    <div
-                      className={`w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold ${story.color}`}
-                    >
-                      {story.image}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {story.name}
-                      </h3>
-                      <p className="text-gray-600">{story.role}</p>
-                      <p className="text-sm text-red-600 font-semibold">
-                        {story.company}
-                      </p>
-                    </div>
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold text-gray-700">
+                    {story.image}
                   </div>
-
-                  {/* Testimonial */}
-                  <div className="mb-6 relative">
-                    <Quote className="absolute -top-2 -left-2 h-8 w-8 text-red-100" />
-                    <p className="text-gray-700 italic pl-4">
-                      "{story.testimonial}"
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      {story.name}
+                    </h4>
+                    <p className="text-xs text-gray-600">{story.role}</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {story.company}
                     </p>
                   </div>
-
-                  {/* Stats */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-600">Current Salary</p>
-                      <p className="font-bold text-gray-900">{story.salary}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Timeline</p>
-                      <p className="font-bold text-gray-900">
-                        {story.duration}
-                      </p>
-                    </div>
-                  </div>
                 </div>
-              </motion.div>
+
+                <div className="relative mt-4 rounded-xl bg-gray-50 p-4">
+                  <Quote className="absolute -top-2 left-4 h-5 w-5 text-gray-300" />
+                  <p className="pt-2 text-sm leading-relaxed text-gray-700">
+                    "{story.testimonial}"
+                  </p>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700">
+                    {story.salary}
+                  </span>
+                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700">
+                    {story.duration}
+                  </span>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
 
       {/* Company Placements */}
-      <section className="py-20 px-5 sm:px-10 bg-gray-50">
+      <section className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-12 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
               Where Our Alumni Work
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Our graduates are making an impact at leading companies worldwide
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+              Our graduates are making an impact at leading organizations.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {companies.map((company, index) => (
               <motion.div
-                key={index}
+                key={company}
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
-                className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center"
+                className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md"
               >
-                <span className="text-gray-900 font-semibold text-lg">
+                <span className="text-base font-semibold text-gray-900 md:text-lg">
                   {company}
                 </span>
               </motion.div>
@@ -343,42 +357,43 @@ const AlumniPage = () => {
       </section>
 
       {/* Career Paths */}
-      <section className="py-20 px-5 sm:px-10 bg-white">
+      <section className="bg-gray-50 px-5 py-20 sm:px-10">
         <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid items-start gap-8 lg:grid-cols-12">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              className="lg:col-span-7"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
                 Diverse Career Opportunities
               </h2>
-              <p className="text-gray-600 mb-8">
+              <p className="mt-4 max-w-2xl text-gray-600">
                 Frankpower alumni have pursued various career paths, from
                 corporate roles to entrepreneurship. Our comprehensive career
                 support ensures you're prepared for whatever path you choose.
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {careerPaths.map((path, index) => (
                   <motion.div
-                    key={index}
+                    key={path.title}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.08 }}
                     viewport={{ once: true }}
-                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                    className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
                   >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-red-100 rounded-lg text-red-600">
+                    <div className="mb-2 flex items-center gap-3">
+                      <div className="rounded-lg bg-red-50 p-2 text-red-600">
                         {path.icon}
                       </div>
-                      <div className="text-2xl font-bold text-gray-900">
+                      <div className="text-xl font-bold text-gray-900">
                         {path.count}
                       </div>
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="mb-1 font-semibold text-gray-900">
                       {path.title}
                     </h4>
                     <p className="text-sm text-gray-600">{path.description}</p>
@@ -387,128 +402,101 @@ const AlumniPage = () => {
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
+            <motion.aside
+              initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="relative"
+              transition={{ delay: 0.1 }}
+              className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm lg:col-span-5"
             >
-              <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-8 border border-red-100 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Alumni Network Benefits
-                </h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Network
+              </p>
+              <h3 className="mt-4 text-2xl font-semibold text-gray-900">
+                Alumni Network Benefits
+              </h3>
 
-                <ul className="space-y-4 mb-8">
-                  {[
-                    "Exclusive job opportunities from partner companies",
-                    "Mentorship opportunities with senior alumni",
-                    "Regular networking events and workshops",
-                    "Access to advanced training resources",
-                    "Career coaching and interview preparation",
-                    "Global alumni community platform",
-                  ].map((benefit, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-red-600 rounded-full" />
-                      </div>
-                      <span className="text-gray-700">{benefit}</span>
-                    </motion.li>
-                  ))}
-                </ul>
+              <ul className="mt-6 space-y-3">
+                {[
+                  "Exclusive job opportunities from partner companies",
+                  "Mentorship with senior alumni",
+                  "Regular networking events and workshops",
+                  "Access to advanced training resources",
+                  "Career coaching and interview preparation",
+                  "Global alumni community platform",
+                ].map((benefit) => (
+                  <li key={benefit} className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-red-500" />
+                    <span className="text-sm text-gray-700">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
 
-                <motion.div whileHover={{ scale: 1.02 }} className="w-full">
-                  <Link
-                    to={RouteConstant.signup}
-                    className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg hover:shadow-lg transition-all duration-300 group"
-                  >
-                    <GraduationCap className="h-5 w-5" />
-                    <span className="font-semibold">
-                      Join Our Alumni Network
-                    </span>
-                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </motion.div>
-              </div>
-
-              {/* Decorative element */}
-              <motion.div
-                className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-r from-red-500 to-red-700 rounded-full blur-3xl opacity-20 -z-10"
-                animate={{
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  scale: {
-                    repeat: Infinity,
-                    duration: 3,
-                    ease: "easeInOut" as const,
-                  },
-                }}
-              />
-            </motion.div>
+              <Link
+                to={RouteConstant.signup}
+                className="mt-7 flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                <GraduationCap className="h-5 w-5" />
+                Join Our Alumni Network
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </motion.aside>
           </div>
         </div>
       </section>
 
       {/* Video Testimonials CTA */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-50 to-white">
+      <section className="bg-white px-5 py-20 sm:px-10">
         <div className="container mx-auto">
-          <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="grid lg:grid-cols-2">
-              <div className="p-12 text-white">
-                <h3 className="text-3xl font-bold mb-6">
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="grid lg:grid-cols-12">
+              <div className="p-10 lg:col-span-7">
+                <h3 className="text-3xl font-bold text-gray-900">
                   Watch Our Alumni Success Videos
                 </h3>
-                <p className="text-white/90 mb-8">
+                <p className="mt-4 max-w-xl text-gray-600">
                   See and hear directly from our graduates about their journey,
                   challenges, and how Frankpower helped them achieve their
                   career goals.
                 </p>
-                <ul className="space-y-3 mb-8">
+
+                <ul className="mt-6 space-y-3">
                   {[
                     "Real interviews with successful alumni",
                     "Day-in-the-life videos at top companies",
                     "Career transition stories",
                     "Project showcase and demonstrations",
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <Play className="h-4 w-4" />
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-3 text-sm text-gray-700"
+                    >
+                      <Play className="h-4 w-4 text-red-600" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+
+                <a
+                  href="#"
+                  className="mt-8 inline-flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-red-700"
                 >
-                  <a
-                    href="#"
-                    className="inline-flex items-center gap-2 bg-white text-red-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
-                  >
-                    <Play className="h-5 w-5" />
-                    Watch Testimonials
-                  </a>
-                </motion.div>
+                  <Play className="h-5 w-5" />
+                  Watch Testimonials
+                </a>
               </div>
 
-              <div className="bg-gray-900 flex items-center justify-center p-12">
-                <div className="relative w-full max-w-md">
-                  <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="inline-flex p-4 bg-red-600/20 rounded-full mb-4">
-                        <Play className="h-12 w-12 text-white" />
+              <div className="flex items-center justify-center bg-gray-900 p-10 lg:col-span-5">
+                <div className="w-full max-w-md">
+                  <div className="aspect-video rounded-lg bg-linear-to-br from-gray-800 to-gray-900 p-6">
+                    <div className="flex h-full flex-col items-center justify-center text-center">
+                      <div className="mb-4 inline-flex rounded-full bg-red-600/20 p-4">
+                        <Play className="h-10 w-10 text-white" />
                       </div>
-                      <p className="text-white font-semibold">
+                      <p className="font-semibold text-white">
                         Alumni Success Stories
                       </p>
-                      <p className="text-gray-400 text-sm mt-2">
+                      <p className="mt-2 text-sm text-gray-400">
                         Click to play video
                       </p>
                     </div>
@@ -520,46 +508,7 @@ const AlumniPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Start Your Success Story
-            </h2>
-            <p className="text-lg text-white/90 mb-8">
-              Join our community of successful alumni and transform your career
-              today
-            </p>
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link
-                to={RouteConstant.signup}
-                className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
-              >
-                Apply Now
-              </Link>
-              <Link
-                to="/programs"
-                className="inline-flex items-center justify-center gap-2 bg-transparent text-white border-2 border-white/30 hover:border-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-              >
-                <GraduationCap className="h-5 w-5" />
-                Explore Programs
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <CTASection />
 
       <Footer />
     </div>

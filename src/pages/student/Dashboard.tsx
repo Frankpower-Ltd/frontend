@@ -108,7 +108,7 @@ const Dashboard = () => {
       },
       {
         name: "Certificates",
-        href: RouteConstant.achievements,
+        href: RouteConstant.certificates,
         icon: FileBadge,
         count: null,
       },

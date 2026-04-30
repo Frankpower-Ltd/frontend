@@ -15,7 +15,7 @@ export const RouteConstant = {
   dashboardNotifications: "/dashboard/notifications",
   studentsform: "/form",
   assignments: "/dashboard/assignments",
-  achievements: "/dashboard/achievements",
+  certificates: "/dashboard/certificates",
   studyGroups: "/dashboard/groups",
   schedule: "/dashboard/schedule",
   myCourses: "/dashboard/courses",

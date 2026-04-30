@@ -1,34 +1,113 @@
 // src/pages/AboutPage.tsx
+import teamAdaeze from "@/assets/images/team-adaeze.jpg";
+import teamChinwe from "@/assets/images/team-chinwe.jpg";
+import teamFrank from "@/assets/images/team-frank.jpg";
+import teamTunde from "@/assets/images/team-tunde.jpg";
+import CTASection from "@/components/features/CTASection";
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
-import { RouteConstant } from "@/constants/routes";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Award,
-  BarChart,
-  Calendar,
-  ChevronRight,
-  Globe,
-  Heart,
+  Compass,
+  Github,
+  HeartHandshake,
+  Linkedin,
+  Sparkles,
   Target,
-  Users,
+  Twitter,
 } from "lucide-react";
-import { useRef } from "react";
-import { Link } from "react-router";
+
+const stats = [
+  { value: "2,400+", label: "Students trained" },
+  { value: "92%", label: "Graduate placement" },
+  { value: "40+", label: "Industry partners" },
+  { value: "8", label: "Years building talent" },
+];
+
+const values = [
+  {
+    icon: Target,
+    title: "Real-world first",
+    body: "Every track is shaped around the work students will actually do, not theory, not filler.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "Mentorship at the core",
+    body: "Small cohorts, senior mentors, and weekly 1:1s so no one gets left behind.",
+  },
+  {
+    icon: Compass,
+    title: "Career, not just class",
+    body: "Portfolio, interviews, soft skills, placements, we walk the full distance with you.",
+  },
+  {
+    icon: Sparkles,
+    title: "High standards, warm room",
+    body: "We push hard, but we hold space. Excellence shouldn't feel cold.",
+  },
+];
+
+const milestones = [
+  {
+    year: "2018",
+    title: "Frankpower founded",
+    body: "Started as a small SIWES program for 12 students in Awka.",
+  },
+  {
+    year: "2020",
+    title: "First full cohort",
+    body: "Launched our first immersive 6-month tech track.",
+  },
+  {
+    year: "2022",
+    title: "Industry partnerships",
+    body: "Signed 20+ employer partners for direct placement pipelines.",
+  },
+  {
+    year: "2024",
+    title: "Hybrid campus",
+    body: "Opened our hybrid Awka campus with online + in-person tracks.",
+  },
+  {
+    year: "2026",
+    title: "2,400+ alumni",
+    body: "Crossed 2,400 graduates working across Nigeria and remote teams.",
+  },
+];
+
+const team = [
+  {
+    name: "Frank Okechukwu",
+    role: "Founder & CEO",
+    image: teamFrank,
+    socials: { linkedin: "#", twitter: "#", github: "#" },
+  },
+  {
+    name: "Adaeze Nwosu",
+    role: "Director of Programs",
+    image: teamAdaeze,
+    socials: { linkedin: "#", twitter: "#" },
+  },
+  {
+    name: "Tunde Bakare",
+    role: "Head of Industry",
+    image: teamTunde,
+    socials: { linkedin: "#", twitter: "#" },
+  },
+  {
+    name: "Chinwe Eze",
+    role: "Lead Mentor",
+    image: teamChinwe,
+    socials: { linkedin: "#", github: "#", twitter: "#" },
+  },
+];
 
 const AboutPage = () => {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
-
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
     },
   };
 
@@ -37,76 +116,17 @@ const AboutPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut" as const,
-      },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
-
-  // Stats data
-  const stats = [
-    {
-      value: "5,000+",
-      label: "Students Trained",
-      icon: <Users className="h-6 w-6" />,
-    },
-    {
-      value: "95%",
-      label: "Satisfaction Rate",
-      icon: <Heart className="h-6 w-6" />,
-    },
-    {
-      value: "85%",
-      label: "Job Placement",
-      icon: <BarChart className="h-6 w-6" />,
-    },
-    {
-      value: "4+",
-      label: "Years Experience",
-      icon: <Calendar className="h-6 w-6" />,
-    },
-  ];
-
-  // Values data
-  const values = [
-    {
-      icon: <Target className="h-8 w-8" />,
-      title: "Excellence",
-      description:
-        "We strive for the highest standards in tech education and mentorship.",
-      color: "from-red-500 to-red-700",
-    },
-    {
-      icon: <Users className="h-8 w-8" />,
-      title: "Community",
-      description:
-        "Building a supportive network of learners and professionals.",
-      color: "from-red-600 to-red-800",
-    },
-    {
-      icon: <Award className="h-8 w-8" />,
-      title: "Innovation",
-      description: "Continuously evolving our programs with industry trends.",
-      color: "from-red-700 to-red-900",
-    },
-    {
-      icon: <Globe className="h-8 w-8" />,
-      title: "Impact",
-      description: "Creating positive change in the tech education landscape.",
-      color: "from-red-800 to-red-950",
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* Hero Section */}
+      {/*  Hero (unchanged)  */}
       <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
-        {/* Background gradient */}
         <div className="absolute inset-0 bg-background z-0" />
-
         <div className="container mx-auto relative z-10">
           <motion.div
             initial="hidden"
@@ -144,220 +164,237 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto px-5 sm:px-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center text-white"
+      {/*  Stats strip  */}
+      <section className="border-y border-border">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 divide-y divide-border lg:grid-cols-4 lg:divide-x lg:divide-y-0">
+          {stats.map((s, i) => (
+            <div
+              key={s.label}
+              className={`px-6 py-10 lg:px-10 lg:py-14 ${i >= 2 ? "border-t border-border lg:border-t-0" : ""}`}
+            >
+              <p className="font-display text-4xl font-bold tracking-tight md:text-5xl">
+                {s.value}
+              </p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/*  Story / Mission  */}
+      <section className="border-b border-border">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-12 lg:gap-16 lg:px-10 lg:py-28">
+          <div className="lg:col-span-5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Our story
+            </p>
+            <h2 className="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+              From a small room in Awka to a national talent pipeline.
+            </h2>
+          </div>
+          <div className="space-y-6 text-base leading-relaxed text-muted-foreground lg:col-span-7 lg:pt-3">
+            <p>
+              Frankpower started in 2018 with a simple frustration: too many
+              smart Nigerian students were graduating without the practical
+              skills employers actually needed. We set out to fix the gap, not
+              with another certificate factory, but with intensive, mentor-led
+              training tied to real outcomes.
+            </p>
+            <p>
+              Eight years later, we've trained thousands of students across
+              cybersecurity, web development, data, and UI/UX, and we still
+              teach the way we started: small cohorts, senior mentors, and a
+              relentless focus on what graduates can do on day one of the job.
+            </p>
+            <div className="grid gap-6 pt-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
+                  <Target className="h-4 w-4" />
+                </div>
+                <p className="mt-4 font-display text-lg font-semibold tracking-tight text-foreground">
+                  Our mission
+                </p>
+                <p className="mt-2 text-sm leading-relaxed">
+                  Equip African talent with the tools, mentorship, and
+                  confidence to compete and win globally.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
+                  <Compass className="h-4 w-4" />
+                </div>
+                <p className="mt-4 font-display text-lg font-semibold tracking-tight text-foreground">
+                  Our vision
+                </p>
+                <p className="mt-2 text-sm leading-relaxed">
+                  A Nigeria where talent is the default export, and every
+                  graduate has a real shot at meaningful work.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/*  Values  */}
+      <section className="border-b border-border bg-secondary/40">
+        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                What we stand for
+              </p>
+              <h2 className="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+                The principles behind every cohort.
+              </h2>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground lg:col-span-5 lg:col-start-8">
+              These aren't posters on a wall. They shape who we hire as mentors,
+              how we design programs, and how we show up for students.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {values.map(({ icon: Icon, title, body }) => (
+              <div
+                key={title}
+                className="group bg-background p-7 transition-colors hover:bg-card"
               >
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-white/20 rounded-full">
-                    {stat.icon}
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="mt-6 font-display text-lg font-semibold tracking-tight">
+                  {title}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/*  Timeline  */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Milestones
+              </p>
+              <h2 className="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+                Eight years, one mission.
+              </h2>
+              <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+                A short walk through the moments that shaped Frankpower, and the
+                students who shaped them with us.
+              </p>
+            </div>
+
+            <div className="lg:col-span-8">
+              <ol className="relative border-l border-border">
+                {milestones.map((m) => (
+                  <li key={m.year} className="relative pb-10 pl-8 last:pb-0">
+                    <span className="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full border-2 border-background bg-primary" />
+                    <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                      {m.year}
+                    </p>
+                    <p className="mt-2 font-display text-xl font-semibold tracking-tight">
+                      {m.title}
+                    </p>
+                    <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                      {m.body}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/*  Team  */}
+      <section className="border-b border-border bg-secondary/40">
+        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                The team
+              </p>
+              <h2 className="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl">
+                People who actually do the work.
+              </h2>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground lg:col-span-4 lg:col-start-9">
+              Practitioners, founders, and senior engineers who teach because
+              they love it, not because they're between jobs.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {team.map((p) => (
+              <div
+                key={p.name}
+                className="group rounded-2xl border border-border bg-background p-3 transition-all hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="relative aspect-4/5 w-full overflow-hidden rounded-xl bg-muted">
+                  <img
+                    src={p.image}
+                    alt={`Portrait of ${p.name}, ${p.role} at Frankpower`}
+                    width={768}
+                    height={960}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Hover overlay with socials */}
+                  <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-center gap-3 bg-linear-to-t from-black/80 via-black/50 to-transparent p-5 pb-6 transition-transform duration-300 group-hover:translate-y-0">
+                    {p.socials.linkedin && (
+                      <a
+                        href={p.socials.linkedin}
+                        aria-label={`${p.name} on LinkedIn`}
+                        className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                      </a>
+                    )}
+                    {p.socials.twitter && (
+                      <a
+                        href={p.socials.twitter}
+                        aria-label={`${p.name} on Twitter`}
+                        className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Twitter className="h-4 w-4" />
+                      </a>
+                    )}
+                    {p.socials.github && (
+                      <a
+                        href={p.socials.github}
+                        aria-label={`${p.name} on GitHub`}
+                        className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Github className="h-4 w-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
-                <div className="text-3xl font-bold mb-2">{stat.value}</div>
-                <div className="text-sm text-white/80">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Our Story Section */}
-      <section ref={sectionRef} className="py-20 px-5 sm:px-10 bg-white">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Our Journey & Mission
-              </h2>
-              <div className="space-y-4 text-gray-600">
-                <p>
-                  Founded in 2020, Frankpower was born out of a passion to
-                  address the growing skills gap in Nigeria's tech industry. We
-                  recognized that traditional education often fell short of
-                  preparing students for real-world tech challenges.
-                </p>
-                <p>
-                  Our mission is simple yet powerful: to provide
-                  industry-aligned tech education that empowers students with
-                  practical skills, hands-on experience, and the confidence to
-                  excel in their careers.
-                </p>
-                <p>
-                  We believe that everyone deserves access to quality tech
-                  education, regardless of their background or location. That's
-                  why we've built programs that are both accessible and
-                  effective.
-                </p>
-              </div>
-
-              <motion.div whileHover={{ scale: 1.05 }} className="mt-8">
-                <Link
-                  to="/programs"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-800 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-                >
-                  Explore Our Programs
-                  <ChevronRight className="h-5 w-5" />
-                </Link>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-8 border border-red-100 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Why Choose Frankpower?
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    "Industry-experienced mentors",
-                    "Project-based learning approach",
-                    "SIWES-accredited programs",
-                    "Career placement support",
-                    "Flexible learning schedules",
-                    "Global certification recognition",
-                  ].map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={
-                        isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }
-                      }
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="flex-shrink-0 w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-red-600 rounded-full" />
-                      </div>
-                      <span className="text-gray-700">{item}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Decorative element */}
-              <motion.div
-                className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-red-500 to-red-700 rounded-full blur-2xl opacity-20 -z-10"
-                animate={{
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 180, 360],
-                }}
-                transition={{
-                  scale: {
-                    repeat: Infinity,
-                    duration: 4,
-                    ease: "easeInOut" as const,
-                  },
-                  rotate: {
-                    repeat: Infinity,
-                    duration: 20,
-                    ease: "linear" as const,
-                  },
-                }}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gray-50">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Our Core Values
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              The principles that guide everything we do at Frankpower
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
-              >
-                <div
-                  className={`w-14 h-14 bg-gradient-to-r ${value.color} rounded-xl flex items-center justify-center text-white mb-6`}
-                >
-                  {value.icon}
+                <div className="px-2 pb-2 pt-4">
+                  <p className="font-display text-lg font-semibold tracking-tight">
+                    {p.name}
+                  </p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    {p.role}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {value.title}
-                </h3>
-                <p className="text-gray-600">{value.description}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-5 sm:px-10 bg-gradient-to-r from-red-600 to-red-800">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Start Your Tech Journey?
-            </h2>
-            <p className="text-lg text-white/90 mb-8">
-              Join thousands of students who have transformed their careers with
-              Frankpower
-            </p>
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link
-                to={RouteConstant.signup}
-                className="inline-flex items-center justify-center bg-white text-red-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300 hover:scale-105"
-              >
-                Apply Now
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center bg-transparent text-white border-2 border-white/30 hover:border-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-              >
-                Contact Us
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <CTASection />
 
       <Footer />
     </div>
