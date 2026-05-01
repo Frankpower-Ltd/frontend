@@ -225,7 +225,7 @@ const SchedulePage = () => {
   const [selected, setSelected] = useState<LessonSchedule | null>(null);
 
   const todayKey = orderedDays[(new Date().getDay() + 6) % 7];
-  const [activeDay, setActiveDay] = useState<Weekday | "ALL">("ALL");
+  const [activeDay, setActiveDay] = useState<Weekday | "ALL">(todayKey);
 
   const courses = useMemo(() => {
     return myCourses

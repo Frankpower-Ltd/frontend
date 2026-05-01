@@ -2,6 +2,7 @@
 import CTASection from "@/components/features/CTASection";
 import Footer from "@/components/features/Footer";
 import Navbar from "@/components/features/Navbar";
+import TestimonialCarousel from "@/components/features/TestimonialCarousel";
 import { RouteConstant } from "@/constants/routes";
 import { motion } from "framer-motion";
 import {
@@ -10,7 +11,6 @@ import {
   Globe,
   GraduationCap,
   Play,
-  Quote,
   Star,
   TrendingUp,
   Users,
@@ -20,55 +20,7 @@ import { Link } from "react-router";
 
 const AlumniPage = () => {
   const sectionRef = useRef(null);
-  // const isInView = useInView(sectionRef, { once: true, amount: 0.1 });
 
-  // Alumni success stories
-  const successStories = [
-    {
-      name: "William A.",
-      role: "Cybersecurity Analyst",
-      company: "TechSecure Inc.",
-      testimonial:
-        "The internship experience was invaluable. The mentors were exceptional and provided real-world guidance that jumpstarted my career.",
-      image: "WA",
-      salary: "₦350,000/month",
-      duration: "Hired in 3 months",
-      color: "bg-gradient-to-r from-red-500 to-red-700",
-    },
-    {
-      name: "Priscilla K.",
-      role: "UI/UX Designer",
-      company: "DesignStudio NG",
-      testimonial:
-        "I transformed my skills from zero to hero. The program's practical approach is exactly what the industry demands.",
-      image: "PK",
-      salary: "₦280,000/month",
-      duration: "Freelance to Full-time",
-      color: "bg-gradient-to-r from-red-600 to-red-800",
-    },
-    {
-      name: "Adrian M.",
-      role: "Fullstack Developer",
-      company: "DevTech Solutions",
-      testimonial:
-        "The job placement assistance was fantastic. I secured a role at a top tech company right after completing the program.",
-      image: "AM",
-      salary: "₦420,000/month",
-      duration: "Direct Placement",
-      color: "bg-gradient-to-r from-red-700 to-red-900",
-    },
-    {
-      name: "Sarah J.",
-      role: "Data Analyst",
-      company: "Analytics Pro",
-      testimonial:
-        "The hands-on projects gave me the confidence to tackle real business problems. My portfolio helped me stand out.",
-      image: "SJ",
-      salary: "₦320,000/month",
-      duration: "Promoted in 6 months",
-      color: "bg-gradient-to-r from-red-800 to-red-950",
-    },
-  ];
   // Company placements
   const companies = [
     "Google",
@@ -273,49 +225,7 @@ const AlumniPage = () => {
             </p>
           </motion.div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {successStories.map((story, index) => (
-              <motion.article
-                key={story.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.06 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow duration-300 hover:shadow-md"
-              >
-                <div className="flex items-start gap-3.5">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold text-gray-700">
-                    {story.image}
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-semibold text-gray-900">
-                      {story.name}
-                    </h4>
-                    <p className="text-xs text-gray-600">{story.role}</p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {story.company}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="relative mt-4 rounded-xl bg-gray-50 p-4">
-                  <Quote className="absolute -top-2 left-4 h-5 w-5 text-gray-300" />
-                  <p className="pt-2 text-sm leading-relaxed text-gray-700">
-                    "{story.testimonial}"
-                  </p>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700">
-                    {story.salary}
-                  </span>
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700">
-                    {story.duration}
-                  </span>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+          <TestimonialCarousel />
         </div>
       </section>
 
@@ -345,7 +255,7 @@ const AlumniPage = () => {
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05 }}
-                className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md"
+                className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <span className="text-base font-semibold text-gray-900 md:text-lg">
                   {company}

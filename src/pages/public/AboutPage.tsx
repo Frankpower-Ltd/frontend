@@ -338,7 +338,7 @@ const AboutPage = () => {
             {team.map((p) => (
               <div
                 key={p.name}
-                className="group rounded-2xl border border-border bg-background p-3 transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-2xl border border-border bg-background p-3"
               >
                 <div className="relative aspect-4/5 w-full overflow-hidden rounded-xl bg-muted">
                   <img

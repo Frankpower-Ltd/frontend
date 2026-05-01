@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-// ─ Status config ────────────────────────────────────────────────────────────
+// ─ Status config
 
 const statusConfig: Record<
   PaymentStatus,
@@ -104,7 +104,7 @@ const statusConfig: Record<
 
 const ITEMS_PER_PAGE = 6;
 
-// ─── Main page ────────────────────────────────────────────────────────────────
+// ─ Main page
 
 const Payments = () => {
   const { data: payments = [], isLoading, error } = useMyPayments();
@@ -148,7 +148,7 @@ const Payments = () => {
     (page + 1) * ITEMS_PER_PAGE,
   );
 
-  // ── Loading ───────────────────────────────────────────────────────────────
+  //  Loading ─
   if (isLoading) {
     return (
       <div className="space-y-4 p-4 md:p-6">
@@ -167,7 +167,7 @@ const Payments = () => {
     );
   }
 
-  // ── Error ─────────────────────────────────────────────────────────────────
+  //  Error ─
   if (error) {
     return (
       <div className="p-4 md:p-6">
@@ -461,7 +461,7 @@ const Payments = () => {
   );
 };
 
-// ─── Pay row ──────────────────────────────────────────────────────────────────
+// ─ Pay row
 
 const PayRow = ({
   label,

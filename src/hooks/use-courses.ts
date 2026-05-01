@@ -11,3 +11,15 @@ export const useMyCourses = (status: CourseFilter = "all") =>
     queryKey: [...COURSES_QUERY_KEY, status],
     queryFn: () => courseService.getMyCourses(status),
   });
+
+export const useMyCourseDetails = (courseId?: string) =>
+  useQuery({
+    queryKey: [...COURSES_QUERY_KEY, "details", courseId || "none"],
+    queryFn: () => {
+      if (!courseId) {
+        throw new Error("Course id is required");
+      }
+      return courseService.getMyCourseById(courseId);
+    },
+    enabled: Boolean(courseId),
+  });

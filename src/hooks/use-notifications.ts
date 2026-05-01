@@ -1,4 +1,5 @@
 import { notificationService } from "@/services/api/notification.service";
+import { mapNotificationToUI } from "@/lib/notifications";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const;
@@ -7,7 +8,7 @@ export const UNREAD_NOTIFICATIONS_QUERY_KEY = [
   "unread-count",
 ] as const;
 
-export const useNotifications = (params?: {
+export const useNotificationsQuery = (params?: {
   offset?: number;
   limit?: number;
   isRead?: boolean;
@@ -16,7 +17,7 @@ export const useNotifications = (params?: {
     queryKey: [
       ...NOTIFICATIONS_QUERY_KEY,
       params?.offset ?? 0,
-      params?.limit ?? 10,
+      params?.limit ?? 30,
       params?.isRead ?? "all",
     ],
     queryFn: () => notificationService.getMyNotifications(params),
@@ -91,4 +92,34 @@ export const useDeleteAllNotifications = () => {
       ]);
     },
   });
+};
+
+export const useNotifications = (params?: {
+  offset?: number;
+  limit?: number;
+  isRead?: boolean;
+}) => {
+  const query = useNotificationsQuery(params);
+  const unreadQuery = useUnreadNotificationsCount();
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
+  const deleteOne = useDeleteNotification();
+  const deleteAll = useDeleteAllNotifications();
+
+  return {
+    notifications: (query.data?.data || []).map(mapNotificationToUI),
+    resultSet: query.data?.resultSet,
+    unreadCount: unreadQuery.data || 0,
+    isLoading: query.isLoading || unreadQuery.isLoading,
+    isFetching: query.isFetching,
+    error: query.error || unreadQuery.error,
+    markAsRead: (id: string) => markRead.mutate(id),
+    markAllAsRead: () => markAllRead.mutate(),
+    remove: (id: string) => deleteOne.mutate(id),
+    clearAll: (isRead?: boolean) => deleteAll.mutate(isRead),
+    markAsReadPending: markRead.isPending,
+    markAllAsReadPending: markAllRead.isPending,
+    removePending: deleteOne.isPending,
+    clearAllPending: deleteAll.isPending,
+  };
 };

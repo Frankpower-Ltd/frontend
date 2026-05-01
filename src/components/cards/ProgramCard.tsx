@@ -9,9 +9,10 @@ interface ProgramCardProps {
 const ProgramCard = ({ data }: ProgramCardProps) => {
   return (
     <motion.div
-      className="group h-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+      className="group h-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm cursor-pointer"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
     >

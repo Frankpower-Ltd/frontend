@@ -185,7 +185,7 @@ const ContactPage = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      {/* ── Hero (unchanged) ── */}
+      {/*  Hero (unchanged)  */}
       <section className="relative pt-32 pb-20 px-5 sm:px-10 overflow-hidden">
         <div className="absolute inset-0 bg-background z-0" />
         <div className="container mx-auto relative z-10">
@@ -225,7 +225,7 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* ── Form + Info Panel ── */}
+      {/*  Form + Info Panel  */}
       <section className="border-b border-border">
         <div className="mx-auto grid max-w-7xl gap-0 lg:grid-cols-12">
           {/* Form */}
@@ -481,7 +481,7 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* ── FAQ ── */}
+      {/*  FAQ  */}
       <section id="faq" className="border-b border-border bg-secondary/30">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
           <div className="lg:col-span-4">

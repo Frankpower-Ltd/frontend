@@ -90,14 +90,14 @@ const Navbar: React.FC = () => {
       {/* Right - Desktop Action Buttons */}
       <div className="hidden md:flex items-center gap-4 font-inter text-sm font-bold">
         <a
-          className="text-gray-900 px-6 py-2 hover:text-gray-700 transition-all hover:bg-white hover:shadow-sm rounded-lg hover:border-gray-200 border border-transparent hover:-translate-y-1 duration-200"
+          className="text-gray-900 px-6 py-2 hover:text-gray-700 transition-colors rounded-lg hover:border-gray-200 border border-transparent duration-200"
           href={RouteConstant.login}
           target="_blank"
         >
           Login
         </a>
         <a
-          className="primary-gradient px-4 py-2 rounded-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg text-white hover:opacity-80"
+          className="primary-gradient px-4 py-2 rounded-lg transition-colors duration-200 text-white hover:opacity-80"
           href={RouteConstant.signup}
           target="_blank"
         >
