@@ -3,6 +3,7 @@ import { NotificationsDropdown } from "@/components/dashboard/NotificationsDropd
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import api from "@/utils/api";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
   Calendar,
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     fetchUserData();
@@ -65,6 +67,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     api.setToken(null, "user");
+    queryClient.clear();
     navigate(RouteConstant.login);
   };
 
@@ -146,7 +149,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* ── Sidebar (fixed, full viewport height) ── */}
+      {/*  Sidebar (fixed, full viewport height)  */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200
@@ -236,7 +239,7 @@ const Dashboard = () => {
         </div>
       </aside>
 
-      {/* ── Right column: header + main, offset by sidebar width on desktop ── */}
+      {/*  Right column: header + main, offset by sidebar width on desktop  */}
       <div
         className={`
           flex flex-col flex-1 min-w-0 transition-all duration-300
