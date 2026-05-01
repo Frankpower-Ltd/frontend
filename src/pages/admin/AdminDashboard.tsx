@@ -18,7 +18,8 @@ import {
   Layers,
   LogOut,
   Menu,
-  // Search,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   Shield,
   Users,
@@ -64,6 +65,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [search, setSearch] = useState("");
   const [applicationStatus, setApplicationStatus] =
     useState<StatusFilter>("all");
@@ -164,6 +166,18 @@ const AdminDashboard = () => {
                 )}
               </button>
 
+              <button
+                onClick={() => setSidebarCollapsed((prev) => !prev)}
+                className="hidden lg:inline-flex rounded-xl p-2 text-gray-600 hover:bg-gray-100"
+                aria-label="Collapse sidebar"
+              >
+                {sidebarCollapsed ? (
+                  <PanelLeftOpen className="h-5 w-5" />
+                ) : (
+                  <PanelLeftClose className="h-5 w-5" />
+                )}
+              </button>
+
               <div>
                 <h1 className="text-lg font-bold text-foreground">
                   Admin Dashboard
@@ -197,31 +211,38 @@ const AdminDashboard = () => {
       <div className="relative flex min-h-[calc(100vh-4rem)]">
         <aside
           className={`
-            fixed inset-y-0 left-0 z-40 mt-16 h-[calc(100vh-4rem)] w-72 border-r border-gray-200 bg-white
-            transform transition-transform duration-300 ease-in-out
+            fixed inset-y-0 left-0 z-40 mt-16 h-[calc(100vh-4rem)] border-r border-gray-200 bg-white
+            transform transition-all duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
             lg:sticky lg:top-16 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0
+            w-72 ${sidebarCollapsed ? "lg:w-[92px]" : "lg:w-72"}
             flex flex-col
           `}
         >
           <div className="border-b border-gray-100 p-5">
-            <div className="flex items-center gap-3">
+            <div
+              className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 font-medium text-white">
                 {adminName.charAt(0)}
               </div>
-              <div className="truncate">
-                <div className="truncate font-medium text-gray-900">
-                  {adminName}
+              {!sidebarCollapsed && (
+                <div className="truncate">
+                  <div className="truncate font-medium text-gray-900">
+                    {adminName}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Shield className="h-3 w-3" />
+                    {currentUser?.role || "admin"}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Shield className="h-3 w-3" />
-                  {currentUser?.role || "admin"}
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
-          <nav className="flex-1 space-y-1 p-4">
+          <nav
+            className={`flex-1 space-y-1 p-4 ${sidebarCollapsed ? "lg:px-2" : ""}`}
+          >
             {navigation.map((item) => {
               const active = activeTab === item.key;
               return (
@@ -231,26 +252,34 @@ const AdminDashboard = () => {
                   onClick={() => setTab(item.key as AdminTab)}
                   className={`
                     flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium
-                    transition-all duration-200
+                    transition-all duration-200 ${sidebarCollapsed ? "lg:justify-center" : ""}
                     ${active ? "bg-[#c81010] text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}
                   `}
+                  title={sidebarCollapsed ? item.label : undefined}
                 >
                   <item.icon
-                    className={`h-5 w-5 ${active ? "text-white" : "text-gray-500"}`}
+                    className={`h-5 w-5 shrink-0 ${active ? "text-white" : "text-gray-500"}`}
                   />
-                  <span>{item.label}</span>
+                  <span className={sidebarCollapsed ? "lg:hidden" : ""}>
+                    {item.label}
+                  </span>
                 </button>
               );
             })}
           </nav>
 
-          <div className="border-t border-gray-100 p-4">
+          <div
+            className={`border-t border-gray-100 p-4 ${sidebarCollapsed ? "lg:px-2" : ""}`}
+          >
             <button
-              className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100"
+              className={`mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
               aria-label="Settings"
+              title={sidebarCollapsed ? "Settings" : undefined}
             >
               <Settings className="h-5 w-5" />
-              Settings
+              <span className={sidebarCollapsed ? "lg:hidden" : ""}>
+                Settings
+              </span>
             </button>
           </div>
         </aside>

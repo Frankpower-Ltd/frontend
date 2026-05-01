@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { RouteConstant } from "@/constants/routes";
 import { useMyCourses } from "@/hooks/use-courses";
 import { usePrograms } from "@/hooks/use-programs";
 import { cn } from "@/lib/utils";
-import type { CourseProgressStatus, StudentCourse } from "@/types/student-flow";
+import type { CourseProgressStatus } from "@/types/student-flow";
 import {
   BookOpen,
   Calendar,
@@ -19,9 +20,9 @@ import {
   Search,
   Users,
   Wifi,
-  X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 type StatusFilter = "ALL" | CourseProgressStatus;
 
@@ -55,9 +56,7 @@ const MyCourses = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [page, setPage] = useState(0);
-  const [selectedCourse, setSelectedCourse] = useState<StudentCourse | null>(
-    null,
-  );
+  const navigate = useNavigate();
 
   const { data: courses = [], isLoading, error } = useMyCourses("all");
   const { data: programs = [] } = usePrograms();
@@ -189,7 +188,11 @@ const MyCourses = () => {
             <button
               key={courseItem.id}
               type="button"
-              onClick={() => setSelectedCourse(courseItem)}
+              onClick={() =>
+                navigate(
+                  `${RouteConstant.myCourses}/${encodeURIComponent(courseItem.courseId)}`,
+                )
+              }
               className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left transition-all hover:border-primary/30 hover:shadow-md"
             >
               <div
@@ -326,132 +329,8 @@ const MyCourses = () => {
           </div>
         </div>
       )}
-
-      {selectedCourse ? (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/45"
-            onClick={() => setSelectedCourse(null)}
-          />
-          <aside className="fixed right-0 top-0 z-50 h-screen w-full overflow-auto bg-background p-5 sm:max-w-md">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">Course Details</h3>
-              <button
-                onClick={() => setSelectedCourse(null)}
-                className="rounded-full border border-border p-1 text-muted-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {(() => {
-              const status = statusConfig[selectedCourse.status];
-              const StatusIcon = status.icon;
-              const program = programsById.get(selectedCourse.course.programId);
-
-              return (
-                <div className="mt-5 space-y-5">
-                  <div className="primary-gradient rounded-xl p-5 text-primary-foreground">
-                    <p className="text-xs opacity-70">Course</p>
-                    <h3 className="mt-0.5 text-lg font-bold">
-                      {selectedCourse.course.title}
-                    </h3>
-                    <div className="mt-2 flex items-center gap-3">
-                      <span className="inline-flex rounded-full bg-primary-foreground/20 px-2 py-0.5 text-[10px]">
-                        {program?.programType || "Academic"}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/20 px-2 py-0.5 text-[10px]">
-                        <StatusIcon className="h-3 w-3" />
-                        {status.label}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Progress
-                      </p>
-                      <span className="text-sm font-bold text-foreground">
-                        {selectedCourse.progressPercent}%
-                      </span>
-                    </div>
-                    <Progress
-                      value={selectedCourse.progressPercent}
-                      className="mb-2 h-2.5"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Status: {status.label}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      About
-                    </p>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {selectedCourse.course.description ||
-                        "No description available"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Details
-                    </p>
-                    <div className="divide-y divide-border rounded-xl border border-border bg-card">
-                      <DetailRow
-                        icon={<Layers className="h-4 w-4" />}
-                        label="Program"
-                        value={program?.title || "Program"}
-                      />
-                      <DetailRow
-                        icon={<Calendar className="h-4 w-4" />}
-                        label="Started At"
-                        value={formatDate(selectedCourse.startedAt)}
-                      />
-                      <DetailRow
-                        icon={<Calendar className="h-4 w-4" />}
-                        label="Completed At"
-                        value={formatDate(selectedCourse.completedAt)}
-                      />
-                      <DetailRow
-                        icon={<BookOpen className="h-4 w-4" />}
-                        label="Course Title"
-                        value={selectedCourse.course.title}
-                      />
-                    </div>
-                  </div>
-
-                  <p className="text-center font-mono text-[10px] text-muted-foreground">
-                    {selectedCourse.id}
-                  </p>
-                </div>
-              );
-            })()}
-          </aside>
-        </>
-      ) : null}
     </div>
   );
 };
-
-const DetailRow = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) => (
-  <div className="flex items-center gap-3 px-4 py-3">
-    <div className="shrink-0 text-muted-foreground">{icon}</div>
-    <div className="min-w-0 flex-1">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className="truncate text-sm font-medium text-foreground">{value}</p>
-    </div>
-  </div>
-);
 
 export default MyCourses;

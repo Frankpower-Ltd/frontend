@@ -1,7 +1,9 @@
 import type {
+  Assignment,
+  AssignmentSubmission,
   CourseOutlineTree,
-  ScheduleType,
   LessonSchedule,
+  ScheduleType,
   StudentCertificate,
   StudentCourse,
   Weekday,
@@ -54,6 +56,70 @@ export const courseService = {
     const response = await api.request<StudentCertificate[]>(
       `/courses/certificates${suffix}`,
     );
+    return unwrapServiceResponse(response);
+  },
+
+  async getCourseAssignments(courseId: string): Promise<Assignment[]> {
+    const response = await api.request<Assignment[]>(
+      `/courses/${encodeURIComponent(courseId)}/assignments`,
+    );
+    return unwrapServiceResponse(response);
+  },
+
+  async getAssignmentById(assignmentId: string): Promise<Assignment> {
+    const response = await api.request<Assignment>(
+      `/courses/assignments/${encodeURIComponent(assignmentId)}`,
+    );
+    return unwrapServiceResponse(response);
+  },
+
+  async getMyAssignmentSubmissions(filters?: {
+    courseId?: string;
+    status?: "SUBMITTED" | "REVIEWED" | "NEEDS_RESUBMISSION";
+    offset?: number;
+    limit?: number;
+  }): Promise<AssignmentSubmission[]> {
+    const params = new URLSearchParams();
+    if (filters?.courseId) params.set("courseId", filters.courseId);
+    if (filters?.status) params.set("status", filters.status);
+    if (typeof filters?.offset === "number") {
+      params.set("offset", String(filters.offset));
+    }
+    if (typeof filters?.limit === "number") {
+      params.set("limit", String(filters.limit));
+    }
+
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+
+    const response = await api.request<AssignmentSubmission[]>(
+      `/courses/me/assignments/submissions${suffix}`,
+    );
+
+    return unwrapServiceResponse(response);
+  },
+
+  async submitAssignment(
+    assignmentId: string,
+    payload: { responseText?: string; files?: File[] },
+  ): Promise<AssignmentSubmission> {
+    const formData = new FormData();
+
+    if (payload.responseText?.trim()) {
+      formData.append("responseText", payload.responseText.trim());
+    }
+
+    payload.files?.forEach((file) => {
+      formData.append("attachments", file);
+    });
+
+    const response = await api.request<AssignmentSubmission>(
+      `/courses/assignments/${encodeURIComponent(assignmentId)}/submit`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
     return unwrapServiceResponse(response);
   },
 

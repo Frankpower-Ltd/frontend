@@ -26,6 +26,11 @@ export type PaymentStatus =
 
 export type PaymentProvider = "PAYSTACK";
 
+export type AssignmentSubmissionStatus =
+  | "SUBMITTED"
+  | "REVIEWED"
+  | "NEEDS_RESUBMISSION";
+
 export interface ResultSet {
   count: number;
   offset: number;
@@ -110,6 +115,51 @@ export interface StudentCourse {
   startedAt?: string;
   completedAt?: string;
   course: Course;
+}
+
+export interface Assignment {
+  id: string;
+  courseId: string;
+  moduleId: string;
+  title: string;
+  description?: string;
+  instructions?: string;
+  dueAt?: string;
+  maxScore: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssignmentSubmissionAttachment {
+  id: string;
+  submissionId: string;
+  fileUrl: string;
+  fileName?: string;
+  mimeType?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  userId: string;
+  studentCourseId: string;
+  responseText?: string;
+  attachmentUrl?: string;
+  attachmentName?: string;
+  attachmentMimeType?: string;
+  attachments?: AssignmentSubmissionAttachment[];
+  submittedAt: string;
+  status: AssignmentSubmissionStatus;
+  score?: number;
+  feedback?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  assignment?: Assignment;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type Weekday =

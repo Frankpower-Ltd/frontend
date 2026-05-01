@@ -15,6 +15,7 @@ import Applications from "@/pages/student/Applications";
 import Assignments from "@/pages/student/Assignments";
 import Dashboard from "@/pages/student/Dashboard";
 import Lesson from "@/pages/student/Lesson";
+import CourseDetails from "@/pages/student/CourseDetails";
 import MyCourses from "@/pages/student/MyCourses";
 import NewApplication from "@/pages/student/NewApplication";
 import NotificationCenter from "@/pages/student/NotificationCenter";
@@ -68,6 +69,7 @@ function App() {
           <Route path="payments" element={<Payments />} />
           <Route path="notifications" element={<NotificationCenter />} />
           <Route path="courses" element={<MyCourses />} />
+          <Route path="courses/:courseId" element={<CourseDetails />} />
           <Route
             path="courses/:courseId/lessons/:lessonId"
             element={<Lesson />}
