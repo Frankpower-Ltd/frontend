@@ -26,7 +26,12 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router";
 
 type StatusFilter =
   | "all"
@@ -62,6 +67,7 @@ const isValidAdminTab = (value: string | null): value is AdminTab => {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,9 +84,9 @@ const AdminDashboard = () => {
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
 
   useEffect(() => {
-    // Set up automatic logout on token expiration
-    api.setOnLogout(handleLogout);
-  }, []);
+    // Set up automatic logout on token expiration with redirect
+    api.setOnLogout(() => handleLogout());
+  }, [location.pathname, location.search]);
 
   const applicationsQuery = useAdminApplications({
     offset: 0,
@@ -133,7 +139,10 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     api.setToken(null, "admin");
     api.setToken(null, "user");
-    navigate(RouteConstant.login);
+    const returnUrl = `${location.pathname}${location.search}`;
+    navigate(
+      `${RouteConstant.login}?redirect=${encodeURIComponent(returnUrl)}`,
+    );
   };
 
   const setTab = (tab: AdminTab) => {
