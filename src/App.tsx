@@ -6,6 +6,8 @@ import ForgotPassword from "@/pages/auth/ForgotPassword";
 import Login from "@/pages/auth/Login";
 import ResetPassword from "@/pages/auth/ResetPassword";
 import Signup from "@/pages/auth/Signup";
+import GlobalErrorBoundary from "@/pages/GlobalErrorBoundary";
+import NotFound from "@/pages/NotFound";
 import AboutPage from "@/pages/public/AboutPage";
 import AlumniPage from "@/pages/public/AlumniPage";
 import ContactPage from "@/pages/public/ContactPage";
@@ -13,9 +15,9 @@ import LandingPage from "@/pages/public/LandingPage";
 import ProgramsPage from "@/pages/public/ProgramPage";
 import Applications from "@/pages/student/Applications";
 import Assignments from "@/pages/student/Assignments";
+import CourseDetails from "@/pages/student/CourseDetails";
 import Dashboard from "@/pages/student/Dashboard";
 import Lesson from "@/pages/student/Lesson";
-import CourseDetails from "@/pages/student/CourseDetails";
 import MyCourses from "@/pages/student/MyCourses";
 import NewApplication from "@/pages/student/NewApplication";
 import NotificationCenter from "@/pages/student/NotificationCenter";
@@ -24,6 +26,7 @@ import Payments from "@/pages/student/Payments";
 import PaymentSuccessful from "@/pages/student/PaymentSuccessful";
 import Schedule from "@/pages/student/Schedule";
 import StudentCertificate from "@/pages/student/StudentCertificate";
+import StudentSettings from "@/pages/student/StudentSettings";
 import StudentsForm from "@/pages/student/StudentsForm";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
@@ -31,7 +34,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AuthLayout />}>
+        <Route element={<AuthLayout />} errorElement={<GlobalErrorBoundary />}>
           <Route
             path={RouteConstant.login}
             element={
@@ -62,7 +65,11 @@ function App() {
           element={<Navigate to={RouteConstant.apply} replace />}
         />
 
-        <Route path={RouteConstant.dashboard} element={<Dashboard />}>
+        <Route
+          path={RouteConstant.dashboard}
+          element={<Dashboard />}
+          errorElement={<GlobalErrorBoundary />}
+        >
           <Route index element={<Overview />} />
           <Route path="apply" element={<NewApplication />} />
           <Route path="applications" element={<Applications />} />
@@ -77,11 +84,13 @@ function App() {
           <Route path="schedule" element={<Schedule />} />
           <Route path="assignments" element={<Assignments />} />
           <Route path="certificates" element={<StudentCertificate />} />
+          <Route path="settings" element={<StudentSettings />} />
         </Route>
 
         <Route
           path={RouteConstant.adminDashboard}
           element={<AdminDashboard />}
+          errorElement={<GlobalErrorBoundary />}
         />
         <Route
           path="/admin"
@@ -90,6 +99,7 @@ function App() {
 
         <Route path="/" element={<LandingPage />} />
         <Route path="/payment-successful" element={<PaymentSuccessful />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

@@ -3,7 +3,7 @@ import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import api from "@/utils/api";
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,8 @@ const Login = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -64,7 +66,9 @@ const Login = () => {
         return;
       }
 
-      navigate(RouteConstant.dashboard);
+      // Redirect to original page if available, otherwise dashboard
+      const destination = redirectPath || RouteConstant.dashboard;
+      navigate(destination);
     } catch (error) {
       console.error("Login error:", error);
       setSubmitError("Network error. Please try again.");

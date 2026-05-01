@@ -21,5 +21,6 @@ export const RouteConstant = {
   myCourses: "/dashboard/courses",
   courseDetails: "/dashboard/courses/:courseId",
   overview: "/dashboard",
+  settings: "/dashboard/settings",
   adminDashboard: "/admin/dashboard",
 } as const;

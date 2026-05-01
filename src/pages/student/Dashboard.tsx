@@ -1,5 +1,6 @@
 import companyLogo from "@/assets/images/company-logo.png";
 import { NotificationsDropdown } from "@/components/dashboard/NotificationsDropdown";
+import UserAvatarDropdown from "@/components/dashboard/UserAvatarDropdown";
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import api from "@/utils/api";
@@ -35,9 +36,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchUserData();
-    // Set up automatic logout on token expiration
-    api.setOnLogout(handleLogout);
-  }, []);
+    // Set up automatic logout on token expiration with redirect
+    api.setOnLogout(() => handleLogout());
+  }, [location.pathname, location.search]);
 
   const fetchUserData = async () => {
     try {
@@ -70,7 +71,10 @@ const Dashboard = () => {
   const handleLogout = () => {
     api.setToken(null, "user");
     queryClient.clear();
-    navigate(RouteConstant.login);
+    const returnUrl = `${location.pathname}${location.search}`;
+    navigate(
+      `${RouteConstant.login}?redirect=${encodeURIComponent(returnUrl)}`,
+    );
   };
 
   const isActive = (href: string) => {
@@ -298,20 +302,10 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <NotificationsDropdown />
                 <div className="flex items-center gap-2 rounded-xl px-2 py-1.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#c81010] text-xs font-semibold text-white">
-                    {displayName
-                      .split(" ")
-                      .map((name: string) => name[0] || "")
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                  <div className="hidden sm:block leading-tight">
-                    <p className="text-sm font-medium text-foreground">
-                      {displayName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Student</p>
-                  </div>
+                  <UserAvatarDropdown
+                    handleLogout={handleLogout}
+                    displayName={displayName}
+                  />
                 </div>
               </div>
             </div>

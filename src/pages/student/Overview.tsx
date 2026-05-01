@@ -79,15 +79,11 @@ const Overview = () => {
     });
 
   const stats = useMemo(() => {
-    const paidPrograms = new Set(
-      applications
-        .filter((item) => item.status === "PAID")
-        .map((item) => item.programId),
-    );
-
     const totalPaid = payments
       .filter((item) => item.status === "SUCCESSFUL")
       .reduce((sum, item) => sum + item.amount, 0);
+
+    const enrolledCourses = courses.length;
 
     const completedCourses = courses.filter(
       (item) => item.status === "COMPLETED",
@@ -102,7 +98,7 @@ const Overview = () => {
       },
       {
         label: "Enrolled",
-        value: String(paidPrograms.size),
+        value: String(enrolledCourses),
         icon: BookOpen,
         colorClass: "text-info bg-info/10",
       },
