@@ -32,6 +32,7 @@ class ApiClient {
   private userToken: string | null = null;
   private adminToken: string | null = null;
   private refreshPromise: Promise<string | null> | null = null;
+  private onLogout: (() => void) | null = null;
 
   private get baseURL() {
     return this.baseUrl.endsWith("/")
@@ -42,6 +43,17 @@ class ApiClient {
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
     this.initializeTokens();
+  }
+
+  setOnLogout(callback: () => void) {
+    this.onLogout = callback;
+  }
+
+  private handleUnauthorized(tokenType: "admin" | "user") {
+    this.setToken(null, tokenType);
+    if (this.onLogout) {
+      this.onLogout();
+    }
   }
 
   private initializeTokens() {
@@ -285,7 +297,11 @@ class ApiClient {
         }
 
         if (response.status === 401) {
-          this.setToken(null, tokenType);
+          this.handleUnauthorized(tokenType);
+          return {
+            success: false,
+            status: response.status,
+          };
         }
 
         return {

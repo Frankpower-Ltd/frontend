@@ -25,7 +25,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router";
 
 type StatusFilter =
@@ -76,6 +76,11 @@ const AdminDashboard = () => {
     : "overview";
 
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
+
+  useEffect(() => {
+    // Set up automatic logout on token expiration
+    api.setOnLogout(handleLogout);
+  }, []);
 
   const applicationsQuery = useAdminApplications({
     offset: 0,
