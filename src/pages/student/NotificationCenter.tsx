@@ -1,196 +1,228 @@
 import { Button } from "@/components/ui/button";
-import { RouteConstant } from "@/constants/routes";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  useDeleteAllNotifications,
-  useDeleteNotification,
-  useMarkAllNotificationsRead,
-  useMarkNotificationRead,
-  useNotifications,
-} from "@/hooks/use-notifications";
-import { formatDate } from "@/lib/student-flow";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useNotifications } from "@/hooks/use-notifications";
+import { formatRelativeTime, notificationMeta } from "@/lib/notifications";
+import { cn } from "@/lib/utils";
+import { Bell, Check, CheckCheck, Trash2, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router";
 
-type Filter = "all" | "read" | "unread";
+type Filter = "all" | "unread";
 
-const NotificationCenter = () => {
-  const navigate = useNavigate();
+const filters: { value: Filter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "unread", label: "Unread" },
+];
+
+const NotificationsPage = () => {
   const [filter, setFilter] = useState<Filter>("all");
-  const [offset, setOffset] = useState(0);
-  const limit = 10;
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    remove,
+    clearAll,
+  } = useNotifications({ offset: 0, limit: 200 });
 
-  const isRead = filter === "all" ? undefined : filter === "read";
-
-  const { data, isLoading, error, isFetching } = useNotifications({
-    offset,
-    limit,
-    isRead,
-  });
-
-  const markReadMutation = useMarkNotificationRead();
-  const markAllReadMutation = useMarkAllNotificationsRead();
-  const deleteOneMutation = useDeleteNotification();
-  const deleteAllMutation = useDeleteAllNotifications();
-
-  const notifications = data?.data || [];
-  const resultSet = data?.resultSet;
-  const canPrev = offset > 0;
-  const canNext =
-    resultSet !== undefined
-      ? offset + (resultSet.count || 0) < (resultSet.total || 0)
-      : false;
+  const filtered = useMemo(() => {
+    if (filter === "unread") return notifications.filter((n) => !n.read);
+    return notifications;
+  }, [notifications, filter]);
 
   return (
-    <div className="space-y-5 p-4 md:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
-          <p className="text-sm text-muted-foreground">
-            Track updates on applications, payments, and course access.
-          </p>
+    <div className="p-4 md:p-6 overflow-auto">
+      <div className="max-w-3xl">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              Notifications
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {unreadCount > 0
+                ? `You have ${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}.`
+                : "You're all caught up."}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllAsRead}
+                className="gap-1.5"
+              >
+                <CheckCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Mark all read</span>
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => clearAll()}
+                className="gap-1.5 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Clear all</span>
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            onClick={() => markAllReadMutation.mutate()}
-            disabled={
-              markAllReadMutation.isPending || notifications.length === 0
-            }
-          >
-            Mark all as read
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => deleteAllMutation.mutate(isRead)}
-            disabled={deleteAllMutation.isPending || notifications.length === 0}
-          >
-            Delete {filter === "all" ? "all" : filter}
-          </Button>
-        </div>
-      </div>
 
-      <div className="flex flex-wrap gap-2">
-        {(["all", "unread", "read"] as Filter[]).map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => {
-              setFilter(item);
-              setOffset(0);
-            }}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-              filter === item
-                ? "bg-primary text-primary-foreground"
-                : "bg-accent text-muted-foreground"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+        <Tabs
+          value={filter}
+          onValueChange={(v) => setFilter(v as Filter)}
+          className="mb-4"
+        >
+          <TabsList className="h-auto flex-wrap justify-start bg-muted/60 p-1">
+            {filters.map((f) => (
+              <TabsTrigger
+                key={f.value}
+                value={f.value}
+                className="text-xs data-[state=active]:bg-background"
+              >
+                {f.label}
+                {f.value === "unread" && unreadCount > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                    {unreadCount}
+                  </span>
+                )}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-      {isLoading ? (
-        <div className="space-y-3">
-          <div className="h-16 animate-pulse rounded-xl bg-muted" />
-          <div className="h-16 animate-pulse rounded-xl bg-muted" />
-        </div>
-      ) : error ? (
-        <p className="text-sm text-destructive">
-          {(error as Error).message || "Unable to load notifications"}
-        </p>
-      ) : notifications.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          No notifications found.
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {notifications.map((notification) => (
-            <article
-              key={notification.id}
-              className={`rounded-xl border bg-card p-4 ${
-                notification.isRead ? "border-border" : "border-primary/30"
-              }`}
-            >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="mb-1 flex items-center gap-2">
-                    {!notification.isRead ? (
-                      <span className="h-2 w-2 rounded-full bg-primary" />
-                    ) : null}
-                    <h2 className="truncate text-sm font-semibold text-foreground">
-                      {notification.title}
-                    </h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {notification.message}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatDate(notification.createdAt)}
-                  </p>
-                </div>
-
-                <div className="flex shrink-0 gap-2">
-                  {!notification.isRead ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => markReadMutation.mutate(notification.id)}
-                      disabled={markReadMutation.isPending}
-                    >
-                      Mark read
-                    </Button>
-                  ) : null}
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteOneMutation.mutate(notification.id)}
-                    disabled={deleteOneMutation.isPending}
+        {filtered.length === 0 ? (
+          <div className="bg-card border border-border rounded-2xl py-16 text-center px-6">
+            <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Bell className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <p className="text-base font-semibold text-foreground">
+              Nothing to show
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {filter === "unread"
+                ? "You've read everything in your inbox."
+                : "New notifications will appear here."}
+            </p>
+          </div>
+        ) : (
+          <ul className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
+            {filtered.map((n) => {
+              const meta = notificationMeta[n.type] || {
+                label: "Notification",
+                tone: "bg-muted text-muted-foreground",
+                icon: Bell,
+              };
+              const Icon = meta.icon;
+              const inner = (
+                <div className="flex gap-3 md:gap-4 px-4 md:px-5 py-4 group hover:bg-accent/40 transition-colors">
+                  <div
+                    className={cn(
+                      "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
+                      meta.tone,
+                    )}
                   >
-                    Delete
-                  </Button>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p
+                            className={cn(
+                              "text-sm leading-snug",
+                              n.read
+                                ? "text-muted-foreground"
+                                : "text-foreground font-semibold",
+                            )}
+                          >
+                            {n.title}
+                          </p>
+                          {!n.read && (
+                            <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          {n.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
+                          <span>{meta.label}</span>
+                          <span aria-hidden>•</span>
+                          <span>{formatRelativeTime(n.timestamp)}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        {!n.read && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs gap-1"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              markAsRead(n.id);
+                            }}
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Read
+                          </Button>
+                        )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-transparent"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                remove(n.id);
+                              }}
+                              aria-label="Delete notification"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            Delete notification
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
+              );
 
-      <div className="flex items-center justify-between gap-3 pt-2">
-        <Button
-          variant="outline"
-          onClick={() => setOffset((value) => Math.max(0, value - limit))}
-          disabled={!canPrev}
-        >
-          Previous
-        </Button>
-
-        <p className="text-xs text-muted-foreground">
-          {resultSet
-            ? `${resultSet.offset + 1}-${resultSet.offset + resultSet.count} of ${resultSet.total}`
-            : "-"}
-          {isFetching ? " · refreshing..." : ""}
-        </p>
-
-        <Button
-          variant="outline"
-          onClick={() => setOffset((value) => value + limit)}
-          disabled={!canNext}
-        >
-          Next
-        </Button>
-      </div>
-
-      <div>
-        <Button
-          variant="ghost"
-          onClick={() => navigate(RouteConstant.dashboard)}
-        >
-          Back to dashboard
-        </Button>
+              return (
+                <li key={n.id}>
+                  {n.href ? (
+                    <Link
+                      to={n.href}
+                      onClick={() => markAsRead(n.id)}
+                      className="block"
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    inner
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
 };
 
-export default NotificationCenter;
+export default NotificationsPage;

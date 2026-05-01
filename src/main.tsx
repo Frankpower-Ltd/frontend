@@ -1,3 +1,4 @@
+import { TooltipProvider } from "@/components/ui/tooltip.tsx";
 import "@/index.css";
 import AppProvider from "@/providers";
 import { StrictMode } from "react";
@@ -9,7 +10,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppProvider>
       <>
-        <App />
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
         <Toaster position="top-right" richColors closeButton />
       </>
     </AppProvider>

@@ -1,12 +1,12 @@
 import companyLogo from "@/assets/images/company-logo.png";
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
-import { useUnreadNotificationsCount } from "@/hooks/use-notifications";
+import { NotificationsDropdown } from "@/components/dashboard/NotificationsDropdown";
 import api from "@/utils/api";
 import {
-  Bell,
   BookOpen,
   Calendar,
+  ClipboardList,
   CreditCard,
   FileBadge,
   FileText,
@@ -27,8 +27,6 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { data: unreadCount = 0 } = useUnreadNotificationsCount();
 
   useEffect(() => {
     fetchUserData();
@@ -107,6 +105,12 @@ const Dashboard = () => {
         count: null,
       },
       {
+        name: "Assignments",
+        href: RouteConstant.assignments,
+        icon: ClipboardList,
+        count: null,
+      },
+      {
         name: "Certificates",
         href: RouteConstant.certificates,
         icon: FileBadge,
@@ -171,18 +175,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                className="relative rounded-xl p-2 hover:bg-gray-100"
-                aria-label="Notifications"
-                onClick={() => navigate(RouteConstant.dashboardNotifications)}
-              >
-                <Bell className="h-5 w-5 text-gray-600" />
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-600 px-1 py-0.5 text-[10px] font-semibold text-white">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                ) : null}
-              </button>
+              <NotificationsDropdown />
               <div className="flex items-center gap-2 rounded-xl px-2 py-1.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#c81010] text-xs font-semibold text-white">
                   {displayName
