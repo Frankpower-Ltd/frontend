@@ -35,6 +35,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchUserData();
+    // Set up automatic logout on token expiration
+    api.setOnLogout(handleLogout);
   }, []);
 
   const fetchUserData = async () => {
