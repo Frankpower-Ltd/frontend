@@ -1,3 +1,5 @@
+import { useAuthStore } from "@/store/auth.store";
+
 const env = (import.meta as ImportMeta & { env?: Record<string, string> }).env;
 const API_URL = env?.VITE_API_URL || "https://frankpower.kingscode.dev/api/v1";
 
@@ -57,8 +59,10 @@ class ApiClient {
   }
 
   private initializeTokens() {
+    const authState = useAuthStore.getState();
+    this.userToken = authState.accessToken;
     try {
-      this.userToken = localStorage.getItem("auth_token");
+      this.userToken = this.userToken || localStorage.getItem("auth_token");
       this.adminToken = localStorage.getItem("adminToken");
     } catch (e) {
       console.warn("localStorage not available:", e);
@@ -78,6 +82,8 @@ class ApiClient {
   }
 
   setToken(token: string | null, tokenType: "admin" | "user" = "user") {
+    const authStore = useAuthStore.getState();
+
     if (tokenType === "admin") {
       this.adminToken = token;
       try {
@@ -93,6 +99,7 @@ class ApiClient {
     }
 
     this.userToken = token;
+    authStore.setAccessToken(token);
     try {
       if (token) {
         localStorage.setItem("auth_token", token);
@@ -105,13 +112,21 @@ class ApiClient {
   }
 
   private getCurrentToken(isAdminRequest = false): string | null {
+    const authStore = useAuthStore.getState();
+
     try {
       if (isAdminRequest) {
         return localStorage.getItem("adminToken") || this.adminToken;
       }
-      return localStorage.getItem("auth_token") || this.userToken;
+      return (
+        authStore.accessToken ||
+        localStorage.getItem("auth_token") ||
+        this.userToken
+      );
     } catch {
-      return isAdminRequest ? this.adminToken : this.userToken;
+      return isAdminRequest
+        ? this.adminToken
+        : authStore.accessToken || this.userToken;
     }
   }
 
@@ -494,6 +509,16 @@ class ApiClient {
       },
       true,
     );
+  }
+
+  async uploadCurrentUserProfileImage(file: File): Promise<ApiResponse> {
+    const formData = new FormData();
+    formData.append("profileImg", file);
+
+    return this.request("/users/me/upload-img", {
+      method: "POST",
+      body: formData,
+    });
   }
 
   async getAcademicLevels(): Promise<ApiResponse<unknown[]>> {

@@ -1,4 +1,6 @@
 import { Input } from "@/components/ui/input";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardSideBar from "@/components/dashboard/DashboardSideBar";
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import {
@@ -8,22 +10,15 @@ import {
 } from "@/hooks/use-admin";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { formatDate, formatNaira, toStatusLabel } from "@/lib/student-flow";
+import { useAuthStore } from "@/store/auth.store";
 import api from "@/utils/api";
 import {
-  Bell,
   BookOpen,
   CreditCard,
   FileText,
   Home,
   Layers,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Settings,
-  Shield,
   Users,
-  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -68,7 +63,7 @@ const isValidAdminTab = (value: string | null): value is AdminTab => {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -82,6 +77,7 @@ const AdminDashboard = () => {
     : "overview";
 
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useEffect(() => {
     // Set up automatic logout on token expiration with redirect
@@ -126,12 +122,42 @@ const AdminDashboard = () => {
   const navigation = useMemo(
     () =>
       [
-        { key: "overview", label: "Overview", icon: Home },
-        { key: "users", label: "Manage Users", icon: Users },
-        { key: "programs", label: "Manage Programs", icon: Layers },
-        { key: "courses", label: "Manage Courses", icon: BookOpen },
-        { key: "applications", label: "Applications", icon: FileText },
-        { key: "payments", label: "Payments", icon: CreditCard },
+        {
+          key: "overview",
+          label: "Overview",
+          icon: Home,
+          href: `${RouteConstant.adminDashboard}?tab=overview`,
+        },
+        {
+          key: "users",
+          label: "Manage Users",
+          icon: Users,
+          href: `${RouteConstant.adminDashboard}?tab=users`,
+        },
+        {
+          key: "programs",
+          label: "Manage Programs",
+          icon: Layers,
+          href: `${RouteConstant.adminDashboard}?tab=programs`,
+        },
+        {
+          key: "courses",
+          label: "Manage Courses",
+          icon: BookOpen,
+          href: `${RouteConstant.adminDashboard}?tab=courses`,
+        },
+        {
+          key: "applications",
+          label: "Applications",
+          icon: FileText,
+          href: `${RouteConstant.adminDashboard}?tab=applications`,
+        },
+        {
+          key: "payments",
+          label: "Payments",
+          icon: CreditCard,
+          href: `${RouteConstant.adminDashboard}?tab=payments`,
+        },
       ] as const,
     [],
   );
@@ -139,15 +165,11 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     api.setToken(null, "admin");
     api.setToken(null, "user");
+    clearAuth();
     const returnUrl = `${location.pathname}${location.search}`;
     navigate(
       `${RouteConstant.login}?redirect=${encodeURIComponent(returnUrl)}`,
     );
-  };
-
-  const setTab = (tab: AdminTab) => {
-    setSearchParams({ tab });
-    setSidebarOpen(false);
   };
 
   if (userLoading) {
@@ -164,139 +186,33 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="rounded-xl p-2 text-gray-600 hover:bg-gray-100 lg:hidden"
-                aria-label="Toggle sidebar"
-              >
-                {sidebarOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setSidebarCollapsed((prev) => !prev)}
-                className="hidden lg:inline-flex rounded-xl p-2 text-gray-600 hover:bg-gray-100"
-                aria-label="Collapse sidebar"
-              >
-                {sidebarCollapsed ? (
-                  <PanelLeftOpen className="h-5 w-5" />
-                ) : (
-                  <PanelLeftClose className="h-5 w-5" />
-                )}
-              </button>
-
-              <div>
-                <h1 className="text-lg font-bold text-foreground">
-                  Admin Dashboard
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Manage users, courses, applications and payments.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                className="rounded-xl p-2 hover:bg-gray-100"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5 text-gray-600" />
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        sidebarOpen={sidebarOpen}
+        sidebarCollapsed={sidebarCollapsed}
+        searchQuery={search}
+        onSearchChange={setSearch}
+        onToggleSidebarOpen={() => setSidebarOpen((prev) => !prev)}
+        onToggleSidebarCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+        onLogout={handleLogout}
+        displayName={adminName}
+        profileImage={currentUser?.profileImage}
+      />
 
       <div className="relative flex min-h-[calc(100vh-4rem)]">
-        <aside
-          className={`
-            fixed inset-y-0 left-0 z-40 mt-16 h-[calc(100vh-4rem)] border-r border-gray-200 bg-white
-            transform transition-all duration-300 ease-in-out
-            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-            lg:sticky lg:top-16 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0
-            w-72 ${sidebarCollapsed ? "lg:w-[92px]" : "lg:w-72"}
-            flex flex-col
-          `}
-        >
-          <div className="border-b border-gray-100 p-5">
-            <div
-              className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 font-medium text-white">
-                {adminName.charAt(0)}
-              </div>
-              {!sidebarCollapsed && (
-                <div className="truncate">
-                  <div className="truncate font-medium text-gray-900">
-                    {adminName}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Shield className="h-3 w-3" />
-                    {currentUser?.role || "admin"}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <nav
-            className={`flex-1 space-y-1 p-4 ${sidebarCollapsed ? "lg:px-2" : ""}`}
-          >
-            {navigation.map((item) => {
-              const active = activeTab === item.key;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setTab(item.key as AdminTab)}
-                  className={`
-                    flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-medium
-                    transition-all duration-200 ${sidebarCollapsed ? "lg:justify-center" : ""}
-                    ${active ? "bg-[#c81010] text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}
-                  `}
-                  title={sidebarCollapsed ? item.label : undefined}
-                >
-                  <item.icon
-                    className={`h-5 w-5 shrink-0 ${active ? "text-white" : "text-gray-500"}`}
-                  />
-                  <span className={sidebarCollapsed ? "lg:hidden" : ""}>
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-
-          <div
-            className={`border-t border-gray-100 p-4 ${sidebarCollapsed ? "lg:px-2" : ""}`}
-          >
-            <button
-              className={`mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
-              aria-label="Settings"
-              title={sidebarCollapsed ? "Settings" : undefined}
-            >
-              <Settings className="h-5 w-5" />
-              <span className={sidebarCollapsed ? "lg:hidden" : ""}>
-                Settings
-              </span>
-            </button>
-          </div>
-        </aside>
+        <DashboardSideBar
+          open={sidebarOpen}
+          collapsed={sidebarCollapsed}
+          logoSrc="/appliry-app-icon.png"
+          routes={navigation.map((item) => ({
+            name: item.label,
+            href: item.href,
+            icon: item.icon,
+            count: null,
+          }))}
+          isActive={(href) => location.pathname + location.search === href}
+          onClose={() => setSidebarOpen(false)}
+          onLogout={handleLogout}
+        />
 
         <main className="min-h-[calc(100vh-4rem)] flex-1 overflow-x-hidden p-4 md:p-6">
           <div className="mx-auto max-w-7xl space-y-6">
@@ -314,7 +230,6 @@ const AdminDashboard = () => {
                     [
                       "all",
                       "PENDING_PAYMENT",
-                      "PAID",
                       "UNDER_REVIEW",
                       "APPROVED",
                       "REJECTED",
