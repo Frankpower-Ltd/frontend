@@ -1,4 +1,3 @@
-import companyLogo from "@/assets/images/company-logo.png";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardSideBar from "@/components/dashboard/DashboardSideBar";
 import { isAdminRole } from "@/constants/role";
@@ -136,7 +135,6 @@ const Dashboard = () => {
       <DashboardSideBar
         open={sidebarOpen}
         collapsed={sidebarCollapsed}
-        logoSrc={companyLogo}
         routes={navigation}
         isActive={isActive}
         onClose={() => setSidebarOpen(false)}

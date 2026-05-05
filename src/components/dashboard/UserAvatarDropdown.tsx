@@ -1,5 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { RouteConstant } from "@/constants/routes";
+import { useAuthStore } from "@/store/auth.store";
 import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router";
 
@@ -23,6 +23,8 @@ const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
   displayName,
   profileImage,
 }) => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,7 +44,9 @@ const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
             <p className="text-sm font-medium text-foreground leading-none">
               {displayName}
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Student</p>
+            <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+              {user?.role}
+            </p>
           </div>
           <ChevronDown className="hidden md:block h-3.5 w-3.5 text-muted-foreground" />
         </button>
