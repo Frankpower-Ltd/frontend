@@ -2,12 +2,39 @@ import type {
   Application,
   Course,
   PaginatedResponse,
-  ResultSet,
   PaymentStatus,
+  ResultSet,
+  StudentCourse,
   StudentCertificate,
   UserPayment,
 } from "@/types/student-flow";
 import api from "@/utils/api";
+
+export interface AdminUser {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role?: string;
+  isActive?: boolean;
+  isVerified?: boolean;
+  lastLogin?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  profileImage?: string;
+  academicInfo?: {
+    institution?: string;
+    courseOfStudy?: string;
+    level?: string;
+  };
+}
+
+export interface CreateAdminUserPayload {
+  fullName: string;
+  email: string;
+  role?: string;
+  phoneNumber?: string;
+}
 
 const DEFAULT_RESULT_SET: ResultSet = {
   count: 0,
@@ -49,6 +76,131 @@ const ensureSuccess = <T>(response: {
 };
 
 export const adminService = {
+  async getUsers(params?: {
+    offset?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<PaginatedResponse<AdminUser>> {
+    const query = toQuery({
+      offset: params?.offset,
+      limit: params?.limit,
+      search: params?.search,
+    });
+
+    const response = await api.request<
+      AdminUser[] | { users?: AdminUser[]; resultSet?: ResultSet }
+    >(`/admin/users${query}`, {}, true);
+    ensureSuccess(response);
+
+    const payload = response.data;
+    const users = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.users)
+        ? payload.users
+        : [];
+
+    return {
+      data: users,
+      resultSet: (response.resultSet as ResultSet | undefined) ||
+        (!Array.isArray(payload) ? payload?.resultSet : undefined) || {
+          count: users.length,
+          offset: params?.offset ?? 0,
+          limit: params?.limit ?? 10,
+          total: users.length,
+        },
+    };
+  },
+
+  async getUserById(userId: string): Promise<AdminUser> {
+    const response = await api.request<AdminUser | { user?: AdminUser }>(
+      `/admin/users/${encodeURIComponent(userId)}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+
+    const payload = response.data;
+
+    if (payload && !Array.isArray(payload)) {
+      if ("user" in payload && payload.user) {
+        return payload.user;
+      }
+
+      if ("id" in payload) {
+        return payload;
+      }
+    }
+
+    throw new Error("User not found");
+  },
+
+  async getUserCourses(
+    userId: string,
+    params?: { status?: "all" | "pending" | "completed" },
+  ): Promise<StudentCourse[]> {
+    const query = toQuery({
+      status: params?.status,
+    });
+    const response = await api.request<StudentCourse[]>(
+      `/admin/users/${encodeURIComponent(userId)}/courses${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return response.data || [];
+  },
+
+  async activateUser(userId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/users/activate/${encodeURIComponent(userId)}`,
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async deactivateUser(userId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/users/deactivate/${encodeURIComponent(userId)}`,
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async createUser(payload: CreateAdminUserPayload): Promise<AdminUser> {
+    const response = await api.request<AdminUser | { user?: AdminUser }>(
+      "/admin/users",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+
+    const data = response.data;
+    if (data && !Array.isArray(data)) {
+      if ("user" in data && data.user) {
+        return data.user;
+      }
+      if ("id" in data) {
+        return data;
+      }
+    }
+
+    throw new Error("User creation failed");
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/users/${encodeURIComponent(userId)}`,
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
   async getApplications(params?: {
     offset?: number;
     limit?: number;

@@ -1,5 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AvatarImage } from "@/components/ui/avatar";
+import AvatarV2 from "@/components/custom/AvatarV2";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { RouteConstant } from "@/constants/routes";
+import { useAuthStore } from "@/store/auth.store";
 import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router";
 
@@ -23,26 +23,24 @@ const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
   displayName,
   profileImage,
 }) => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-accent transition-colors outline-none focus-visible:ring-0 focus-visible:ring-ring">
-          <Avatar className="h-8 w-8">
-            {profileImage ? (
-              <AvatarImage src={profileImage} alt={displayName} />
-            ) : null}
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-              {displayName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarV2
+            displayName={displayName}
+            profileImage={profileImage}
+            size="lg"
+          />
           <div className="hidden md:block text-left">
             <p className="text-sm font-medium text-foreground leading-none">
               {displayName}
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Student</p>
+            <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+              {user?.role}
+            </p>
           </div>
           <ChevronDown className="hidden md:block h-3.5 w-3.5 text-muted-foreground" />
         </button>

@@ -1,6 +1,16 @@
 import AuthLayout from "@/components/layout/AuthLayout";
 import { RouteConstant } from "@/constants/routes";
+import AdminApplications from "@/pages/admin/AdminApplications";
+import AdminAssignments from "@/pages/admin/AdminAssignments";
+import AdminCertificates from "@/pages/admin/AdminCertificates";
+import AdminCourses from "@/pages/admin/AdminCourses";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminLayout from "@/pages/admin/AdminLayout";
+import AdminNotifications from "@/pages/admin/AdminNotifications";
+import AdminPayments from "@/pages/admin/AdminPayments";
+import AdminPrograms from "@/pages/admin/AdminPrograms";
+import AdminSchedules from "@/pages/admin/AdminSchedules";
+import AdminUsers from "@/pages/admin/AdminUsers";
 import AuthPageGuard from "@/pages/auth/AuthPageGuard";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import Login from "@/pages/auth/Login";
@@ -87,11 +97,18 @@ function App() {
           <Route path="settings" element={<StudentSettings />} />
         </Route>
 
-        <Route
-          path={RouteConstant.adminDashboard}
-          element={<AdminDashboard />}
-          errorElement={<GlobalErrorBoundary />}
-        />
+        <Route path={RouteConstant.adminRoot} element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="programs" element={<AdminPrograms />} />
+          <Route path="courses" element={<AdminCourses />} />
+          <Route path="schedules" element={<AdminSchedules />} />
+          <Route path="assignments" element={<AdminAssignments />} />
+          <Route path="certificates" element={<AdminCertificates />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="applications" element={<AdminApplications />} />
+          <Route path="payments" element={<AdminPayments />} />
+        </Route>
         <Route
           path="/admin"
           element={<Navigate to={RouteConstant.adminDashboard} replace />}

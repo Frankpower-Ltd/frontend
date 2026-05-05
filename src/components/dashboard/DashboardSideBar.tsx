@@ -1,5 +1,6 @@
-import { Link } from "react-router";
+import companyLogo from "@/assets/images/company-logo.png";
 import { LogOut } from "lucide-react";
+import { Link } from "react-router";
 
 export interface DashboardNavItem {
   name: string;
@@ -11,7 +12,6 @@ export interface DashboardNavItem {
 interface DashboardSideBarProps {
   open: boolean;
   collapsed: boolean;
-  logoSrc: string;
   routes: DashboardNavItem[];
   isActive: (href: string) => boolean;
   onClose: () => void;
@@ -21,7 +21,6 @@ interface DashboardSideBarProps {
 const DashboardSideBar = ({
   open,
   collapsed,
-  logoSrc,
   routes,
   isActive,
   onClose,
@@ -42,7 +41,7 @@ const DashboardSideBar = ({
         className={`border-b border-gray-100 p-4 shrink-0 ${collapsed ? "lg:px-3" : ""}`}
       >
         <img
-          src={logoSrc}
+          src={companyLogo}
           alt="Company Logo"
           className={`h-11 w-auto ${collapsed ? "lg:mx-auto" : ""}`}
         />
