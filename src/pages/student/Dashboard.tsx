@@ -1,8 +1,10 @@
 import companyLogo from "@/assets/images/company-logo.png";
-import { NotificationsDropdown } from "@/components/dashboard/NotificationsDropdown";
-import UserAvatarDropdown from "@/components/dashboard/UserAvatarDropdown";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardSideBar from "@/components/dashboard/DashboardSideBar";
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useAuthStore } from "@/store/auth.store";
 import api from "@/utils/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -13,63 +15,42 @@ import {
   FileBadge,
   FileText,
   Home,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Search,
-  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const { data: userData, isLoading: loading, error } = useCurrentUser();
 
   useEffect(() => {
-    fetchUserData();
-    // Set up automatic logout on token expiration with redirect
     api.setOnLogout(() => handleLogout());
   }, [location.pathname, location.search]);
 
-  const fetchUserData = async () => {
-    try {
-      const response = await api.getCurrentUser();
-      if (!response.success || !response.data) {
-        const message =
-          typeof response.error === "string"
-            ? response.error
-            : response.message ||
-              response.error?.message ||
-              "Unable to fetch user profile";
-        setLoadError(message);
-        return;
-      }
-
-      if (isAdminRole(String(response.data.role || ""))) {
-        navigate(RouteConstant.adminDashboard, { replace: true });
-        return;
-      }
-
-      setUserData(response.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setLoadError("Unable to fetch user profile");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Unable to fetch user profile",
+      );
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    if (userData && isAdminRole(String(userData.role || ""))) {
+      navigate(RouteConstant.adminDashboard, { replace: true });
+    }
+  }, [navigate, userData]);
 
   const handleLogout = () => {
     api.setToken(null, "user");
+    clearAuth();
     queryClient.clear();
     const returnUrl = `${location.pathname}${location.search}`;
     navigate(
@@ -132,10 +113,7 @@ const Dashboard = () => {
     [],
   );
 
-  const displayName =
-    userData?.fullName ||
-    [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") ||
-    "Learner";
+  const displayName = userData?.fullName || "Learner";
 
   if (loading) {
     return (
@@ -155,95 +133,15 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/*  Sidebar (fixed, full viewport height)  */}
-      <aside
-        className={`
-          fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200
-          transform transition-all duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
-          w-64 ${sidebarCollapsed ? "lg:w-[84px]" : "lg:w-64"}
-          flex flex-col h-screen
-        `}
-      >
-        {/* Logo */}
-        <div
-          className={`border-b border-gray-100 p-4 shrink-0 ${sidebarCollapsed ? "lg:px-3" : ""}`}
-        >
-          <img
-            src={companyLogo}
-            alt="Company Logo"
-            className={`h-11 w-auto ${sidebarCollapsed ? "lg:mx-auto" : ""}`}
-          />
-        </div>
-
-        {/* Nav links */}
-        <div className="flex-1 overflow-y-auto">
-          <nav className={`p-4 space-y-1 ${sidebarCollapsed ? "lg:px-2" : ""}`}>
-            {navigation.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center ${sidebarCollapsed ? "lg:justify-center" : "justify-between"} w-full px-4 py-2.5 rounded-xl
-                    transition-all duration-200
-                    ${
-                      active
-                        ? "bg-[#BE1515] text-white shadow-sm"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }
-                  `}
-                  aria-current={active ? "page" : undefined}
-                  title={sidebarCollapsed ? item.name : undefined}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <item.icon
-                      className={`h-5 w-5 shrink-0 ${active ? "text-white" : "text-gray-500"}`}
-                    />
-                    <span
-                      className={`font-medium text-sm truncate ${sidebarCollapsed ? "lg:hidden" : ""}`}
-                    >
-                      {item.name}
-                    </span>
-                  </div>
-                  {item.count && !sidebarCollapsed && (
-                    <span
-                      className={`
-                        text-xs px-2 py-1 rounded-full shrink-0
-                        ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"}
-                      `}
-                    >
-                      {item.count}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Sign out */}
-        <div
-          className={`border-t border-gray-100 p-4 shrink-0 ${sidebarCollapsed ? "lg:px-2" : ""}`}
-        >
-          <button
-            onClick={handleLogout}
-            className={`flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-gray-600 transition-colors hover:bg-gray-100 ${sidebarCollapsed ? "lg:justify-center" : ""}`}
-            aria-label="Sign out"
-            title={sidebarCollapsed ? "Sign Out" : undefined}
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            <span
-              className={`text-sm font-medium ${sidebarCollapsed ? "lg:hidden" : ""}`}
-            >
-              Sign Out
-            </span>
-          </button>
-        </div>
-      </aside>
+      <DashboardSideBar
+        open={sidebarOpen}
+        collapsed={sidebarCollapsed}
+        logoSrc={companyLogo}
+        routes={navigation}
+        isActive={isActive}
+        onClose={() => setSidebarOpen(false)}
+        onLogout={handleLogout}
+      />
 
       {/*  Right column: header + main, offset by sidebar width on desktop  */}
       <div
@@ -252,65 +150,17 @@ const Dashboard = () => {
           ${sidebarCollapsed ? "lg:ml-[84px]" : "lg:ml-64"}
         `}
       >
-        {/* Header */}
-        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
-          <div className="px-4 sm:px-6">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-4">
-                {/* Mobile hamburger */}
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100"
-                  aria-label="Toggle sidebar"
-                >
-                  {sidebarOpen ? (
-                    <X className="h-5 w-5" />
-                  ) : (
-                    <Menu className="h-5 w-5" />
-                  )}
-                </button>
-
-                {/* Desktop collapse toggle */}
-                <button
-                  onClick={() => setSidebarCollapsed((prev) => !prev)}
-                  className="hidden lg:inline-flex p-2 rounded-xl text-gray-600 hover:bg-gray-100"
-                  aria-label="Collapse sidebar"
-                >
-                  {sidebarCollapsed ? (
-                    <PanelLeftOpen className="h-5 w-5" />
-                  ) : (
-                    <PanelLeftClose className="h-5 w-5" />
-                  )}
-                </button>
-
-                {/* Search */}
-                <div className="hidden lg:block">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="search"
-                      placeholder="Search..."
-                      className="w-96 rounded-xl border border-gray-100 bg-neutral-50 py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Right side: notifications + avatar */}
-              <div className="flex items-center gap-3">
-                <NotificationsDropdown />
-                <div className="flex items-center gap-2 rounded-xl px-2 py-1.5">
-                  <UserAvatarDropdown
-                    handleLogout={handleLogout}
-                    displayName={displayName}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+        <DashboardHeader
+          sidebarOpen={sidebarOpen}
+          sidebarCollapsed={sidebarCollapsed}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onToggleSidebarOpen={() => setSidebarOpen((prev) => !prev)}
+          onToggleSidebarCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+          onLogout={handleLogout}
+          displayName={displayName}
+          profileImage={userData?.profileImage}
+        />
 
         {/* Main content */}
         <main className="flex-1 overflow-x-hidden">

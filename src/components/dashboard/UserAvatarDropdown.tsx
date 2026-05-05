@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,17 +15,22 @@ import { Link } from "react-router";
 interface UserAvatarDropdownProps {
   handleLogout: () => void;
   displayName: string;
+  profileImage?: string;
 }
 
 const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
   handleLogout,
   displayName,
+  profileImage,
 }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-accent transition-colors outline-none focus-visible:ring-0 focus-visible:ring-ring">
           <Avatar className="h-8 w-8">
+            {profileImage ? (
+              <AvatarImage src={profileImage} alt={displayName} />
+            ) : null}
             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
               {displayName
                 .split(" ")

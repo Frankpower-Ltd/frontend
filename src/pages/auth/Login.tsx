@@ -1,6 +1,7 @@
 import CustomInput from "@/components/ui/CustomInput";
 import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
+import { useAuthStore } from "@/store/auth.store";
 import api from "@/utils/api";
 import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -14,6 +15,7 @@ const Login = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { setAccessToken, setUser } = useAuthStore();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect") || null;
 
@@ -56,6 +58,16 @@ const Login = () => {
           api.setToken(accessToken, "user");
           api.setToken(null, "admin");
         }
+        setAccessToken(accessToken);
+      }
+
+      if (response.data?.user) {
+        setUser({
+          id: response.data.user.id,
+          fullName: response.data.user.fullName,
+          email: response.data.user.email,
+          role: response.data.user.role,
+        });
       }
 
       setSubmitMessage(response.message || "Login successful");

@@ -1,4 +1,5 @@
 import { RouteConstant } from "@/constants/routes";
+import { useAuthStore } from "@/store/auth.store";
 import { type ReactElement } from "react";
 import { Navigate } from "react-router";
 
@@ -7,14 +8,14 @@ type AuthPageGuardProps = {
 };
 
 const AuthPageGuard = ({ children }: AuthPageGuardProps) => {
-  const adminToken = localStorage.getItem("adminToken");
-  const userToken = localStorage.getItem("auth_token");
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useAuthStore((state) => state.user);
 
-  if (adminToken) {
+  if (accessToken && user?.role === "admin") {
     return <Navigate to={RouteConstant.adminDashboard} replace />;
   }
 
-  if (userToken) {
+  if (accessToken) {
     return <Navigate to={RouteConstant.dashboard} replace />;
   }
 
