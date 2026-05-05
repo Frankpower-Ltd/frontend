@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AvatarV2 from "@/components/custom/AvatarV2";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,17 +29,11 @@ const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-accent transition-colors outline-none focus-visible:ring-0 focus-visible:ring-ring">
-          <Avatar className="h-8 w-8">
-            {profileImage ? (
-              <AvatarImage src={profileImage} alt={displayName} />
-            ) : null}
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-              {displayName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarV2
+            displayName={displayName}
+            profileImage={profileImage}
+            size="lg"
+          />
           <div className="hidden md:block text-left">
             <p className="text-sm font-medium text-foreground leading-none">
               {displayName}
