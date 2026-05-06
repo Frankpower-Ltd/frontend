@@ -1,11 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import Modal from "@/components/custom/Modal";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -387,76 +382,69 @@ const Payments = () => {
       )}
 
       {/* Receipt modal */}
-      <Dialog
+      <Modal
         open={!!selected}
         onOpenChange={(open) => !open && setSelected(null)}
+        title="Payment Receipt"
+        width="md"
+        contentClassName="p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden"
+        headerClassName="p-5 pb-3 border-b border-border"
       >
-        <DialogContent className="max-w-md p-0 gap-0 max-h-[90vh] flex flex-col overflow-hidden">
-          <DialogHeader className="p-5 pb-3 border-b border-border">
-            <DialogTitle className="text-lg font-bold">
-              Payment Receipt
-            </DialogTitle>
-          </DialogHeader>
-
-          {selected &&
-            (() => {
-              const cfg = statusConfig[selected.status];
-              const StatusIcon = cfg.icon;
-              return (
-                <div className="flex-1 overflow-auto p-5 space-y-5">
-                  {/* Amount hero */}
-                  <div className="primary-gradient rounded-xl p-5 text-primary-foreground text-center">
-                    <p className="text-xs opacity-70 uppercase tracking-wider">
-                      Amount
-                    </p>
-                    <p className="text-3xl font-bold mt-1">
-                      {formatNaira(selected.amount)}
-                    </p>
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-medium bg-primary-foreground/20">
-                      <StatusIcon className="h-3.5 w-3.5" />
-                      {cfg.label}
-                    </div>
-                  </div>
-
-                  {/* Detail rows */}
-                  <div className="bg-card border border-border rounded-xl divide-y divide-border">
-                    <PayRow label="Reference" value={selected.reference} mono />
-                    {selected.programTitle ? (
-                      <PayRow label="Program" value={selected.programTitle} />
-                    ) : null}
-                    {selected.programType ? (
-                      <PayRow
-                        label="Program Type"
-                        value={selected.programType}
-                      />
-                    ) : null}
-                    <PayRow label="Provider" value={selected.provider} />
-                    <PayRow label="Currency" value={selected.currency} />
-                    <PayRow
-                      label="Status"
-                      value={toStatusLabel(selected.status)}
-                    />
-                    <PayRow
-                      label="Date"
-                      value={`${formatDate(selected.createdAt)} • ${formatTime(selected.createdAt)}`}
-                    />
-                  </div>
-
-                  {selected.status === "SUCCESSFUL" && (
-                    <Button className="w-full gap-2">
-                      <Download className="h-4 w-4" />
-                      Download Receipt
-                    </Button>
-                  )}
-
-                  <p className="text-[10px] text-muted-foreground text-center font-mono">
-                    {selected.reference}
+        {selected &&
+          (() => {
+            const cfg = statusConfig[selected.status];
+            const StatusIcon = cfg.icon;
+            return (
+              <div className="flex-1 overflow-auto p-5 space-y-5">
+                {/* Amount hero */}
+                <div className="primary-gradient rounded-xl p-5 text-primary-foreground text-center">
+                  <p className="text-xs opacity-70 uppercase tracking-wider">
+                    Amount
                   </p>
+                  <p className="text-3xl font-bold mt-1">
+                    {formatNaira(selected.amount)}
+                  </p>
+                  <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-medium bg-primary-foreground/20">
+                    <StatusIcon className="h-3.5 w-3.5" />
+                    {cfg.label}
+                  </div>
                 </div>
-              );
-            })()}
-        </DialogContent>
-      </Dialog>
+
+                {/* Detail rows */}
+                <div className="bg-card border border-border rounded-xl divide-y divide-border">
+                  <PayRow label="Reference" value={selected.reference} mono />
+                  {selected.programTitle ? (
+                    <PayRow label="Program" value={selected.programTitle} />
+                  ) : null}
+                  {selected.programType ? (
+                    <PayRow label="Program Type" value={selected.programType} />
+                  ) : null}
+                  <PayRow label="Provider" value={selected.provider} />
+                  <PayRow label="Currency" value={selected.currency} />
+                  <PayRow
+                    label="Status"
+                    value={toStatusLabel(selected.status)}
+                  />
+                  <PayRow
+                    label="Date"
+                    value={`${formatDate(selected.createdAt)} • ${formatTime(selected.createdAt)}`}
+                  />
+                </div>
+
+                {selected.status === "SUCCESSFUL" && (
+                  <Button className="w-full gap-2">
+                    <Download className="h-4 w-4" />
+                    Download Receipt
+                  </Button>
+                )}
+
+                <p className="text-[10px] text-muted-foreground text-center font-mono">
+                  {selected.reference}
+                </p>
+              </div>
+            );
+          })()}
+      </Modal>
     </div>
   );
 };

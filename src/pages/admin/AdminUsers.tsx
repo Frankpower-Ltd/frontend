@@ -8,18 +8,13 @@ import {
   DataTable,
   StatusBadge,
 } from "@/components/admin/DataTable";
+import CreateAdminUserModal, {
+  type CreateAdminUserForm,
+} from "@/components/admin/CreateAdminUserModal";
 import AvatarV2 from "@/components/custom/AvatarV2";
+import ConfirmRemoveModal from "@/components/custom/ConfirmRemoveModal";
+import Modal from "@/components/custom/Modal";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -35,9 +30,12 @@ import {
   useDeactivateAdminUser,
   useDeleteAdminUser,
 } from "@/hooks/use-admin";
+import { useAuthStore } from "@/store/auth.store";
 
-type UIUserRole = "Student" | "Instructor" | "Admin";
-type UIUserStatus = "Active" | "Inactive" | "Suspended";
+type UIUserRole = "Student" | "Admin";
+type UIUserStatus = "Active" | "Inactive";
+type StatusFilter = "all" | UIUserStatus;
+type RoleFilter = "all" | UIUserRole;
 
 interface UserRow {
   id: string;
@@ -62,41 +60,47 @@ const roleFromApi = (role?: string): UIUserRole => {
   ) {
     return "Admin";
   }
-  if (normalized === "instructor") return "Instructor";
   return "Student";
 };
 
 const roleToApi = (role: UIUserRole): string =>
-  role === "Admin"
-    ? USER_ROLE.ADMIN
-    : role === "Instructor"
-      ? "instructor"
-      : USER_ROLE.USER;
+  role === "Admin" ? USER_ROLE.ADMIN : USER_ROLE.USER;
 
 const toneFor = (status: UIUserStatus) =>
-  status === "Active"
-    ? "success"
-    : status === "Suspended"
-      ? "danger"
-      : "warning";
+  status === "Active" ? "success" : "warning";
+
+const INITIAL_CREATE_FORM: CreateAdminUserForm = {
+  fullName: "",
+  email: "",
+  phoneNumber: "",
+  role: USER_ROLE.USER,
+  status: "Active",
+};
 
 const AdminUsers = () => {
+  const admin = useAuthStore((s) => s.user);
+  const adminId = admin?.id;
+  const isSuperAdmin = admin?.role === USER_ROLE.SUPER_ADMIN;
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [open, setOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    role: "Student" as UIUserRole,
-    status: "Active" as UIUserStatus,
-  });
+  const [confirmStatusChange, setConfirmStatusChange] = useState<{
+    user: UserRow;
+    nextStatus: UIUserStatus;
+  } | null>(null);
+  const [form, setForm] = useState<CreateAdminUserForm>(INITIAL_CREATE_FORM);
 
   const usersQuery = useAdminUsers({
     offset: 0,
     limit: 10,
     search: searchQuery.trim() || undefined,
+    role: roleFilter === "all" ? undefined : roleToApi(roleFilter),
+    status:
+      statusFilter === "all"
+        ? undefined
+        : (statusFilter.toLowerCase() as "active" | "inactive"),
   });
 
   const activateUser = useActivateAdminUser();
@@ -123,37 +127,23 @@ const AdminUsers = () => {
     }));
   }, [usersQuery.data?.data]);
 
-  const filtered = useMemo(
-    () =>
-      users.filter(
-        (user) =>
-          (roleFilter === "all" || user.role === roleFilter) &&
-          (statusFilter === "all" || user.status === statusFilter),
-      ),
-    [roleFilter, statusFilter, users],
-  );
-
   const openCreate = () => {
-    setForm({
-      name: "",
-      email: "",
-      role: "Student",
-      status: "Active",
-    });
+    setForm(INITIAL_CREATE_FORM);
     setOpen(true);
   };
 
   const save = async () => {
-    if (!form.name.trim() || !form.email.trim()) {
-      toast.error("Name and email are required");
+    if (!form.fullName.trim() || !form.email.trim()) {
+      toast.error("Full name and email are required");
       return;
     }
 
     try {
       const created = await createUser.mutateAsync({
-        fullName: form.name.trim(),
+        fullName: form.fullName.trim(),
         email: form.email.trim(),
-        role: roleToApi(form.role),
+        phoneNumber: form.phoneNumber.trim() || undefined,
+        role: form.role,
       });
 
       if (form.status === "Inactive") {
@@ -184,11 +174,11 @@ const AdminUsers = () => {
 
   const setStatus = async (user: UserRow, status: UIUserStatus) => {
     try {
-      if (status === "Active") {
-        await activateUser.mutateAsync(user.backendId);
-      } else if (status === "Inactive") {
-        await deactivateUser.mutateAsync(user.backendId);
-      }
+      const updateStatus =
+        status === "Active"
+          ? activateUser.mutateAsync
+          : deactivateUser.mutateAsync;
+      await updateStatus(user.backendId);
 
       toast.success(
         `${user.name} ${status === "Active" ? "activated" : "deactivated"}`,
@@ -200,6 +190,15 @@ const AdminUsers = () => {
     }
   };
 
+  const handleConfirmStatusChange = async () => {
+    if (!confirmStatusChange) return;
+    await setStatus(confirmStatusChange.user, confirmStatusChange.nextStatus);
+    setConfirmStatusChange(null);
+  };
+
+  const isStatusActionPending =
+    activateUser.isPending || deactivateUser.isPending;
+
   return (
     <section className="mx-auto max-w-7xl space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -208,17 +207,19 @@ const AdminUsers = () => {
             User Management
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage students, instructors and admins
+            Manage students and admins
           </p>
         </div>
-        <Button onClick={openCreate}>
-          <UserPlus className="h-4 w-4" />
-          Add User
-        </Button>
+        {isSuperAdmin && (
+          <Button onClick={openCreate}>
+            <UserPlus className="h-4 w-4" />
+            Add User
+          </Button>
+        )}
       </div>
 
       <DataTable
-        data={filtered}
+        data={users}
         rowKey={(user) => user.backendId}
         searchPlaceholder="Search by name or email..."
         searchValue={searchQuery}
@@ -226,18 +227,23 @@ const AdminUsers = () => {
         manualSearch
         toolbar={
           <div className="flex items-center gap-2">
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <Select
+              value={roleFilter}
+              onValueChange={(value) => setRoleFilter(value as RoleFilter)}
+            >
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All roles</SelectItem>
                 <SelectItem value="Student">Student</SelectItem>
-                <SelectItem value="Instructor">Instructor</SelectItem>
                 <SelectItem value="Admin">Admin</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+            >
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -245,7 +251,6 @@ const AdminUsers = () => {
                 <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Inactive">Inactive</SelectItem>
-                <SelectItem value="Suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -311,148 +316,109 @@ const AdminUsers = () => {
             key: "actions",
             header: "",
             className: "text-right",
-            render: (user) => (
-              <ActionMenu
-                items={[
-                  user.status === "Active"
-                    ? {
-                        label: "Deactivate",
-                        icon: UserX,
-                        onClick: () => setStatus(user, "Inactive"),
-                      }
-                    : {
-                        label: "Activate",
-                        icon: UserCheck,
-                        onClick: () => setStatus(user, "Active"),
-                      },
-                  {
-                    label: "Delete account",
-                    icon: Trash2,
-                    destructive: true,
-                    separatorBefore: true,
-                    onClick: () => setConfirmDelete(user),
-                  },
-                ]}
-              />
-            ),
+            render: (user) => {
+              const isCurrentAdmin = user.backendId === adminId;
+
+              return !isCurrentAdmin ? (
+                <ActionMenu
+                  items={[
+                    user.status === "Active"
+                      ? {
+                          label: "Deactivate",
+                          icon: UserX,
+                          onClick: () =>
+                            setConfirmStatusChange({
+                              user,
+                              nextStatus: "Inactive",
+                            }),
+                        }
+                      : {
+                          label: "Activate",
+                          icon: UserCheck,
+                          onClick: () =>
+                            setConfirmStatusChange({
+                              user,
+                              nextStatus: "Active",
+                            }),
+                        },
+                    {
+                      label: "Delete account",
+                      icon: Trash2,
+                      destructive: true,
+                      separatorBefore: true,
+                      onClick: () => setConfirmDelete(user),
+                    },
+                  ]}
+                />
+              ) : undefined;
+            },
           },
         ]}
       />
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add User</DialogTitle>
-            <DialogDescription>Create a new platform user</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Full name</Label>
-              <Input
-                value={form.name}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    name: event.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    email: event.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Role</Label>
-                <Select
-                  value={form.role}
-                  onValueChange={(value) =>
-                    setForm((previous) => ({
-                      ...previous,
-                      role: value as UIUserRole,
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Student">Student</SelectItem>
-                    <SelectItem value="Instructor">Instructor</SelectItem>
-                    <SelectItem value="Admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select
-                  value={form.status}
-                  onValueChange={(value) =>
-                    setForm((previous) => ({
-                      ...previous,
-                      status: value as UIUserStatus,
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={save} disabled={createUser.isPending}>
-              {createUser.isPending ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreateAdminUserModal
+        open={open}
+        onOpenChange={setOpen}
+        form={form}
+        onChange={setForm}
+        onSubmit={save}
+        isSubmitting={createUser.isPending}
+      />
 
-      <Dialog
+      <ConfirmRemoveModal
         open={Boolean(confirmDelete)}
-        onOpenChange={(isOpen) => !isOpen && setConfirmDelete(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete user</DialogTitle>
-            <DialogDescription>
-              This will permanently remove{" "}
-              <span className="font-semibold">{confirmDelete?.name}</span> from
-              the platform.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDelete(null)}>
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setConfirmDelete(null);
+        }}
+        title="Delete user"
+        description={`This will permanently remove ${confirmDelete?.name ?? "this user"} from the platform.`}
+        onConfirm={remove}
+        isLoading={deleteUser.isPending}
+        confirmText="Delete"
+      />
+
+      <Modal
+        open={Boolean(confirmStatusChange)}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setConfirmStatusChange(null);
+        }}
+        width="md"
+        title={
+          confirmStatusChange?.nextStatus === "Active"
+            ? "Activate user"
+            : "Deactivate user"
+        }
+        description={
+          confirmStatusChange
+            ? `Are you sure you want to ${confirmStatusChange.nextStatus === "Active" ? "activate" : "deactivate"} ${confirmStatusChange.user.name}'s account?`
+            : ""
+        }
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmStatusChange(null)}
+            >
               Cancel
             </Button>
             <Button
-              variant="destructive"
-              onClick={remove}
-              disabled={deleteUser.isPending}
+              variant={
+                confirmStatusChange?.nextStatus === "Active"
+                  ? "default"
+                  : "destructive"
+              }
+              onClick={handleConfirmStatusChange}
+              disabled={activateUser.isPending || deactivateUser.isPending}
             >
-              {deleteUser.isPending ? "Deleting..." : "Delete"}
+              {isStatusActionPending
+                ? "Please wait..."
+                : confirmStatusChange?.nextStatus === "Active"
+                  ? "Activate"
+                  : "Deactivate"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      />
     </section>
   );
 };

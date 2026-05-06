@@ -80,11 +80,15 @@ export const adminService = {
     offset?: number;
     limit?: number;
     search?: string;
+    role?: string;
+    status?: "active" | "inactive";
   }): Promise<PaginatedResponse<AdminUser>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       search: params?.search,
+      role: params?.role,
+      status: params?.status,
     });
 
     const response = await api.request<

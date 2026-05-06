@@ -6,6 +6,7 @@ const API_URL = env?.VITE_API_URL || "https://frankpower.kingscode.dev/api/v1";
 type ApiErrorObject = {
   message?: string;
   code?: string;
+  stack?: string;
   [key: string]: unknown;
 };
 
@@ -140,29 +141,49 @@ class ApiClient {
   }
 
   private extractErrorMessage(payload: unknown): string {
-    if (!payload || typeof payload !== "object") {
-      return "Request failed";
-    }
+    if (!payload || typeof payload !== "object") return "Request failed";
 
     const typedPayload = payload as {
-      message?: unknown;
       error?: unknown;
+      message?: unknown;
+      errors?: unknown;
     };
 
-    if (typeof typedPayload.error === "string") {
-      return typedPayload.error;
+    // Preferred backend shape: { success: false, error: { message, code } }
+    if (typedPayload.error && typeof typedPayload.error === "object") {
+      const backendError = typedPayload.error as ApiErrorObject;
+      if (
+        typeof backendError.message === "string" &&
+        backendError.message.trim()
+      ) {
+        return backendError.message.trim();
+      }
     }
 
+    // Alternate shape from some controllers/middlewares: { error: "..." }
     if (
-      typedPayload.error &&
-      typeof typedPayload.error === "object" &&
-      typeof (typedPayload.error as ApiErrorObject).message === "string"
+      typeof typedPayload.error === "string" &&
+      typedPayload.error.trim().length > 0
     ) {
-      return (typedPayload.error as ApiErrorObject).message as string;
+      return typedPayload.error.trim();
     }
 
-    if (typeof typedPayload.message === "string") {
-      return typedPayload.message;
+    // Validation-like fallback: { errors: { field: message } }
+    if (typedPayload.errors && typeof typedPayload.errors === "object") {
+      const firstError = Object.values(
+        typedPayload.errors as Record<string, unknown>,
+      )[0];
+      if (typeof firstError === "string" && firstError.trim()) {
+        return firstError.trim();
+      }
+    }
+
+    // Generic fallback used by some endpoints: { message: "..." }
+    if (
+      typeof typedPayload.message === "string" &&
+      typedPayload.message.trim().length > 0
+    ) {
+      return typedPayload.message.trim();
     }
 
     return "Request failed";
@@ -171,21 +192,19 @@ class ApiClient {
   private extractErrorPayload(
     payload: unknown,
   ): string | ApiErrorObject | undefined {
-    if (!payload || typeof payload !== "object") {
-      return undefined;
-    }
+    if (!payload || typeof payload !== "object") return undefined;
 
     const typedPayload = payload as {
       error?: unknown;
       message?: unknown;
     };
 
-    if (typeof typedPayload.error === "string") {
-      return typedPayload.error;
-    }
-
     if (typedPayload.error && typeof typedPayload.error === "object") {
       return typedPayload.error as ApiErrorObject;
+    }
+
+    if (typeof typedPayload.error === "string") {
+      return typedPayload.error;
     }
 
     if (typeof typedPayload.message === "string") {
@@ -312,10 +331,14 @@ class ApiClient {
         }
 
         if (response.status === 401) {
+          const parsedMessage = this.extractErrorMessage(payload);
+          const parsedError = this.extractErrorPayload(payload);
           this.handleUnauthorized(tokenType);
           return {
             success: false,
             status: response.status,
+            message: parsedMessage,
+            error: parsedError,
           };
         }
 
