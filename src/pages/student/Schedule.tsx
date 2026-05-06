@@ -1,12 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import Modal from "@/components/custom/Modal";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -534,143 +528,143 @@ const SchedulePage = () => {
         )}
       </div>
 
-      <Dialog
+      <Modal
         open={!!selected}
         onOpenChange={(open: boolean) => !open && setSelected(null)}
+        width="lg"
+        contentClassName="p-0 overflow-hidden"
       >
-        <DialogContent className="max-w-lg p-0 overflow-hidden">
-          {selected && (
-            <>
-              <div className="primary-gradient p-6 text-primary-foreground">
-                <DialogHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 border-0">
-                      {getSessionWeekdays(selected)[0]
-                        ? weekdayLabels[getSessionWeekdays(selected)[0]]
-                        : "Scheduled"}
+        {selected && (
+          <>
+            <div className="primary-gradient p-6 text-primary-foreground">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className="bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 border-0">
+                    {getSessionWeekdays(selected)[0]
+                      ? weekdayLabels[getSessionWeekdays(selected)[0]]
+                      : "Scheduled"}
+                  </Badge>
+                  {getSessionStatus(selected) === "LIVE" && (
+                    <Badge className="bg-success text-success-foreground hover:bg-success border-0 gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-success-foreground animate-pulse" />
+                      Live
                     </Badge>
-                    {getSessionStatus(selected) === "LIVE" && (
-                      <Badge className="bg-success text-success-foreground hover:bg-success border-0 gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-success-foreground animate-pulse" />
-                        Live
-                      </Badge>
-                    )}
-                  </div>
-                  <DialogTitle className="text-xl text-primary-foreground">
-                    {selected.title}
-                  </DialogTitle>
-                  <DialogDescription className="text-primary-foreground/80">
-                    {selected.courseTitle || "Course Session"}
-                  </DialogDescription>
-                </DialogHeader>
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold text-primary-foreground">
+                  {selected.title}
+                </h2>
+                <p className="text-sm text-primary-foreground/80">
+                  {selected.courseTitle || "Course Session"}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <DetailItem
+                  icon={Clock}
+                  label="Time"
+                  value={`${formatTime12h(selected.startTime)} – ${formatTime12h(selected.endTime)}`}
+                />
+                <DetailItem
+                  icon={CalendarIcon}
+                  label="Next Class"
+                  value={formatDateLong(
+                    getNextSessionDate(selected).toISOString(),
+                  )}
+                />
+                <DetailItem
+                  icon={User}
+                  label="Instructor"
+                  value={selected.instructorName}
+                />
+                <DetailItem
+                  icon={Video}
+                  label="Platform"
+                  value={platformConfig[selected.platform].label}
+                />
               </div>
 
-              <div className="p-6 space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailItem
-                    icon={Clock}
-                    label="Time"
-                    value={`${formatTime12h(selected.startTime)} – ${formatTime12h(selected.endTime)}`}
-                  />
-                  <DetailItem
-                    icon={CalendarIcon}
-                    label="Next Class"
-                    value={formatDateLong(
-                      getNextSessionDate(selected).toISOString(),
-                    )}
-                  />
-                  <DetailItem
-                    icon={User}
-                    label="Instructor"
-                    value={selected.instructorName}
-                  />
-                  <DetailItem
-                    icon={Video}
-                    label="Platform"
-                    value={platformConfig[selected.platform].label}
-                  />
-                </div>
+              <div className="border-t border-border pt-5 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Meeting Details
+                </p>
 
-                <div className="border-t border-border pt-5 space-y-3">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Meeting Details
-                  </p>
+                <div className="bg-accent/40 border border-border rounded-lg p-3 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Link2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-muted-foreground">
+                        Meeting Link
+                      </p>
+                      <p className="text-xs font-medium text-foreground break-all">
+                        {selected.meetingLink}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 shrink-0"
+                      onClick={() => copyLink(selected.meetingLink)}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
 
-                  <div className="bg-accent/40 border border-border rounded-lg p-3 space-y-2">
-                    <div className="flex items-start gap-2">
-                      <Link2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  {selected.meetingId && (
+                    <div className="flex items-start gap-2 pt-2 border-t border-border">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-[11px] text-muted-foreground">
-                          Meeting Link
+                          Meeting ID
                         </p>
-                        <p className="text-xs font-medium text-foreground break-all">
-                          {selected.meetingLink}
+                        <p className="text-xs font-mono font-medium text-foreground">
+                          {selected.meetingId}
                         </p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 shrink-0"
-                        onClick={() => copyLink(selected.meetingLink)}
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
                     </div>
+                  )}
 
-                    {selected.meetingId && (
-                      <div className="flex items-start gap-2 pt-2 border-t border-border">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-muted-foreground">
-                            Meeting ID
-                          </p>
-                          <p className="text-xs font-mono font-medium text-foreground">
-                            {selected.meetingId}
-                          </p>
-                        </div>
+                  {selected.passcode && (
+                    <div className="flex items-start gap-2 pt-2 border-t border-border">
+                      <CheckCircle2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] text-muted-foreground">
+                          Passcode
+                        </p>
+                        <p className="text-xs font-mono font-medium text-foreground">
+                          {selected.passcode}
+                        </p>
                       </div>
-                    )}
-
-                    {selected.passcode && (
-                      <div className="flex items-start gap-2 pt-2 border-t border-border">
-                        <CheckCircle2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-muted-foreground">
-                            Passcode
-                          </p>
-                          <p className="text-xs font-mono font-medium text-foreground">
-                            {selected.passcode}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                  <Button asChild className="flex-1">
-                    <a
-                      href={selected.meetingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Video className="h-4 w-4 mr-2" /> Join Class
-                      <ExternalLink className="h-3.5 w-3.5 ml-2" />
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="sm:w-auto"
-                    onClick={() => toast.info("Reminder feature coming soon")}
-                  >
-                    <Bell className="h-4 w-4 mr-2" /> Remind Me
-                  </Button>
+                    </div>
+                  )}
                 </div>
               </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Button asChild className="flex-1">
+                  <a
+                    href={selected.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Video className="h-4 w-4 mr-2" /> Join Class
+                    <ExternalLink className="h-3.5 w-3.5 ml-2" />
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="sm:w-auto"
+                  onClick={() => toast.info("Reminder feature coming soon")}
+                >
+                  <Bell className="h-4 w-4 mr-2" /> Remind Me
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

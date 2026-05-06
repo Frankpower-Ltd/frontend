@@ -13,24 +13,54 @@ const Login = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setAccessToken, setUser } = useAuthStore();
+  const { setAuthSession } = useAuthStore();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect") || null;
+
+  const getErrorMessage = (response: { error?: unknown; message?: string }) => {
+    const rawError = response.error;
+
+    if (typeof rawError === "string" && rawError.trim()) {
+      return rawError;
+    }
+
+    if (rawError && typeof rawError === "object") {
+      const maybeMessage = (rawError as { message?: unknown }).message;
+      if (typeof maybeMessage === "string" && maybeMessage.trim()) {
+        return maybeMessage;
+      }
+    }
+
+    if (response.message?.trim()) {
+      return response.message;
+    }
+
+    return "Unable to login. Please try again.";
+  };
+
+  const resolveRedirectPath = (path: string | null, isAdmin: boolean) => {
+    if (!path || !path.startsWith("/")) {
+      return isAdmin ? RouteConstant.adminDashboard : RouteConstant.dashboard;
+    }
+
+    if (path.startsWith("/auth")) {
+      return isAdmin ? RouteConstant.adminDashboard : RouteConstant.dashboard;
+    }
+
+    return path;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (submitError) setSubmitError(null);
-    if (submitMessage) setSubmitMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
-    setSubmitMessage(null);
 
     try {
       const response = await api.login(
@@ -39,51 +69,47 @@ const Login = () => {
       );
 
       if (!response.success) {
-        const errorMessage =
-          typeof response.error === "string"
-            ? response.error
-            : response.message || response.error?.message || "Login failed";
-        setSubmitError(errorMessage);
+        setSubmitError(getErrorMessage(response));
         return;
       }
 
       const accessToken = response.data?.accessToken;
-      const role = response.data?.user?.role;
+      const user = response.data?.user;
+      const role = user?.role;
 
-      if (accessToken) {
-        if (isAdminRole(role)) {
-          api.setToken(accessToken, "admin");
-          api.setToken(null, "user");
-        } else {
-          api.setToken(accessToken, "user");
-          api.setToken(null, "admin");
-        }
-        setAccessToken(accessToken);
-      }
-
-      if (response.data?.user) {
-        setUser({
-          id: response.data.user.id,
-          fullName: response.data.user.fullName,
-          email: response.data.user.email,
-          role: response.data.user.role,
-        });
-      }
-
-      setSubmitMessage(response.message || "Login successful");
-      setFormData({ email: "", password: "" });
-
-      if (isAdminRole(role)) {
-        navigate(RouteConstant.adminDashboard);
+      if (!accessToken || !user) {
+        setSubmitError("Invalid login response. Please try again.");
         return;
       }
 
-      // Redirect to original page if available, otherwise dashboard
-      const destination = redirectPath || RouteConstant.dashboard;
-      navigate(destination);
+      const isAdmin = isAdminRole(role);
+
+      if (isAdmin) {
+        api.setToken(accessToken, "admin");
+        api.setToken(null, "user");
+      } else {
+        api.setToken(accessToken, "user");
+        api.setToken(null, "admin");
+      }
+
+      setAuthSession({
+        accessToken,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+        },
+      });
+
+      const destination = resolveRedirectPath(redirectPath, isAdmin);
+      navigate(destination, { replace: true });
     } catch (error) {
-      console.error("Login error:", error);
-      setSubmitError("Network error. Please try again.");
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please try again.";
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -99,12 +125,6 @@ const Login = () => {
           {submitError}
         </div>
       )}
-      {submitMessage && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          {submitMessage}
-        </div>
-      )}
-
       <form className="w-full" onSubmit={handleSubmit}>
         <label className="sr-only" htmlFor="email">
           Email

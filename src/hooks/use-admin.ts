@@ -14,6 +14,8 @@ export const useAdminUsers = (params?: {
   offset?: number;
   limit?: number;
   search?: string;
+  role?: string;
+  status?: "active" | "inactive";
 }) =>
   useQuery({
     queryKey: [
@@ -21,6 +23,8 @@ export const useAdminUsers = (params?: {
       params?.offset ?? 0,
       params?.limit ?? 10,
       params?.search ?? "",
+      params?.role ?? "all",
+      params?.status ?? "all",
     ],
     queryFn: () => adminService.getUsers(params),
   });
