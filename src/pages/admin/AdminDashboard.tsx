@@ -1,57 +1,276 @@
+import AdminOverviewDateControls from "@/components/admin/AdminOverviewDateControls";
+import AdminOverviewRecentCard from "@/components/admin/AdminOverviewRecentCard";
+import AdminOverviewStatCard from "@/components/admin/AdminOverviewStatCard";
+import { StatusBadge } from "@/components/admin/DataTable";
+import { RouteConstant } from "@/constants/routes";
 import {
+  useAdminAnalytics,
   useAdminApplications,
   useAdminCourses,
   useAdminPayments,
+  useAdminUsers,
 } from "@/hooks/use-admin";
 import { formatNaira } from "@/lib/student-flow";
+import { endOfMonth, format, startOfMonth } from "date-fns";
+import {
+  Award,
+  BookOpen,
+  CreditCard,
+  FileText,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+
+const statMeta = [
+  {
+    key: "students",
+    label: "Total Students",
+    icon: Users,
+    tone: "text-primary",
+  },
+  {
+    key: "activeCourses",
+    label: "Active Courses",
+    icon: BookOpen,
+    tone: "text-info",
+  },
+  {
+    key: "pendingApplications",
+    label: "Pending Applications",
+    icon: FileText,
+    tone: "text-warning",
+  },
+  {
+    key: "revenue",
+    label: "Revenue (₦)",
+    icon: CreditCard,
+    tone: "text-success",
+  },
+  {
+    key: "certificatesIssued",
+    label: "Certificates Issued",
+    icon: Award,
+    tone: "text-primary",
+  },
+  {
+    key: "completedApplications",
+    label: "Completed Applications",
+    icon: TrendingUp,
+    tone: "text-success",
+  },
+] as const;
+
+const toStatusTone = (
+  value: string,
+): "default" | "success" | "warning" | "danger" | "info" => {
+  const upper = value.toUpperCase();
+  if (upper.includes("APPROVED") || upper.includes("SUCCESS")) return "success";
+  if (upper.includes("PENDING") || upper.includes("REVIEW")) return "warning";
+  if (
+    upper.includes("REJECTED") ||
+    upper.includes("FAILED") ||
+    upper.includes("CANCELLED")
+  )
+    return "danger";
+  return "info";
+};
 
 const AdminDashboard = () => {
-  const applicationsQuery = useAdminApplications({ offset: 0, limit: 10 });
-  const coursesQuery = useAdminCourses({ offset: 0, limit: 10 });
-  const paymentsQuery = useAdminPayments({ offset: 0, limit: 10 });
+  const now = new Date();
 
-  const payments = paymentsQuery.data?.data || [];
+  const [dateFrom, setDateFrom] = useState(
+    format(startOfMonth(now), "yyyy-MM-dd"),
+  );
+  const [dateTo, setDateTo] = useState(format(endOfMonth(now), "yyyy-MM-dd"));
 
-  const totalRevenue = payments
-    .filter((item) => item.status === "SUCCESSFUL")
-    .reduce((sum, item) => sum + item.amount, 0);
+  const analyticsQuery = useAdminAnalytics({
+    startDate: dateFrom,
+    endDate: dateTo,
+  });
+  const usersQuery = useAdminUsers({
+    offset: 0,
+    limit: 5,
+    sort: "createdAt,desc",
+  });
+  const applicationsQuery = useAdminApplications({
+    offset: 0,
+    limit: 5,
+    sort: "createdAt,desc",
+  });
+  const paymentsQuery = useAdminPayments({
+    offset: 0,
+    limit: 5,
+    sort: "createdAt,desc",
+  });
+  const coursesQuery = useAdminCourses({
+    offset: 0,
+    limit: 5,
+    sort: "createdAt,desc",
+  });
 
-  const totals = {
-    applications: applicationsQuery.data?.resultSet.total || 0,
-    courses: coursesQuery.data?.resultSet.total || 0,
-    payments: paymentsQuery.data?.resultSet.total || 0,
-    revenue: totalRevenue,
-  };
+  const stats = analyticsQuery.data?.stats;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <h1 className="text-xl font-semibold text-foreground">Admin Overview</h1>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">
+            Admin Overview
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            At-a-glance view of platform activity and growth
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Applications</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">
-            {totals.applications}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Courses</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">
-            {totals.courses}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Payments</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">
-            {totals.payments}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Revenue (successful)</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">
-            {formatNaira(totals.revenue)}
-          </p>
-        </div>
+        <AdminOverviewDateControls
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+        />
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {statMeta.map((item) => {
+          const Icon = item.icon;
+          const value = stats?.[item.key];
+          const rendered =
+            item.key === "revenue"
+              ? formatNaira(Number(value || 0))
+              : Number(value || 0).toLocaleString();
+
+          return (
+            <AdminOverviewStatCard
+              key={item.key}
+              label={item.label}
+              value={rendered}
+              icon={Icon}
+              toneClass={item.tone}
+            />
+          );
+        })}
+      </div>
+
+      {/* Recent cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AdminOverviewRecentCard
+          title="Recent Users"
+          to={RouteConstant.adminUsers}
+        >
+          {(usersQuery.data?.data || []).map((item) => (
+            <li
+              key={item.id}
+              className="py-3 flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
+                  {item.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">
+                    {item.fullName}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {item.role}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {item.createdAt
+                  ? format(new Date(item.createdAt), "MMM d")
+                  : "—"}
+              </span>
+            </li>
+          ))}
+        </AdminOverviewRecentCard>
+
+        <AdminOverviewRecentCard
+          title="Recent Applications"
+          to={RouteConstant.adminApplications}
+        >
+          {(applicationsQuery.data?.data || []).map((item) => (
+            <li
+              key={item.id}
+              className="py-3 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {item.programType} Application
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  Program: {item.programId}
+                </p>
+              </div>
+              <StatusBadge
+                label={item.status}
+                tone={toStatusTone(item.status)}
+              />
+            </li>
+          ))}
+        </AdminOverviewRecentCard>
+
+        <AdminOverviewRecentCard
+          title="Recent Payments"
+          to={RouteConstant.adminPayments}
+        >
+          {(paymentsQuery.data?.data || []).map((item) => (
+            <li
+              key={item.reference}
+              className="py-3 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {item.programTitle || "Program Payment"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {item.reference}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-semibold">
+                  {formatNaira(item.amount)}
+                </p>
+                <StatusBadge
+                  label={item.status}
+                  tone={toStatusTone(item.status)}
+                />
+              </div>
+            </li>
+          ))}
+        </AdminOverviewRecentCard>
+
+        <AdminOverviewRecentCard
+          title="Recent Courses"
+          to={RouteConstant.adminCourses}
+        >
+          {(coursesQuery.data?.data || []).map((item) => (
+            <li
+              key={item.id}
+              className="py-3 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0 flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+                  <BookOpen className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{item.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {item.createdAt
+                      ? format(new Date(item.createdAt), "MMM d, yyyy")
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </AdminOverviewRecentCard>
       </div>
     </div>
   );

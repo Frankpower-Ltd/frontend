@@ -22,6 +22,7 @@ export const RouteConstant = {
   courseDetails: "/dashboard/courses/:courseId",
   overview: "/dashboard",
   settings: "/dashboard/settings",
+  adminSettings: "/admin/settings",
   adminRoot: "/admin",
   adminDashboard: "/admin/dashboard",
   adminUsers: "/admin/users",

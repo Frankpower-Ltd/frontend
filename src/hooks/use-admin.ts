@@ -9,6 +9,7 @@ export const ADMIN_APPLICATIONS_QUERY_KEY = ["admin", "applications"] as const;
 export const ADMIN_PAYMENTS_QUERY_KEY = ["admin", "payments"] as const;
 export const ADMIN_COURSES_QUERY_KEY = ["admin", "courses"] as const;
 export const ADMIN_CERTIFICATES_QUERY_KEY = ["admin", "certificates"] as const;
+export const ADMIN_ANALYTICS_QUERY_KEY = ["admin", "analytics"] as const;
 
 export const useAdminUsers = (params?: {
   offset?: number;
@@ -16,6 +17,7 @@ export const useAdminUsers = (params?: {
   search?: string;
   role?: string;
   status?: "active" | "inactive";
+  sort?: string;
 }) =>
   useQuery({
     queryKey: [
@@ -25,6 +27,7 @@ export const useAdminUsers = (params?: {
       params?.search ?? "",
       params?.role ?? "all",
       params?.status ?? "all",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getUsers(params),
   });
@@ -55,6 +58,7 @@ export const useAdminApplications = (params?: {
   limit?: number;
   status?: string;
   search?: string;
+  sort?: string;
 }) =>
   useQuery({
     queryKey: [
@@ -63,6 +67,7 @@ export const useAdminApplications = (params?: {
       params?.limit ?? 10,
       params?.status ?? "all",
       params?.search ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getApplications(params),
   });
@@ -79,6 +84,7 @@ export const useAdminPayments = (params?: {
     | "CANCELLED"
     | "REDUNDANT";
   userId?: string;
+  sort?: string;
 }) =>
   useQuery({
     queryKey: [
@@ -87,6 +93,7 @@ export const useAdminPayments = (params?: {
       params?.limit ?? 10,
       params?.status ?? "all",
       params?.userId ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getPayments(params),
   });
@@ -96,6 +103,7 @@ export const useAdminCourses = (params?: {
   limit?: number;
   isActive?: boolean;
   search?: string;
+  sort?: string;
 }) =>
   useQuery({
     queryKey: [
@@ -104,6 +112,7 @@ export const useAdminCourses = (params?: {
       params?.limit ?? 10,
       params?.isActive ?? "all",
       params?.search ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getCourses(params),
   });
@@ -120,6 +129,19 @@ export const useAdminUserCertificates = (
     ],
     enabled: Boolean(userId),
     queryFn: () => adminService.getUserCertificates(userId as string, params),
+  });
+
+export const useAdminAnalytics = (params?: {
+  startDate?: string;
+  endDate?: string;
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_ANALYTICS_QUERY_KEY,
+      params?.startDate ?? "",
+      params?.endDate ?? "",
+    ],
+    queryFn: () => adminService.getAnalytics(params),
   });
 
 export const useUploadCertificate = () =>

@@ -5,6 +5,7 @@ import { RouteConstant } from "@/constants/routes";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useAuthStore } from "@/store/auth.store";
 import api from "@/utils/api";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
   BookOpen,
@@ -26,6 +27,7 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
 
   const { data: currentUser, isLoading: userLoading } = useCurrentUser();
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -38,6 +40,8 @@ const AdminLayout = () => {
     api.setToken(null, "admin");
     api.setToken(null, "user");
     clearAuth();
+    queryClient.clear();
+
     const returnUrl = `${location.pathname}${location.search}`;
     navigate(
       `${RouteConstant.login}?redirect=${encodeURIComponent(returnUrl)}`,
