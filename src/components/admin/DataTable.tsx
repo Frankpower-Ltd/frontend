@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import type { ComponentType, ReactNode } from "react";
 import { MoreVertical, Search } from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import Pagination from "@/components/ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -53,6 +61,10 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   pageSize?: number;
   pageSizeOptions?: number[];
+  totalCount: number;
+  page: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 export function DataTable<T>({
@@ -67,13 +79,14 @@ export function DataTable<T>({
   manualSearch = false,
   emptyMessage = "No records found",
   onRowClick,
-  pageSize: initialPageSize = 10,
+  pageSize = 10,
   pageSizeOptions = [10, 25, 50, 100],
+  totalCount,
+  page,
+  onPageChange,
+  onPageSizeChange,
 }: DataTableProps<T>) {
-  const [internalQuery, setInternalQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const query = searchValue ?? internalQuery;
+  const query = searchValue ?? "";
 
   const filtered = useMemo(() => {
     if (manualSearch) return data;
@@ -92,24 +105,51 @@ export function DataTable<T>({
     });
   }, [data, manualSearch, query, searchKeys]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * pageSize;
-  const paged = filtered.slice(start, start + pageSize);
+  const paged = manualSearch ? data : filtered.slice(start, start + pageSize);
 
   const onQueryChange = (value: string) => {
-    setInternalQuery(value);
     onSearchChange?.(value);
-    setPage(1);
   };
 
-  const onPageSizeChange = (value: string) => {
-    setPageSize(Number(value));
-    setPage(1);
+  const handlePageSizeChange = (value: string) => {
+    onPageSizeChange(Number(value));
   };
 
-  const showingFrom = filtered.length === 0 ? 0 : start + 1;
-  const showingTo = Math.min(start + pageSize, filtered.length);
+  const visibleRows = manualSearch ? data : filtered;
+
+  const pageItems = useMemo(() => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, "ellipsis", totalPages] as const;
+    }
+
+    if (currentPage >= totalPages - 2) {
+      return [
+        1,
+        "ellipsis",
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ] as const;
+    }
+
+    return [
+      1,
+      "ellipsis",
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      "ellipsis",
+      totalPages,
+    ] as const;
+  }, [currentPage, totalPages]);
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -148,7 +188,7 @@ export function DataTable<T>({
           </TableHeader>
 
           <TableBody>
-            {paged.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -183,40 +223,58 @@ export function DataTable<T>({
       </TableWrapper>
 
       <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-4 py-3 text-xs text-muted-foreground sm:flex-row">
-        <span>
-          Showing {showingFrom}–{showingTo} of {filtered.length}
-          {filtered.length !== data.length
-            ? ` (filtered from ${data.length})`
-            : ""}
-        </span>
+        <div className="flex items-center gap-2">
+          <span>Rows per page</span>
+          <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+            <SelectTrigger className="h-8 w-[80px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {pageSizeOptions.map((option) => (
+                <SelectItem key={option} value={String(option)}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span>Rows per page</span>
-            <Select value={String(pageSize)} onValueChange={onPageSizeChange}>
-              <SelectTrigger className="h-8 w-[80px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {pageSizeOptions.map((option) => (
-                  <SelectItem key={option} value={String(option)}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Pagination
-              page={currentPage}
-              totalPages={totalPages}
-              onPageChange={setPage}
-            />
-          </div>
+        <div className="flex items-center gap-2">
+          <Pagination className="mx-0 w-auto justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage <= 1}
+                  className="h-8 cursor-pointer"
+                />
+              </PaginationItem>
+              {pageItems.map((item, index) => (
+                <PaginationItem key={`${item}-${index}`}>
+                  {item === "ellipsis" ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      onClick={() => onPageChange(item)}
+                      isActive={item === currentPage}
+                      className="h-8 w-8 cursor-pointer"
+                    >
+                      {item}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    onPageChange(Math.min(totalPages, currentPage + 1))
+                  }
+                  disabled={currentPage >= totalPages}
+                  className="h-8 cursor-pointer"
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>

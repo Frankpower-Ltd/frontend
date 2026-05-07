@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { isAdminRole } from "@/constants/role";
 import { RouteConstant } from "@/constants/routes";
 import { useAuthStore } from "@/store/auth.store";
 import { ChevronDown, LogOut, Settings } from "lucide-react";
@@ -56,7 +57,14 @@ const UserAvatarDropdown: React.FC<UserAvatarDropdownProps> = ({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to={RouteConstant.settings} className="cursor-pointer">
+          <Link
+            to={
+              isAdminRole(user?.role || "")
+                ? RouteConstant.adminSettings
+                : RouteConstant.settings
+            }
+            className="cursor-pointer"
+          >
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Link>

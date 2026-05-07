@@ -36,6 +36,23 @@ export interface CreateAdminUserPayload {
   phoneNumber?: string;
 }
 
+export interface AdminAnalyticsStats {
+  students: number;
+  activeCourses: number;
+  pendingApplications: number;
+  completedApplications: number;
+  revenue: number;
+  certificatesIssued: number;
+}
+
+export interface AdminAnalyticsResponse {
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  stats: AdminAnalyticsStats;
+}
+
 const DEFAULT_RESULT_SET: ResultSet = {
   count: 0,
   offset: 0,
@@ -82,6 +99,7 @@ export const adminService = {
     search?: string;
     role?: string;
     status?: "active" | "inactive";
+    sort?: string;
   }): Promise<PaginatedResponse<AdminUser>> {
     const query = toQuery({
       offset: params?.offset,
@@ -89,6 +107,7 @@ export const adminService = {
       search: params?.search,
       role: params?.role,
       status: params?.status,
+      sort: params?.sort,
     });
 
     const response = await api.request<
@@ -210,12 +229,14 @@ export const adminService = {
     limit?: number;
     status?: string;
     search?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<Application>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       status: params?.status,
       search: params?.search,
+      sort: params?.sort,
     });
 
     const response = await api.request<Application[]>(
@@ -237,12 +258,14 @@ export const adminService = {
     limit?: number;
     status?: PaymentStatus;
     userId?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<UserPayment>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       status: params?.status,
       userId: params?.userId,
+      sort: params?.sort,
     });
 
     const response = await api.request<UserPayment[]>(
@@ -264,12 +287,14 @@ export const adminService = {
     limit?: number;
     isActive?: boolean;
     search?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<Course>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       isActive: params?.isActive,
       search: params?.search,
+      sort: params?.sort,
     });
 
     const response = await api.request<Course[]>(
@@ -320,6 +345,27 @@ export const adminService = {
     ensureSuccess(response);
     if (!response.data) {
       throw new Error("No data returned from server");
+    }
+    return response.data;
+  },
+
+  async getAnalytics(params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<AdminAnalyticsResponse> {
+    const query = toQuery({
+      startDate: params?.startDate,
+      endDate: params?.endDate,
+    });
+
+    const response = await api.request<AdminAnalyticsResponse>(
+      `/admin/analytics${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) {
+      throw new Error("No analytics data returned");
     }
     return response.data;
   },

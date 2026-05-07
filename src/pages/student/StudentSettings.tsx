@@ -14,6 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { isAdminRole } from "@/constants/role";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { cn } from "@/lib/utils";
 import { userService } from "@/services/api/user.service";
@@ -371,60 +372,65 @@ const StudentSettings = () => {
             </div>
           </section>
 
-          <section className="bg-card border border-border rounded-2xl p-5 md:p-6">
-            <h2 className="text-sm font-semibold text-foreground">
-              Academic information
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Helps us tailor your learning experience.
-            </p>
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                label="School / Institution"
-                error={errors.school?.message}
-              >
-                <Input
-                  {...register("school")}
-                  placeholder="e.g University of Ibadan"
-                />
-              </Field>
-              <Field label="Current level" error={errors.level?.message}>
-                <Controller
-                  control={control}
-                  name="level"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value || "none"}
-                      onValueChange={(v) =>
-                        field.onChange(v === "none" ? "" : v)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Not set</SelectItem>
-                        <SelectItem value="100">100 Level</SelectItem>
-                        <SelectItem value="200">200 Level</SelectItem>
-                        <SelectItem value="300">300 Level</SelectItem>
-                        <SelectItem value="400">400 Level</SelectItem>
-                        <SelectItem value="500">500 Level</SelectItem>
-                        <SelectItem value="graduate">Graduate</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </Field>
-              <div className="sm:col-span-2">
-                <Field label="Program of study" error={errors.program?.message}>
+          {!isAdminRole(currentUser?.role || "") && (
+            <section className="bg-card border border-border rounded-2xl p-5 md:p-6">
+              <h2 className="text-sm font-semibold text-foreground">
+                Academic information
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Helps us tailor your learning experience.
+              </p>
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field
+                  label="School / Institution"
+                  error={errors.school?.message}
+                >
                   <Input
-                    {...register("program")}
-                    placeholder="e.g Computer science"
+                    {...register("school")}
+                    placeholder="e.g University of Ibadan"
                   />
                 </Field>
+                <Field label="Current level" error={errors.level?.message}>
+                  <Controller
+                    control={control}
+                    name="level"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value || "none"}
+                        onValueChange={(v) =>
+                          field.onChange(v === "none" ? "" : v)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Not set</SelectItem>
+                          <SelectItem value="100">100 Level</SelectItem>
+                          <SelectItem value="200">200 Level</SelectItem>
+                          <SelectItem value="300">300 Level</SelectItem>
+                          <SelectItem value="400">400 Level</SelectItem>
+                          <SelectItem value="500">500 Level</SelectItem>
+                          <SelectItem value="graduate">Graduate</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </Field>
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Program of study"
+                    error={errors.program?.message}
+                  >
+                    <Input
+                      {...register("program")}
+                      placeholder="e.g Computer science"
+                    />
+                  </Field>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           <div className="flex items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleCancel}>

@@ -72,6 +72,7 @@ export interface Course {
   description?: string;
   orderIndex: number;
   isActive: boolean;
+  createdAt: string;
 }
 
 export interface CourseOutlineItem {
@@ -115,6 +116,7 @@ export interface StudentCourse {
   startedAt?: string;
   completedAt?: string;
   course: Course;
+  createdAt?: string;
 }
 
 export interface Assignment {

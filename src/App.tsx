@@ -10,6 +10,7 @@ import AdminNotifications from "@/pages/admin/AdminNotifications";
 import AdminPayments from "@/pages/admin/AdminPayments";
 import AdminPrograms from "@/pages/admin/AdminPrograms";
 import AdminSchedules from "@/pages/admin/AdminSchedules";
+import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AuthPageGuard from "@/pages/auth/AuthPageGuard";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
@@ -38,6 +39,7 @@ import Schedule from "@/pages/student/Schedule";
 import StudentCertificate from "@/pages/student/StudentCertificate";
 import StudentSettings from "@/pages/student/StudentSettings";
 import StudentsForm from "@/pages/student/StudentsForm";
+import "react-day-picker/style.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 function App() {
@@ -108,6 +110,7 @@ function App() {
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="applications" element={<AdminApplications />} />
           <Route path="payments" element={<AdminPayments />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
         <Route
           path="/admin"
