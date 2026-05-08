@@ -53,6 +53,47 @@ export interface AdminAnalyticsResponse {
   stats: AdminAnalyticsStats;
 }
 
+export interface AdminOverviewRecentUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentApplication {
+  id: string;
+  applicantName: string;
+  programTitle: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentPayment {
+  id: string;
+  studentName: string;
+  programTitle: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentCourse {
+  id: string;
+  title: string;
+  programTitle: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentResponse {
+  recentUsers: AdminOverviewRecentUser[];
+  recentApplications: AdminOverviewRecentApplication[];
+  recentPayments: AdminOverviewRecentPayment[];
+  recentCourses: AdminOverviewRecentCourse[];
+}
+
 const DEFAULT_RESULT_SET: ResultSet = {
   count: 0,
   offset: 0,
@@ -366,6 +407,29 @@ export const adminService = {
     ensureSuccess(response);
     if (!response.data) {
       throw new Error("No analytics data returned");
+    }
+    return response.data;
+  },
+
+  async getRecentOverview(params?: {
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+  }): Promise<AdminOverviewRecentResponse> {
+    const query = toQuery({
+      startDate: params?.startDate,
+      endDate: params?.endDate,
+      limit: params?.limit,
+    });
+
+    const response = await api.request<AdminOverviewRecentResponse>(
+      `/admin/analytics/recent${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) {
+      throw new Error("No recent overview data returned");
     }
     return response.data;
   },
