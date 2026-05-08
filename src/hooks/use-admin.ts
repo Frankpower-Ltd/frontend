@@ -8,6 +8,7 @@ export const ADMIN_USER_COURSES_QUERY_KEY = ["admin", "user-courses"] as const;
 export const ADMIN_APPLICATIONS_QUERY_KEY = ["admin", "applications"] as const;
 export const ADMIN_PAYMENTS_QUERY_KEY = ["admin", "payments"] as const;
 export const ADMIN_COURSES_QUERY_KEY = ["admin", "courses"] as const;
+export const ADMIN_PROGRAMS_QUERY_KEY = ["admin", "programs"] as const;
 export const ADMIN_CERTIFICATES_QUERY_KEY = ["admin", "certificates"] as const;
 export const ADMIN_ANALYTICS_QUERY_KEY = ["admin", "analytics"] as const;
 export const ADMIN_ANALYTICS_RECENT_QUERY_KEY = [
@@ -100,6 +101,21 @@ export const useAdminPayments = (params?: {
       params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getPayments(params),
+  });
+
+export const useAdminPrograms = (params?: {
+  search?: string;
+  programType?: "SIWES" | "ACADEMIC";
+  status?: "active" | "inactive";
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_PROGRAMS_QUERY_KEY,
+      params?.search ?? "",
+      params?.programType ?? "all",
+      params?.status ?? "all",
+    ],
+    queryFn: () => adminService.getPrograms(params),
   });
 
 export const useAdminCourses = (params?: {
@@ -229,6 +245,57 @@ export const useDeleteAdminUser = () => {
       queryClient.invalidateQueries({
         queryKey: [...ADMIN_CERTIFICATES_QUERY_KEY, userId],
       });
+    },
+  });
+};
+
+export const useCreateAdminProgram = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminService.createProgram,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
+    },
+  });
+};
+
+export const useUpdateAdminProgram = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      programId,
+      payload,
+    }: {
+      programId: string;
+      payload: Parameters<typeof adminService.updateProgram>[1];
+    }) => adminService.updateProgram(programId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
+    },
+  });
+};
+
+export const useActivateAdminProgram = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (programId: string) => adminService.activateProgram(programId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
+    },
+  });
+};
+
+export const useDeactivateAdminProgram = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (programId: string) =>
+      adminService.deactivateProgram(programId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
     },
   });
 };
