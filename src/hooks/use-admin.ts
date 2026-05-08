@@ -10,6 +10,10 @@ export const ADMIN_PAYMENTS_QUERY_KEY = ["admin", "payments"] as const;
 export const ADMIN_COURSES_QUERY_KEY = ["admin", "courses"] as const;
 export const ADMIN_CERTIFICATES_QUERY_KEY = ["admin", "certificates"] as const;
 export const ADMIN_ANALYTICS_QUERY_KEY = ["admin", "analytics"] as const;
+export const ADMIN_ANALYTICS_RECENT_QUERY_KEY = [
+  "admin",
+  "analytics-recent",
+] as const;
 
 export const useAdminUsers = (params?: {
   offset?: number;
@@ -142,6 +146,21 @@ export const useAdminAnalytics = (params?: {
       params?.endDate ?? "",
     ],
     queryFn: () => adminService.getAnalytics(params),
+  });
+
+export const useAdminRecentOverview = (params?: {
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_ANALYTICS_RECENT_QUERY_KEY,
+      params?.startDate ?? "",
+      params?.endDate ?? "",
+      params?.limit ?? 5,
+    ],
+    queryFn: () => adminService.getRecentOverview(params),
   });
 
 export const useUploadCertificate = () =>

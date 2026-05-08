@@ -3,15 +3,15 @@ import AdminOverviewRecentCard from "@/components/admin/AdminOverviewRecentCard"
 import AdminOverviewStatCard from "@/components/admin/AdminOverviewStatCard";
 import { StatusBadge } from "@/components/admin/DataTable";
 import { RouteConstant } from "@/constants/routes";
-import {
-  useAdminAnalytics,
-  useAdminApplications,
-  useAdminCourses,
-  useAdminPayments,
-  useAdminUsers,
-} from "@/hooks/use-admin";
+import { useAdminAnalytics, useAdminRecentOverview } from "@/hooks/use-admin";
 import { formatNaira } from "@/lib/student-flow";
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { shortLocale } from "@/utils/helper";
+import {
+  endOfMonth,
+  format,
+  formatDistanceToNow,
+  startOfMonth,
+} from "date-fns";
 import {
   Award,
   BookOpen,
@@ -88,25 +88,10 @@ const AdminDashboard = () => {
     startDate: dateFrom,
     endDate: dateTo,
   });
-  const usersQuery = useAdminUsers({
-    offset: 0,
+  const recentQuery = useAdminRecentOverview({
+    startDate: dateFrom,
+    endDate: dateTo,
     limit: 5,
-    sort: "createdAt,desc",
-  });
-  const applicationsQuery = useAdminApplications({
-    offset: 0,
-    limit: 5,
-    sort: "createdAt,desc",
-  });
-  const paymentsQuery = useAdminPayments({
-    offset: 0,
-    limit: 5,
-    sort: "createdAt,desc",
-  });
-  const coursesQuery = useAdminCourses({
-    offset: 0,
-    limit: 5,
-    sort: "createdAt,desc",
   });
 
   const stats = analyticsQuery.data?.stats;
@@ -160,23 +145,21 @@ const AdminDashboard = () => {
           title="Recent Users"
           to={RouteConstant.adminUsers}
         >
-          {(usersQuery.data?.data || []).map((item) => (
+          {(recentQuery.data?.recentUsers || []).map((item) => (
             <li
               key={item.id}
               className="py-3 flex items-center justify-between gap-3"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                  {item.fullName
+                  {item.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
                     .slice(0, 2)}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {item.fullName}
-                  </p>
+                  <p className="text-sm font-medium truncate">{item.name}</p>
                   <p className="text-xs text-muted-foreground truncate">
                     {item.role}
                   </p>
@@ -184,7 +167,10 @@ const AdminDashboard = () => {
               </div>
               <span className="text-xs text-muted-foreground shrink-0">
                 {item.createdAt
-                  ? format(new Date(item.createdAt), "MMM d")
+                  ? formatDistanceToNow(new Date(item.createdAt), {
+                      locale: shortLocale,
+                      addSuffix: true,
+                    })
                   : "—"}
               </span>
             </li>
@@ -195,17 +181,17 @@ const AdminDashboard = () => {
           title="Recent Applications"
           to={RouteConstant.adminApplications}
         >
-          {(applicationsQuery.data?.data || []).map((item) => (
+          {(recentQuery.data?.recentApplications || []).map((item) => (
             <li
               key={item.id}
               className="py-3 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">
-                  {item.programType} Application
+                  {item.applicantName}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  Program: {item.programId}
+                  {item.programTitle}
                 </p>
               </div>
               <StatusBadge
@@ -220,17 +206,17 @@ const AdminDashboard = () => {
           title="Recent Payments"
           to={RouteConstant.adminPayments}
         >
-          {(paymentsQuery.data?.data || []).map((item) => (
+          {(recentQuery.data?.recentPayments || []).map((item) => (
             <li
-              key={item.reference}
+              key={item.id}
               className="py-3 flex items-center justify-between gap-3"
             >
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">
-                  {item.programTitle || "Program Payment"}
+                  {item.studentName}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {item.reference}
+                  {item.programTitle}
                 </p>
               </div>
               <div className="text-right shrink-0">
@@ -250,7 +236,7 @@ const AdminDashboard = () => {
           title="Recent Courses"
           to={RouteConstant.adminCourses}
         >
-          {(coursesQuery.data?.data || []).map((item) => (
+          {(recentQuery.data?.recentCourses || []).map((item) => (
             <li
               key={item.id}
               className="py-3 flex items-center justify-between gap-3"
@@ -262,9 +248,7 @@ const AdminDashboard = () => {
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{item.title}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {item.createdAt
-                      ? format(new Date(item.createdAt), "MMM d, yyyy")
-                      : "—"}
+                    {item.programTitle}
                   </p>
                 </div>
               </div>
