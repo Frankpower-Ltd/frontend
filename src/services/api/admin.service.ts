@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
   Application,
   Course,
   PaginatedResponse,
   PaymentStatus,
+  Program,
   ResultSet,
-  StudentCourse,
   StudentCertificate,
+  StudentCourse,
   UserPayment,
 } from "@/types/student-flow";
 import api from "@/utils/api";
@@ -34,6 +36,24 @@ export interface CreateAdminUserPayload {
   email: string;
   role?: string;
   phoneNumber?: string;
+}
+
+export interface CreateProgramPayload {
+  title: string;
+  description?: string;
+  programType: "SIWES" | "ACADEMIC";
+  duration: string;
+  price: number;
+  currency?: "NGN" | "USD";
+  isActive?: boolean;
+}
+
+export interface UpdateProgramPayload extends Partial<CreateProgramPayload> {}
+
+export interface AdminProgramsQuery {
+  search?: string;
+  programType?: "SIWES" | "ACADEMIC";
+  status?: "active" | "inactive";
 }
 
 export interface AdminAnalyticsStats {
@@ -321,6 +341,67 @@ export const adminService = {
       resultSet:
         (response.resultSet as ResultSet | undefined) || DEFAULT_RESULT_SET,
     };
+  },
+
+  async getPrograms(params?: AdminProgramsQuery): Promise<Program[]> {
+    const query = toQuery({
+      search: params?.search,
+      programType: params?.programType,
+      status: params?.status,
+    });
+
+    const response = await api.request<Program[]>(
+      "/admin/programs" + query,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return response.data || [];
+  },
+
+  async createProgram(payload: CreateProgramPayload): Promise<void> {
+    const response = await api.request(
+      "/admin/programs",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async updateProgram(
+    programId: string,
+    payload: UpdateProgramPayload,
+  ): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId),
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async activateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId) + "/activate",
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async deactivateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId),
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
   },
 
   async getCourses(params?: {
