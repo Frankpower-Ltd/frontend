@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 test_images
+origin_dev_admin.service_utf8.ts
+origin_dev_admin.service.ts

@@ -30,8 +30,13 @@ export const ADMIN_COURSE_OUTLINE_QUERY_KEY = [
 export const ADMIN_SCHEDULES_QUERY_KEY = ["admin", "schedules"] as const;
 export const ADMIN_ASSIGNMENTS_QUERY_KEY = ["admin", "assignments"] as const;
 export const ADMIN_SUBMISSIONS_QUERY_KEY = ["admin", "submissions"] as const;
-export const ADMIN_PROGRAMS_MUTATION_KEY = ["admin", "programs"] as const;
+export const ADMIN_PROGRAMS_QUERY_KEY = ["admin", "programs"] as const;
 export const ADMIN_CERTIFICATES_QUERY_KEY = ["admin", "certificates"] as const;
+export const ADMIN_ANALYTICS_QUERY_KEY = ["admin", "analytics"] as const;
+export const ADMIN_ANALYTICS_RECENT_QUERY_KEY = [
+  "admin",
+  "analytics-recent",
+] as const;
 
 export const useAdminUsers = (params?: {
   offset?: number;
@@ -39,6 +44,7 @@ export const useAdminUsers = (params?: {
   search?: string;
   role?: string;
   status?: "active" | "inactive";
+  sort?: string;
 }) =>
   useQuery<PaginatedResponse<AdminUser>>({
     queryKey: [
@@ -48,6 +54,7 @@ export const useAdminUsers = (params?: {
       params?.search ?? "",
       params?.role ?? "all",
       params?.status ?? "all",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getUsers(params),
   });
@@ -78,6 +85,7 @@ export const useAdminApplications = (params?: {
   limit?: number;
   status?: string;
   search?: string;
+  sort?: string;
 }) =>
   useQuery<PaginatedResponse<Application>>({
     queryKey: [
@@ -86,6 +94,7 @@ export const useAdminApplications = (params?: {
       params?.limit ?? 10,
       params?.status ?? "all",
       params?.search ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getApplications(params),
   });
@@ -95,6 +104,7 @@ export const useAdminPayments = (params?: {
   limit?: number;
   status?: PaymentStatus;
   userId?: string;
+  sort?: string;
 }) =>
   useQuery<PaginatedResponse<UserPayment>>({
     queryKey: [
@@ -103,8 +113,24 @@ export const useAdminPayments = (params?: {
       params?.limit ?? 10,
       params?.status ?? "all",
       params?.userId ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getPayments(params),
+  });
+
+export const useAdminPrograms = (params?: {
+  search?: string;
+  programType?: "SIWES" | "ACADEMIC";
+  status?: "active" | "inactive";
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_PROGRAMS_QUERY_KEY,
+      params?.search ?? "",
+      params?.programType ?? "all",
+      params?.status ?? "all",
+    ],
+    queryFn: () => adminService.getPrograms(params),
   });
 
 export const useAdminCourses = (params?: {
@@ -112,6 +138,7 @@ export const useAdminCourses = (params?: {
   limit?: number;
   isActive?: boolean;
   search?: string;
+  sort?: string;
 }) =>
   useQuery<PaginatedResponse<Course>>({
     queryKey: [
@@ -120,6 +147,7 @@ export const useAdminCourses = (params?: {
       params?.limit ?? 10,
       params?.isActive ?? "all",
       params?.search ?? "",
+      params?.sort ?? "createdAt,desc",
     ],
     queryFn: () => adminService.getCourses(params),
   });
@@ -192,6 +220,34 @@ export const useAdminUserCertificates = (
     ],
     enabled: Boolean(userId),
     queryFn: () => adminService.getUserCertificates(userId as string, params),
+  });
+
+export const useAdminAnalytics = (params?: {
+  startDate?: string;
+  endDate?: string;
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_ANALYTICS_QUERY_KEY,
+      params?.startDate ?? "",
+      params?.endDate ?? "",
+    ],
+    queryFn: () => adminService.getAnalytics(params),
+  });
+
+export const useAdminRecentOverview = (params?: {
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+}) =>
+  useQuery({
+    queryKey: [
+      ...ADMIN_ANALYTICS_RECENT_QUERY_KEY,
+      params?.startDate ?? "",
+      params?.endDate ?? "",
+      params?.limit ?? 5,
+    ],
+    queryFn: () => adminService.getRecentOverview(params),
   });
 
 export const useUploadCertificate = () => {
@@ -464,11 +520,9 @@ export const useCreateAdminProgram = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ADMIN_PROGRAMS_MUTATION_KEY,
-    mutationFn: (payload: Parameters<typeof adminService.createProgram>[0]) =>
-      adminService.createProgram(payload),
+    mutationFn: adminService.createProgram,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["programs"] });
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
     },
   });
 };
@@ -485,7 +539,7 @@ export const useUpdateAdminProgram = () => {
       payload: Parameters<typeof adminService.updateProgram>[1];
     }) => adminService.updateProgram(programId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["programs"] });
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
     },
   });
 };
@@ -496,7 +550,7 @@ export const useActivateAdminProgram = () => {
   return useMutation({
     mutationFn: (programId: string) => adminService.activateProgram(programId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["programs"] });
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
     },
   });
 };
@@ -508,7 +562,7 @@ export const useDeactivateAdminProgram = () => {
     mutationFn: (programId: string) =>
       adminService.deactivateProgram(programId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["programs"] });
+      queryClient.invalidateQueries({ queryKey: ADMIN_PROGRAMS_QUERY_KEY });
     },
   });
 };

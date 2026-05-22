@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
   Application,
   ApplicationStatus,
@@ -11,7 +12,7 @@ import type {
   LessonSchedule,
   PaginatedResponse,
   PaymentStatus,
-  ProgramTypeKey,
+  Program,
   ResultSet,
   ScheduleType,
   StudentCourse,
@@ -96,14 +97,80 @@ export interface AssignmentPayload {
   isActive?: boolean;
 }
 
-export interface ProgramPayload {
-  title?: string;
+export interface CreateProgramPayload {
+  title: string;
   description?: string;
-  price?: number;
-  duration?: string;
-  currency?: string;
+  programType: "SIWES" | "ACADEMIC";
+  duration: string;
+  price: number;
+  currency?: "NGN" | "USD";
   isActive?: boolean;
-  programType?: ProgramTypeKey;
+}
+
+export interface UpdateProgramPayload extends Partial<CreateProgramPayload> {}
+
+export interface AdminProgramsQuery {
+  search?: string;
+  programType?: "SIWES" | "ACADEMIC";
+  status?: "active" | "inactive";
+}
+
+export interface AdminAnalyticsStats {
+  students: number;
+  activeCourses: number;
+  pendingApplications: number;
+  completedApplications: number;
+  revenue: number;
+  certificatesIssued: number;
+}
+
+export interface AdminAnalyticsResponse {
+  range: {
+    startDate: string;
+    endDate: string;
+  };
+  stats: AdminAnalyticsStats;
+}
+
+export interface AdminOverviewRecentUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentApplication {
+  id: string;
+  applicantName: string;
+  programTitle: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentPayment {
+  id: string;
+  studentName: string;
+  programTitle: string;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentCourse {
+  id: string;
+  title: string;
+  programTitle: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AdminOverviewRecentResponse {
+  recentUsers: AdminOverviewRecentUser[];
+  recentApplications: AdminOverviewRecentApplication[];
+  recentPayments: AdminOverviewRecentPayment[];
+  recentCourses: AdminOverviewRecentCourse[];
 }
 
 const DEFAULT_RESULT_SET: ResultSet = {
@@ -152,6 +219,7 @@ export const adminService = {
     search?: string;
     role?: string;
     status?: "active" | "inactive";
+    sort?: string;
   }): Promise<PaginatedResponse<AdminUser>> {
     const query = toQuery({
       offset: params?.offset,
@@ -159,6 +227,7 @@ export const adminService = {
       search: params?.search,
       role: params?.role,
       status: params?.status,
+      sort: params?.sort,
     });
 
     const response = await api.request<
@@ -297,12 +366,14 @@ export const adminService = {
     limit?: number;
     status?: string;
     search?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<Application>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       status: params?.status,
       search: params?.search,
+      sort: params?.sort,
     });
 
     const response = await api.request<Application[]>(
@@ -324,12 +395,14 @@ export const adminService = {
     limit?: number;
     status?: PaymentStatus;
     userId?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<UserPayment>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       status: params?.status,
       userId: params?.userId,
+      sort: params?.sort,
     });
 
     const response = await api.request<UserPayment[]>(
@@ -346,17 +419,80 @@ export const adminService = {
     };
   },
 
+  async getPrograms(params?: AdminProgramsQuery): Promise<Program[]> {
+    const query = toQuery({
+      search: params?.search,
+      programType: params?.programType,
+      status: params?.status,
+    });
+
+    const response = await api.request<Program[]>(
+      "/admin/programs" + query,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return response.data || [];
+  },
+
+  async createProgram(payload: CreateProgramPayload): Promise<void> {
+    const response = await api.request(
+      "/admin/programs",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async updateProgram(
+    programId: string,
+    payload: UpdateProgramPayload,
+  ): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId),
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async activateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId) + "/activate",
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async deactivateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      "/admin/programs/" + encodeURIComponent(programId),
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
   async getCourses(params?: {
     offset?: number;
     limit?: number;
     isActive?: boolean;
     search?: string;
+    sort?: string;
   }): Promise<PaginatedResponse<Course>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       isActive: params?.isActive,
       search: params?.search,
+      sort: params?.sort,
     });
 
     const response = await api.request<Course[]>(
@@ -652,59 +788,6 @@ export const adminService = {
     return response.data;
   },
 
-  async createProgram(
-    payload: Required<
-      Pick<
-        ProgramPayload,
-        "title" | "price" | "duration" | "currency" | "programType"
-      >
-    > &
-      ProgramPayload,
-  ): Promise<void> {
-    const response = await api.request(
-      "/admin/programs",
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      },
-      true,
-    );
-    ensureSuccess(response);
-  },
-
-  async updateProgram(
-    programId: string,
-    payload: ProgramPayload,
-  ): Promise<void> {
-    const response = await api.request(
-      `/admin/programs/${encodeURIComponent(programId)}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      },
-      true,
-    );
-    ensureSuccess(response);
-  },
-
-  async deactivateProgram(programId: string): Promise<void> {
-    const response = await api.request(
-      `/admin/programs/${encodeURIComponent(programId)}`,
-      { method: "DELETE" },
-      true,
-    );
-    ensureSuccess(response);
-  },
-
-  async activateProgram(programId: string): Promise<void> {
-    const response = await api.request(
-      `/admin/programs/${encodeURIComponent(programId)}/activate`,
-      { method: "PATCH" },
-      true,
-    );
-    ensureSuccess(response);
-  },
-
   async getUserCertificates(
     userId: string,
     params?: { courseId?: string },
@@ -739,6 +822,50 @@ export const adminService = {
     ensureSuccess(response);
     if (!response.data) {
       throw new Error("No data returned from server");
+    }
+    return response.data;
+  },
+
+  async getAnalytics(params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<AdminAnalyticsResponse> {
+    const query = toQuery({
+      startDate: params?.startDate,
+      endDate: params?.endDate,
+    });
+
+    const response = await api.request<AdminAnalyticsResponse>(
+      `/admin/analytics${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) {
+      throw new Error("No analytics data returned");
+    }
+    return response.data;
+  },
+
+  async getRecentOverview(params?: {
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+  }): Promise<AdminOverviewRecentResponse> {
+    const query = toQuery({
+      startDate: params?.startDate,
+      endDate: params?.endDate,
+      limit: params?.limit,
+    });
+
+    const response = await api.request<AdminOverviewRecentResponse>(
+      `/admin/analytics/recent${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) {
+      throw new Error("No recent overview data returned");
     }
     return response.data;
   },

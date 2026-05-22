@@ -1,16 +1,17 @@
 import AuthLayout from "@/components/layout/AuthLayout";
 import { RouteConstant } from "@/constants/routes";
-import AdminApplications from "@/pages/Admin/AdminApplications";
-import AdminAssignments from "@/pages/Admin/AdminAssignments";
-import AdminCertificates from "@/pages/Admin/AdminCertificates";
-import AdminCourses from "@/pages/Admin/AdminCourses";
-import AdminDashboard from "@/pages/Admin/AdminDashboard";
-import AdminLayout from "@/pages/Admin/AdminLayout";
-import AdminNotifications from "@/pages/Admin/AdminNotifications";
-import AdminPayments from "@/pages/Admin/AdminPayments";
-import AdminPrograms from "@/pages/Admin/AdminPrograms";
-import AdminSchedules from "@/pages/Admin/AdminSchedules";
-import AdminUsers from "@/pages/Admin/AdminUsers";
+import AdminApplications from "@/pages/admin/AdminApplications";
+import AdminAssignments from "@/pages/admin/AdminAssignments";
+import AdminCertificates from "@/pages/admin/AdminCertificates";
+import AdminCourses from "@/pages/admin/AdminCourses";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminLayout from "@/pages/admin/AdminLayout";
+import AdminNotifications from "@/pages/admin/AdminNotifications";
+import AdminPayments from "@/pages/admin/AdminPayments";
+import AdminPrograms from "@/pages/admin/AdminPrograms";
+import AdminSchedules from "@/pages/admin/AdminSchedules";
+import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminUsers from "@/pages/admin/AdminUsers";
 import AuthPageGuard from "@/pages/auth/AuthPageGuard";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import Login from "@/pages/auth/Login";
@@ -38,6 +39,7 @@ import Schedule from "@/pages/student/Schedule";
 import StudentCertificate from "@/pages/student/StudentCertificate";
 import StudentSettings from "@/pages/student/StudentSettings";
 import StudentsForm from "@/pages/student/StudentsForm";
+//import "react-day-picker/style.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 function App() {
@@ -108,6 +110,7 @@ function App() {
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="applications" element={<AdminApplications />} />
           <Route path="payments" element={<AdminPayments />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
         <Route
           path="/admin"

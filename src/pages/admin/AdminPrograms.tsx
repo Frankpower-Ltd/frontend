@@ -1,67 +1,80 @@
+import { Pencil, Plus, Power } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Edit, Layers, Plus, Power, PowerOff } from "lucide-react";
 
-import {
-  ChartPanel,
-  DonutChart,
-  HorizontalBarChart,
-} from "@/components/Admin/Charts";
 import {
   ActionMenu,
   DataTable,
   StatusBadge,
 } from "@/components/Admin/DataTable";
-import Modal from "@/components/custom/Modal";
+import EditProgramModal, {
+  type ProgramForm,
+} from "@/components/Admin/EditProgramModal";
+import ProgramStatusConfirmModal from "@/components/Admin/ProgramStatusConfirmModal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { usePrograms } from "@/hooks/use-programs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   useActivateAdminProgram,
+  useAdminPrograms,
   useCreateAdminProgram,
   useDeactivateAdminProgram,
   useUpdateAdminProgram,
 } from "@/hooks/use-admin";
-import { formatNaira } from "@/lib/student-flow";
 import type { Program, ProgramTypeKey } from "@/types/student-flow";
 
-type ProgramForm = {
-  id?: string;
-  title: string;
-  description: string;
-  price: string;
-  duration: string;
-  currency: string;
-  programType: ProgramTypeKey;
-  isActive: boolean;
-};
+type UIStatusFilter = "all" | "Active" | "Inactive";
+type UITypeFilter = "all" | ProgramTypeKey;
 
-const EMPTY_FORM: ProgramForm = {
+const INITIAL_FORM: ProgramForm = {
   title: "",
   description: "",
-  price: "",
+  programType: "ACADEMIC",
   duration: "",
+  price: 0,
   currency: "NGN",
-  programType: "SIWES",
   isActive: true,
 };
 
-const toForm = (program: Program): ProgramForm => ({
-  id: program.id,
-  title: program.title,
-  description: program.description || "",
-  price: String(program.price ?? ""),
-  duration: program.duration || "",
-  currency: program.currency || "NGN",
-  programType: program.programType,
-  isActive: program.isActive,
-});
+const toStatusFilter = (
+  status: UIStatusFilter,
+): "active" | "inactive" | undefined => {
+  if (status === "Active") return "active";
+  if (status === "Inactive") return "inactive";
+  return undefined;
+};
+
+const currencySymbol = () => "₦";
 
 const AdminPrograms = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<UITypeFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<UIStatusFilter>("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<ProgramForm>(EMPTY_FORM);
-  const programsQuery = usePrograms();
+  const [editing, setEditing] = useState<Program | null>(null);
+  const [confirmStatusChange, setConfirmStatusChange] = useState<{
+    program: Program;
+    nextStatus: "Active" | "Inactive";
+  } | null>(null);
+  const [form, setForm] = useState<ProgramForm>(INITIAL_FORM);
+
+  const programsQuery = useAdminPrograms({
+    search: searchQuery.trim() || undefined,
+    programType: typeFilter === "all" ? undefined : typeFilter,
+    status: toStatusFilter(statusFilter),
+  });
+
   const createProgram = useCreateAdminProgram();
   const updateProgram = useUpdateAdminProgram();
   const activateProgram = useActivateAdminProgram();
@@ -72,83 +85,53 @@ const AdminPrograms = () => {
     [programsQuery.data],
   );
 
-  const typeChartData = useMemo(
-    () => [
-      {
-        label: "SIWES",
-        value: programs.filter((program) => program.programType === "SIWES")
-          .length,
-        color: "#2563eb",
-      },
-      {
-        label: "Academic",
-        value: programs.filter((program) => program.programType === "ACADEMIC")
-          .length,
-        color: "#7c3aed",
-      },
-    ],
-    [programs],
-  );
-
-  const statusChartData = useMemo(
-    () => [
-      {
-        label: "Active",
-        value: programs.filter((program) => program.isActive).length,
-        color: "#059669",
-      },
-      {
-        label: "Inactive",
-        value: programs.filter((program) => !program.isActive).length,
-        color: "#d97706",
-      },
-    ],
-    [programs],
-  );
-
-  const pricingChartData = useMemo(
-    () =>
-      programs
-        .map((program) => ({
-          label: program.title,
-          value: program.price,
-        }))
-        .sort((first, second) => second.value - first.value),
-    [programs],
-  );
-
-  const isEditing = Boolean(form.id);
-  const isSaving = createProgram.isPending || updateProgram.isPending;
-
   const openCreate = () => {
-    setForm(EMPTY_FORM);
+    setEditing(null);
+    setForm(INITIAL_FORM);
     setOpen(true);
   };
 
   const openEdit = (program: Program) => {
-    setForm(toForm(program));
+    setEditing(program);
+    setForm({
+      title: program.title,
+      description: program.description || "",
+      programType: program.programType,
+      duration: program.duration,
+      price: Number(program.price || 0),
+      currency: "NGN",
+      isActive: Boolean(program.isActive),
+    });
     setOpen(true);
   };
 
   const save = async () => {
-    if (!form.title.trim() || !form.duration.trim() || !form.price.trim()) {
-      toast.error("Title, price, and duration are required");
+    if (!form.title.trim() || form.title.trim().length < 3) {
+      toast.error("Title must be at least 3 characters");
+      return;
+    }
+    if (!form.duration.trim()) {
+      toast.error("Duration is required");
+      return;
+    }
+    if (!form.price || form.price < 1) {
+      toast.error("Price must be greater than 0");
       return;
     }
 
     const payload = {
       title: form.title.trim(),
       description: form.description.trim() || undefined,
-      price: Number(form.price),
-      duration: form.duration.trim(),
-      currency: form.currency.trim() || "NGN",
       programType: form.programType,
+      duration: form.duration.trim(),
+      price: Number(form.price),
+      currency: "NGN" as const,
       isActive: form.isActive,
     };
 
     try {
-      if (form.id) {
-        await updateProgram.mutateAsync({ programId: form.id, payload });
+      if (editing) {
+        await updateProgram.mutateAsync({ programId: editing.id, payload });
         toast.success("Program updated");
       } else {
         await createProgram.mutateAsync(payload);
@@ -156,37 +139,50 @@ const AdminPrograms = () => {
       }
       setOpen(false);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to save program",
-      );
+      const message =
+        error instanceof Error ? error.message : "Unable to save program";
+      toast.error(message);
     }
   };
 
-  const toggleActive = async (program: Program) => {
+  const setStatus = async (program: Program, status: "Active" | "Inactive") => {
     try {
-      if (program.isActive) {
-        await deactivateProgram.mutateAsync(program.id);
-        toast.success("Program deactivated");
-      } else {
-        await activateProgram.mutateAsync(program.id);
-        toast.success("Program activated");
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to update program",
+      const mutate =
+        status === "Active"
+          ? activateProgram.mutateAsync
+          : deactivateProgram.mutateAsync;
+      await mutate(program.id);
+      toast.success(
+        `Program ${status === "Active" ? "activated" : "deactivated"}`,
       );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to update program status";
+      toast.error(message);
     }
   };
+
+  const handleConfirmStatusChange = async () => {
+    if (!confirmStatusChange) return;
+    await setStatus(
+      confirmStatusChange.program,
+      confirmStatusChange.nextStatus,
+    );
+    setConfirmStatusChange(null);
+  };
+
+  const isStatusActionPending =
+    activateProgram.isPending || deactivateProgram.isPending;
 
   return (
     <section className="mx-auto max-w-7xl space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Manage Programs
-          </h1>
+          <h1 className="text-xl font-semibold text-foreground">Programs</h1>
           <p className="text-sm text-muted-foreground">
-            Create, price, and publish learning programs
+            Manage SIWES and academic programs
           </p>
         </div>
         <Button onClick={openCreate}>
@@ -195,39 +191,51 @@ const AdminPrograms = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <ChartPanel
-          title="Program Type"
-          description="Loaded programs by category"
-        >
-          <DonutChart
-            data={typeChartData}
-            centerLabel="programs"
-            centerValue={String(programs.length)}
-          />
-        </ChartPanel>
-        <ChartPanel
-          title="Publish Status"
-          description="Active and inactive programs"
-        >
-          <HorizontalBarChart data={statusChartData} />
-        </ChartPanel>
-        <ChartPanel
-          title="Program Pricing"
-          description="Highest priced loaded programs"
-        >
-          <HorizontalBarChart
-            data={pricingChartData}
-            valueFormatter={formatNaira}
-          />
-        </ChartPanel>
-      </div>
-
-      <DataTable<Program>
+      <DataTable
         data={programs}
         rowKey={(program) => program.id}
-        searchPlaceholder="Search programs..."
-        searchKeys={["title", "description", "programType"]}
+        searchPlaceholder="Search by title or description..."
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        manualSearch
+        totalCount={programs.length}
+        page={1}
+        pageSize={10}
+        onPageChange={() => {}}
+        onPageSizeChange={() => {}}
+        toolbar={
+          <div className="flex items-center gap-2">
+            <Select
+              value={typeFilter}
+              onValueChange={(value) => setTypeFilter(value as UITypeFilter)}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="ACADEMIC">Academic</SelectItem>
+                <SelectItem value="SIWES">SIWES</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={statusFilter}
+              onValueChange={(value) =>
+                setStatusFilter(value as UIStatusFilter)
+              }
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
         emptyMessage={
           programsQuery.isLoading ? "Loading programs..." : "No programs found."
         }
@@ -236,24 +244,30 @@ const AdminPrograms = () => {
             key: "title",
             header: "Program",
             render: (program) => (
-              <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <Layers className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">{program.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {program.programType}{" "}
-                    <span aria-hidden="true">&middot;</span> {program.duration}
-                  </p>
-                </div>
+              <div>
+                <p className="font-medium text-foreground">{program.title}</p>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="max-w-[260px] cursor-default truncate text-xs text-muted-foreground">
+                        {program.description || "No description"}
+                      </p>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p>{program.description || "No description"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             ),
           },
+          { key: "programType", header: "Type" },
+          { key: "duration", header: "Duration" },
           {
             key: "price",
             header: "Price",
-            render: (program) => formatNaira(program.price),
+            render: (program) =>
+              `${currencySymbol()}${Number(program.price || 0).toLocaleString()}`,
           },
           {
             key: "isActive",
@@ -261,7 +275,7 @@ const AdminPrograms = () => {
             render: (program) => (
               <StatusBadge
                 label={program.isActive ? "Active" : "Inactive"}
-                tone={program.isActive ? "success" : "warning"}
+                tone={program.isActive ? "success" : "default"}
               />
             ),
           },
@@ -274,13 +288,17 @@ const AdminPrograms = () => {
                 items={[
                   {
                     label: "Edit",
-                    icon: Edit,
+                    icon: Pencil,
                     onClick: () => openEdit(program),
                   },
                   {
                     label: program.isActive ? "Deactivate" : "Activate",
-                    icon: program.isActive ? PowerOff : Power,
-                    onClick: () => toggleActive(program),
+                    icon: Power,
+                    onClick: () =>
+                      setConfirmStatusChange({
+                        program,
+                        nextStatus: program.isActive ? "Inactive" : "Active",
+                      }),
                   },
                 ]}
               />
@@ -289,79 +307,22 @@ const AdminPrograms = () => {
         ]}
       />
 
-      <Modal
+      <EditProgramModal
         open={open}
         onOpenChange={setOpen}
-        title={isEditing ? "Edit program" : "Create program"}
-        width="xl"
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={save} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save program"}
-            </Button>
-          </>
-        }
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input
-            placeholder="Program title"
-            value={form.title}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, title: e.target.value }))
-            }
-          />
-          <Input
-            placeholder="Duration"
-            value={form.duration}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, duration: e.target.value }))
-            }
-          />
-          <Input
-            type="number"
-            min="0"
-            placeholder="Price"
-            value={form.price}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, price: e.target.value }))
-            }
-          />
-          <select
-            value={form.programType}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                programType: e.target.value as ProgramTypeKey,
-              }))
-            }
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-          >
-            <option value="SIWES">SIWES</option>
-            <option value="ACADEMIC">ACADEMIC</option>
-          </select>
-          <Textarea
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, description: e.target.value }))
-            }
-            className="sm:col-span-2"
-          />
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={form.isActive}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, isActive: e.target.checked }))
-              }
-            />
-            Active program
-          </label>
-        </div>
-      </Modal>
+        isEditing={Boolean(editing)}
+        form={form}
+        onChange={setForm}
+        onSubmit={save}
+        isSubmitting={createProgram.isPending || updateProgram.isPending}
+      />
+
+      <ProgramStatusConfirmModal
+        target={confirmStatusChange}
+        onClose={() => setConfirmStatusChange(null)}
+        onConfirm={handleConfirmStatusChange}
+        isLoading={isStatusActionPending}
+      />
     </section>
   );
 };
