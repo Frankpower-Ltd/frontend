@@ -1,12 +1,23 @@
 import type {
   Application,
+  ApplicationStatus,
+  Assignment,
+  AssignmentSubmission,
+  AssignmentSubmissionStatus,
+  ClassPlatform,
   Course,
+  CourseModule,
+  CourseOutlineTree,
+  LessonSchedule,
   PaginatedResponse,
   PaymentStatus,
+  ProgramTypeKey,
   ResultSet,
+  ScheduleType,
   StudentCourse,
   StudentCertificate,
   UserPayment,
+  Weekday,
 } from "@/types/student-flow";
 import api from "@/utils/api";
 
@@ -34,6 +45,65 @@ export interface CreateAdminUserPayload {
   email: string;
   role?: string;
   phoneNumber?: string;
+}
+
+export interface CoursePayload {
+  programId?: string;
+  title: string;
+  description?: string;
+  orderIndex?: number;
+  isActive?: boolean;
+}
+
+export interface ModulePayload {
+  title: string;
+  description?: string;
+  orderIndex?: number;
+  isActive?: boolean;
+  outlines?: OutlinePayload[];
+}
+
+export interface OutlinePayload {
+  title: string;
+  description?: string;
+  orderIndex?: number;
+  children?: OutlinePayload[];
+}
+
+export interface SchedulePayload {
+  title?: string;
+  instructorName?: string;
+  scheduleType?: ScheduleType;
+  weekdays?: Weekday[];
+  sessionDate?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  platform?: ClassPlatform;
+  meetingLink?: string;
+  meetingId?: string;
+  passcode?: string;
+  isActive?: boolean;
+}
+
+export interface AssignmentPayload {
+  title?: string;
+  description?: string;
+  instructions?: string;
+  dueAt?: string;
+  maxScore?: number;
+  isActive?: boolean;
+}
+
+export interface ProgramPayload {
+  title?: string;
+  description?: string;
+  price?: number;
+  duration?: string;
+  currency?: string;
+  isActive?: boolean;
+  programType?: ProgramTypeKey;
 }
 
 const DEFAULT_RESULT_SET: ResultSet = {
@@ -205,6 +275,23 @@ export const adminService = {
     ensureSuccess(response);
   },
 
+  async updateApplicationStatus(
+    applicationId: string,
+    status: ApplicationStatus,
+  ): Promise<Application> {
+    const response = await api.request<Application>(
+      `/admin/applications/${encodeURIComponent(applicationId)}/status`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
   async getApplications(params?: {
     offset?: number;
     limit?: number;
@@ -284,6 +371,338 @@ export const adminService = {
       resultSet:
         (response.resultSet as ResultSet | undefined) || DEFAULT_RESULT_SET,
     };
+  },
+
+  async createCourse(payload: CoursePayload): Promise<CourseOutlineTree> {
+    const response = await api.request<CourseOutlineTree>(
+      "/admin/courses",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async updateCourse(
+    courseId: string,
+    payload: Omit<CoursePayload, "programId">,
+  ): Promise<void> {
+    const response = await api.request(
+      `/admin/courses/${encodeURIComponent(courseId)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async getCourseOutline(courseId: string): Promise<CourseOutlineTree> {
+    const response = await api.request<CourseOutlineTree>(
+      `/admin/courses/${encodeURIComponent(courseId)}/outline`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async createModule(
+    courseId: string,
+    payload: ModulePayload,
+  ): Promise<CourseModule> {
+    const response = await api.request<CourseModule>(
+      `/admin/courses/${encodeURIComponent(courseId)}/modules`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async updateModule(
+    courseId: string,
+    moduleId: string,
+    payload: Omit<ModulePayload, "outlines">,
+  ): Promise<void> {
+    const response = await api.request(
+      `/admin/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async replaceModuleOutline(
+    courseId: string,
+    moduleId: string,
+    outlines: OutlinePayload[],
+  ): Promise<CourseModule> {
+    const response = await api.request<CourseModule>(
+      `/admin/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}/outline`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ outlines }),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async createSchedule(
+    courseId: string,
+    payload: Required<
+      Pick<
+        SchedulePayload,
+        | "title"
+        | "instructorName"
+        | "scheduleType"
+        | "startTime"
+        | "endTime"
+        | "platform"
+        | "meetingLink"
+      >
+    > &
+      SchedulePayload,
+  ): Promise<LessonSchedule> {
+    const response = await api.request<LessonSchedule>(
+      `/admin/courses/${encodeURIComponent(courseId)}/schedules`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async getCourseSchedules(courseId: string): Promise<LessonSchedule[]> {
+    const response = await api.request<LessonSchedule[]>(
+      `/admin/courses/${encodeURIComponent(courseId)}/schedules`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return response.data || [];
+  },
+
+  async updateSchedule(
+    scheduleId: string,
+    payload: SchedulePayload,
+  ): Promise<LessonSchedule> {
+    const response = await api.request<LessonSchedule>(
+      `/admin/schedules/${encodeURIComponent(scheduleId)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async deleteSchedule(scheduleId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/schedules/${encodeURIComponent(scheduleId)}`,
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async toggleScheduleActive(scheduleId: string): Promise<LessonSchedule> {
+    const response = await api.request<LessonSchedule>(
+      `/admin/schedules/${encodeURIComponent(scheduleId)}/toggle-active`,
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async createAssignment(
+    courseId: string,
+    moduleId: string,
+    payload: Required<Pick<AssignmentPayload, "title" | "dueAt">> &
+      AssignmentPayload,
+  ): Promise<Assignment> {
+    const response = await api.request<Assignment>(
+      `/admin/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}/assignments`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async updateAssignment(
+    assignmentId: string,
+    payload: AssignmentPayload,
+  ): Promise<Assignment> {
+    const response = await api.request<Assignment>(
+      `/admin/assignments/${encodeURIComponent(assignmentId)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async getAssignments(params?: {
+    offset?: number;
+    limit?: number;
+    courseId?: string;
+    moduleId?: string;
+    isActive?: boolean;
+    search?: string;
+  }): Promise<PaginatedResponse<Assignment>> {
+    const query = toQuery({
+      offset: params?.offset,
+      limit: params?.limit,
+      courseId: params?.courseId,
+      moduleId: params?.moduleId,
+      isActive: params?.isActive,
+      search: params?.search,
+    });
+    const response = await api.request<Assignment[]>(
+      `/admin/assignments${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return {
+      data: response.data || [],
+      resultSet:
+        (response.resultSet as ResultSet | undefined) || DEFAULT_RESULT_SET,
+    };
+  },
+
+  async getAssignmentSubmissions(
+    assignmentId: string,
+    params?: {
+      offset?: number;
+      limit?: number;
+      status?: AssignmentSubmissionStatus;
+    },
+  ): Promise<PaginatedResponse<AssignmentSubmission>> {
+    const query = toQuery({
+      offset: params?.offset,
+      limit: params?.limit,
+      status: params?.status,
+    });
+    const response = await api.request<AssignmentSubmission[]>(
+      `/admin/assignments/${encodeURIComponent(assignmentId)}/submissions${query}`,
+      {},
+      true,
+    );
+    ensureSuccess(response);
+    return {
+      data: response.data || [],
+      resultSet:
+        (response.resultSet as ResultSet | undefined) || DEFAULT_RESULT_SET,
+    };
+  },
+
+  async reviewSubmission(
+    submissionId: string,
+    payload: {
+      score?: number;
+      feedback?: string;
+      status: "REVIEWED" | "NEEDS_RESUBMISSION";
+    },
+  ): Promise<AssignmentSubmission> {
+    const response = await api.request<AssignmentSubmission>(
+      `/admin/submissions/${encodeURIComponent(submissionId)}/review`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+    if (!response.data) throw new Error("No data returned from server");
+    return response.data;
+  },
+
+  async createProgram(
+    payload: Required<
+      Pick<
+        ProgramPayload,
+        "title" | "price" | "duration" | "currency" | "programType"
+      >
+    > &
+      ProgramPayload,
+  ): Promise<void> {
+    const response = await api.request(
+      "/admin/programs",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async updateProgram(
+    programId: string,
+    payload: ProgramPayload,
+  ): Promise<void> {
+    const response = await api.request(
+      `/admin/programs/${encodeURIComponent(programId)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async deactivateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/programs/${encodeURIComponent(programId)}`,
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
+  },
+
+  async activateProgram(programId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/programs/${encodeURIComponent(programId)}/activate`,
+      { method: "PATCH" },
+      true,
+    );
+    ensureSuccess(response);
   },
 
   async getUserCertificates(

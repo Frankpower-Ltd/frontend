@@ -4,13 +4,18 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import {
+  ChartPanel,
+  DonutChart,
+  HorizontalBarChart,
+} from "@/components/Admin/Charts";
+import {
   ActionMenu,
   DataTable,
   StatusBadge,
-} from "@/components/admin/DataTable";
+} from "@/components/Admin/DataTable";
 import CreateAdminUserModal, {
   type CreateAdminUserForm,
-} from "@/components/admin/CreateAdminUserModal";
+} from "@/components/Admin/CreateAdminUserModal";
 import AvatarV2 from "@/components/custom/AvatarV2";
 import ConfirmRemoveModal from "@/components/custom/ConfirmRemoveModal";
 import Modal from "@/components/custom/Modal";
@@ -127,6 +132,54 @@ const AdminUsers = () => {
     }));
   }, [usersQuery.data?.data]);
 
+  const roleChartData = useMemo(
+    () => [
+      {
+        label: "Students",
+        value: users.filter((user) => user.role === "Student").length,
+        color: "#2563eb",
+      },
+      {
+        label: "Admins",
+        value: users.filter((user) => user.role === "Admin").length,
+        color: "#7c3aed",
+      },
+    ],
+    [users],
+  );
+
+  const statusChartData = useMemo(
+    () => [
+      {
+        label: "Active",
+        value: users.filter((user) => user.status === "Active").length,
+        color: "#059669",
+      },
+      {
+        label: "Inactive",
+        value: users.filter((user) => user.status === "Inactive").length,
+        color: "#d97706",
+      },
+    ],
+    [users],
+  );
+
+  const verificationChartData = useMemo(
+    () => [
+      {
+        label: "Verified",
+        value: users.filter((user) => user.isVerified).length,
+        color: "#0891b2",
+      },
+      {
+        label: "Unverified",
+        value: users.filter((user) => !user.isVerified).length,
+        color: "#be123c",
+      },
+    ],
+    [users],
+  );
+
   const openCreate = () => {
     setForm(INITIAL_CREATE_FORM);
     setOpen(true);
@@ -218,7 +271,33 @@ const AdminUsers = () => {
         )}
       </div>
 
-      <DataTable
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ChartPanel title="Roles" description="Loaded users by account role">
+          <DonutChart
+            data={roleChartData}
+            centerLabel="users"
+            centerValue={String(users.length)}
+          />
+        </ChartPanel>
+        <ChartPanel
+          title="Account Status"
+          description="Active and inactive loaded users"
+        >
+          <HorizontalBarChart data={statusChartData} />
+        </ChartPanel>
+        <ChartPanel
+          title="Verification"
+          description="Verified account coverage"
+        >
+          <DonutChart
+            data={verificationChartData}
+            centerLabel="users"
+            centerValue={String(users.length)}
+          />
+        </ChartPanel>
+      </div>
+
+      <DataTable<UserRow>
         data={users}
         rowKey={(user) => user.backendId}
         searchPlaceholder="Search by name or email..."
