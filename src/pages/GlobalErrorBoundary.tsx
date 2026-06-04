@@ -130,7 +130,7 @@ const ErrorFallback = ({
             <p className="text-xs font-mono text-red-700 break-words">
               <span className="font-semibold">Error:</span> {error.message}
             </p>
-            {process.env.NODE_ENV === "development" && (
+            {import.meta.env.DEV && (
               <details className="mt-2 text-xs text-red-600">
                 <summary className="cursor-pointer font-semibold hover:text-red-700">
                   Stack Trace
