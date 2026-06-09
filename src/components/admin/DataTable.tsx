@@ -61,10 +61,10 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   pageSize?: number;
   pageSizeOptions?: number[];
-  totalCount: number;
-  page: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  totalCount?: number;
+  page?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
 }
 
 export function DataTable<T>({
@@ -81,10 +81,10 @@ export function DataTable<T>({
   onRowClick,
   pageSize = 10,
   pageSizeOptions = [10, 25, 50, 100],
-  totalCount,
-  page,
-  onPageChange,
-  onPageSizeChange,
+  totalCount = data.length,
+  page = 1,
+  onPageChange = () => {},
+  onPageSizeChange = () => {},
 }: DataTableProps<T>) {
   const query = searchValue ?? "";
 

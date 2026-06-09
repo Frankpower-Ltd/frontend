@@ -39,7 +39,7 @@ import Schedule from "@/pages/student/Schedule";
 import StudentCertificate from "@/pages/student/StudentCertificate";
 import StudentSettings from "@/pages/student/StudentSettings";
 import StudentsForm from "@/pages/student/StudentsForm";
-import "react-day-picker/style.css";
+//import "react-day-picker/style.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 function App() {
