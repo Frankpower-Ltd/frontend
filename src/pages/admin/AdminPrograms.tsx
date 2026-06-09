@@ -6,11 +6,11 @@ import {
   ActionMenu,
   DataTable,
   StatusBadge,
-} from "@/components/Admin/DataTable";
+} from "@/components/admin/DataTable";
 import EditProgramModal, {
   type ProgramForm,
-} from "@/components/Admin/EditProgramModal";
-import ProgramStatusConfirmModal from "@/components/Admin/ProgramStatusConfirmModal";
+} from "@/components/admin/EditProgramModal";
+import ProgramStatusConfirmModal from "@/components/admin/ProgramStatusConfirmModal";
 import { Button } from "@/components/ui/button";
 import {
   Select,

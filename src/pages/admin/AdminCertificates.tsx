@@ -1,13 +1,13 @@
+import { Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
 
 import {
   ChartPanel,
   DonutChart,
   HorizontalBarChart,
-} from "@/components/Admin/Charts";
-import { DataTable } from "@/components/Admin/DataTable";
+} from "@/components/admin/Charts";
+import { DataTable } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

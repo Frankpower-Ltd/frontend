@@ -1,17 +1,17 @@
+import { Edit, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Edit, Plus, Trash2 } from "lucide-react";
 
 import {
   ChartPanel,
   DonutChart,
   HorizontalBarChart,
-} from "@/components/Admin/Charts";
+} from "@/components/admin/Charts";
 import {
   ActionMenu,
   DataTable,
   StatusBadge,
-} from "@/components/Admin/DataTable";
+} from "@/components/admin/DataTable";
 import ConfirmRemoveModal from "@/components/custom/ConfirmRemoveModal";
 import Modal from "@/components/custom/Modal";
 import { Button } from "@/components/ui/button";

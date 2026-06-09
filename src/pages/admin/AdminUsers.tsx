@@ -5,12 +5,12 @@ import { toast } from "sonner";
 
 import CreateAdminUserModal, {
   type CreateAdminUserForm,
-} from "@/components/Admin/CreateAdminUserModal";
+} from "@/components/admin/CreateAdminUserModal";
 import {
   ActionMenu,
   DataTable,
   StatusBadge,
-} from "@/components/Admin/DataTable";
+} from "@/components/admin/DataTable";
 import AvatarV2 from "@/components/custom/AvatarV2";
 import ConfirmRemoveModal from "@/components/custom/ConfirmRemoveModal";
 import Modal from "@/components/custom/Modal";

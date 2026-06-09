@@ -4,8 +4,8 @@ import {
   ChartPanel,
   DonutChart,
   HorizontalBarChart,
-} from "@/components/Admin/Charts";
-import { DataTable, StatusBadge } from "@/components/Admin/DataTable";
+} from "@/components/admin/Charts";
+import { DataTable, StatusBadge } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdminPayments } from "@/hooks/use-admin";

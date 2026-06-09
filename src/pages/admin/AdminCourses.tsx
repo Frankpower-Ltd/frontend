@@ -1,17 +1,17 @@
+import { BookOpen, Edit, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { BookOpen, Edit, Plus } from "lucide-react";
 
 import {
   ChartPanel,
   DonutChart,
   HorizontalBarChart,
-} from "@/components/Admin/Charts";
+} from "@/components/admin/Charts";
 import {
   ActionMenu,
   DataTable,
   StatusBadge,
-} from "@/components/Admin/DataTable";
+} from "@/components/admin/DataTable";
 import Modal from "@/components/custom/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

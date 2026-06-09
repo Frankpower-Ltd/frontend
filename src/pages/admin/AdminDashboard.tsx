@@ -1,7 +1,7 @@
-import AdminOverviewDateControls from "@/components/Admin/AdminOverviewDateControls";
-import AdminOverviewRecentCard from "@/components/Admin/AdminOverviewRecentCard";
-import AdminOverviewStatCard from "@/components/Admin/AdminOverviewStatCard";
-import { StatusBadge } from "@/components/Admin/DataTable";
+import AdminOverviewDateControls from "@/components/admin/AdminOverviewDateControls";
+import AdminOverviewRecentCard from "@/components/admin/AdminOverviewRecentCard";
+import AdminOverviewStatCard from "@/components/admin/AdminOverviewStatCard";
+import { StatusBadge } from "@/components/admin/DataTable";
 import { RouteConstant } from "@/constants/routes";
 import { useAdminAnalytics, useAdminRecentOverview } from "@/hooks/use-admin";
 import { formatNaira } from "@/lib/student-flow";
