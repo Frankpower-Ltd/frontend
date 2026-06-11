@@ -543,7 +543,8 @@ const AdminAssignments = () => {
         onOpenChange={setOpen}
         title={editing ? "Edit assignment" : "New Assignment"}
         description="Configure assignment details"
-        width="xl"
+        width="4xl"
+        contentClassName="max-h-[90vh] overflow-y-auto w-full"
         footer={
           <>
             <Button variant="outline" onClick={() => setOpen(false)}>
@@ -562,7 +563,7 @@ const AdminAssignments = () => {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className="space-y-4 pr-1">
           {editing ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
@@ -593,7 +594,7 @@ const AdminAssignments = () => {
                   setAssignmentForm((prev) => ({ ...prev, courseId: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
@@ -660,6 +661,8 @@ const AdminAssignments = () => {
                     description: e.target.value,
                   }))
                 }
+                placeholder="Brief description about the assignment"
+                className="bg-white"
               />
             </div>
             <div className="sm:col-span-2">
@@ -673,11 +676,13 @@ const AdminAssignments = () => {
                     instructions: e.target.value,
                   }))
                 }
+                placeholder="Detailed instructions for students (optional)"
+                className="bg-white"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-border p-3">
+          <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-white">
             <div>
               <p className="text-sm font-medium">Active</p>
               <p className="text-xs text-muted-foreground">

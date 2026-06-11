@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +6,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
-type ModalWidth = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+type ModalWidth = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 const widthClassMap: Record<ModalWidth, string> = {
   sm: "max-w-sm",
@@ -18,6 +18,7 @@ const widthClassMap: Record<ModalWidth, string> = {
   xl: "max-w-xl",
   "2xl": "max-w-2xl",
   "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
 };
 
 interface ModalProps {
