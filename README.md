@@ -2,6 +2,10 @@
 
 A web-based platform that enables students to apply for both SIWES Internship programs and Academic courses (such as Cybersecurity, Web Development, Data Analytics, and UI/UX). Students are also issued a certificate upon completion of any of the programs.
 
+## API Documentation
+
+For detailed API documentation, please visit: [API Documentation](https://documenter.getpostman.com/view/17470911/2sB3WsQKi9)
+
 ## Getting Started with Vite + React
 
 This section will guide you through setting up the project locally.
@@ -10,6 +14,7 @@ This section will guide you through setting up the project locally.
 
 - Node.js (v18.x or later recommended)
 - npm, yarn, or pnpm
+
 
 ### Setup
 
@@ -106,3 +111,4 @@ If any of these checks fail, the commit will be aborted. This process helps main
 ### Pull Requests
 
 Once your work is complete, has passed the tests, and you have pushed your branch, you can open a pull request to merge your changes into the **`dev`** branch. The `main` branch is reserved for production-ready code.
+
