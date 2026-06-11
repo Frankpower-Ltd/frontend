@@ -75,6 +75,12 @@ const AdminLayout = () => {
         href: RouteConstant.adminAssignments,
       },
       {
+        name: "Applications",
+        icon: FileText,
+        href: RouteConstant.adminApplications,
+      },
+      { name: "Payments", icon: CreditCard, href: RouteConstant.adminPayments },
+      {
         name: "Certificates",
         icon: Layers,
         href: RouteConstant.adminCertificates,
@@ -84,12 +90,6 @@ const AdminLayout = () => {
         icon: Bell,
         href: RouteConstant.adminNotifications,
       },
-      {
-        name: "Applications",
-        icon: FileText,
-        href: RouteConstant.adminApplications,
-      },
-      { name: "Payments", icon: CreditCard, href: RouteConstant.adminPayments },
     ],
     [],
   );

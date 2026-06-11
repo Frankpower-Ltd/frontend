@@ -215,14 +215,17 @@ export interface StudentCertificate {
 }
 
 export interface UserPayment {
+  id?: string;
   reference: string;
   programTitle?: string;
   programType?: ProgramTypeKey;
+  applicationId?: string;
   amount: number;
   currency: string;
   status: PaymentStatus;
   provider: PaymentProvider;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface NotificationItem {

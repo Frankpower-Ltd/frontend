@@ -7,10 +7,10 @@ import { useAdminAnalytics, useAdminRecentOverview } from "@/hooks/use-admin";
 import { formatNaira } from "@/lib/student-flow";
 import { shortLocale } from "@/utils/helper";
 import {
-  endOfMonth,
+  endOfQuarter,
   format,
   formatDistanceToNow,
-  startOfMonth,
+  startOfQuarter,
 } from "date-fns";
 import {
   Award,
@@ -80,9 +80,9 @@ const AdminDashboard = () => {
   const now = new Date();
 
   const [dateFrom, setDateFrom] = useState(
-    format(startOfMonth(now), "yyyy-MM-dd"),
+    format(startOfQuarter(now), "yyyy-MM-dd"),
   );
-  const [dateTo, setDateTo] = useState(format(endOfMonth(now), "yyyy-MM-dd"));
+  const [dateTo, setDateTo] = useState(format(endOfQuarter(now), "yyyy-MM-dd"));
 
   const analyticsQuery = useAdminAnalytics({
     startDate: dateFrom,
