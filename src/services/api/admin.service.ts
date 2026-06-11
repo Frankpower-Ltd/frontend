@@ -678,12 +678,10 @@ export const adminService = {
 
   async createAssignment(
     courseId: string,
-    moduleId: string,
-    payload: Required<Pick<AssignmentPayload, "title" | "dueAt">> &
-      AssignmentPayload,
+    payload: AssignmentPayload & { title: string },
   ): Promise<Assignment> {
     const response = await api.request<Assignment>(
-      `/admin/courses/${encodeURIComponent(courseId)}/modules/${encodeURIComponent(moduleId)}/assignments`,
+      `/admin/courses/${encodeURIComponent(courseId)}/assignments`,
       {
         method: "POST",
         body: JSON.stringify(payload),
@@ -710,6 +708,15 @@ export const adminService = {
     ensureSuccess(response);
     if (!response.data) throw new Error("No data returned from server");
     return response.data;
+  },
+
+  async deleteAssignment(assignmentId: string): Promise<void> {
+    const response = await api.request(
+      `/admin/assignments/${encodeURIComponent(assignmentId)}`,
+      { method: "DELETE" },
+      true,
+    );
+    ensureSuccess(response);
   },
 
   async getAssignments(params?: {
@@ -747,12 +754,14 @@ export const adminService = {
       offset?: number;
       limit?: number;
       status?: AssignmentSubmissionStatus;
+      search?: string;
     },
   ): Promise<PaginatedResponse<AssignmentSubmission>> {
     const query = toQuery({
       offset: params?.offset,
       limit: params?.limit,
       status: params?.status,
+      search: params?.search,
     });
     const response = await api.request<AssignmentSubmission[]>(
       `/admin/assignments/${encodeURIComponent(assignmentId)}/submissions${query}`,

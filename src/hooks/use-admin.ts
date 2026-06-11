@@ -193,6 +193,7 @@ export const useAdminAssignmentSubmissions = (
     offset?: number;
     limit?: number;
     status?: AssignmentSubmissionStatus;
+    search?: string;
   },
 ) =>
   useQuery<PaginatedResponse<AssignmentSubmission>>({
@@ -202,6 +203,7 @@ export const useAdminAssignmentSubmissions = (
       params?.offset ?? 0,
       params?.limit ?? 10,
       params?.status ?? "all",
+      params?.search ?? "",
     ],
     enabled: Boolean(assignmentId),
     queryFn: () =>
@@ -467,15 +469,26 @@ export const useCreateAdminAssignment = () => {
   return useMutation({
     mutationFn: ({
       courseId,
-      moduleId,
       payload,
     }: {
       courseId: string;
-      moduleId: string;
-      payload: Parameters<typeof adminService.createAssignment>[2];
-    }) => adminService.createAssignment(courseId, moduleId, payload),
+      payload: Parameters<typeof adminService.createAssignment>[1];
+    }) => adminService.createAssignment(courseId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_ASSIGNMENTS_QUERY_KEY });
+    },
+  });
+};
+
+export const useDeleteAdminAssignment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (assignmentId: string) =>
+      adminService.deleteAssignment(assignmentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_ASSIGNMENTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ADMIN_SUBMISSIONS_QUERY_KEY });
     },
   });
 };
