@@ -81,7 +81,7 @@ const moneyFormatter = (amount: number, currency?: string) => {
 };
 
 const csvEscape = (value: string | number | undefined | null) =>
-  `"${String(value ?? "").replaceAll('"', '""')}"`;
+  `"${String(value ?? "").replace(/"/g, '""')}"`;
 
 const AdminPayments = () => {
   const [statusFilter, setStatusFilter] = useState<PaymentFilter>("all");
